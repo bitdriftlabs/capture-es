@@ -27,6 +27,8 @@ RCT_EXPORT_METHOD(init:(NSString*)apiKey
   ];
 }
 
+#else
+
 RCT_EXPORT_METHOD(init:(NSString*)apiKey
   options:(JS::NativeBdReactNative::SpecInitOptions &)options)
 {

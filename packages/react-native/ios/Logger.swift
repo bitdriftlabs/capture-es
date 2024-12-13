@@ -12,7 +12,7 @@ import Capture
         let integrator = Capture.Logger.start(
             withAPIKey: key,
             sessionStrategy: SessionStrategy.fixed(),
-            apiURL: URL(string: url)!
+            apiURL: URL(string: url ?? "https://api.bitdrift.io")!
         )
 
         if enableNetworkInstrumentation {
