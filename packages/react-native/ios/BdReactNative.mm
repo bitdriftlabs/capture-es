@@ -32,10 +32,13 @@ RCT_EXPORT_METHOD(init:(NSString*)apiKey
 RCT_EXPORT_METHOD(init:(NSString*)apiKey
   options:(JS::NativeBdReactNative::SpecInitOptions &)options)
 {
-  [CAPRNLogger 
+  BOOL enableNetworkInstrumentation = options.enableNetworkInstrumentation().has_value() ?
+    options.enableNetworkInstrumentation().value() : false;
+
+  [CAPRNLogger
     startWithKey:apiKey
     url:options.url()
-    enableNetworkInstrumentation:options.enableNetworkInstrumentation()
+    enableNetworkInstrumentation:enableNetworkInstrumentation
   ];
 }
 
