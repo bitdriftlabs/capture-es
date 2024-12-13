@@ -107,3 +107,4 @@ web-build/
 cache/
 examples/expo/ios
 examples/expo/android
+.env
