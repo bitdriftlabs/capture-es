@@ -9,9 +9,12 @@
     "react-native": "*",
     "expo": "*",
     "react-native-svg": "*",
-    "react-native-web": "*"
+    "react-native-web": "*",
+    "react": "18.2.0"
   },
   "scripts": {
-    "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . examples/expo"
+    "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . examples/expo",
+    "android": "expo run:android",
+    "ios": "expo run:ios"
   }
 }
