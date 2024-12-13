@@ -25,7 +25,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
   override fun init(key: String, options: ReadableMap?) {
-    val apiUrl = options?.getString("apiUrl")
+    val apiUrl = options?.getString("url")
 
     if (apiUrl != null) {
       Capture.Logger.start(apiKey = key, apiUrl = apiUrl.toHttpUrl(), sessionStrategy = SessionStrategy.Fixed())
