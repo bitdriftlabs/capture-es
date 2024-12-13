@@ -1,4 +1,6 @@
 /* eslint-disable jsx-a11y/accessible-emoji */
+import '../lib/bitdrift'; // Must be near the top
+
 import React, { useRef, useState } from 'react';
 import {
   SafeAreaView,

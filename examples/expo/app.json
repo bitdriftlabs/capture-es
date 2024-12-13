@@ -30,6 +30,7 @@
       "bundler": "metro"
     },
     "plugins": [
+      "../../dist/react-native/app.plugin.js",
       [
         "expo-build-properties",
         {
