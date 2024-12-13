@@ -30,7 +30,7 @@
     "@nx/eslint-plugin": "20.1.0",
     "@nx/expo": "^20.2.2",
     "@nx/jest": "20.1.0",
-    "@nx/js": "20.1.0",
+    "@nx/js": "20.2.2",
     "@nx/node": "20.1.0",
     "@nx/react-native": "^20.1.0",
     "@nx/web": "20.1.0",
@@ -52,6 +52,7 @@
     "@typescript-eslint/eslint-plugin": "^8.14.0",
     "@typescript-eslint/parser": "^8.14.0",
     "babel-jest": "^29.7.0",
+    "babel-preset-expo": "~11.0.0",
     "cargo-cp-artifact": "^0.1",
     "del-cli": "^6.0.0",
     "electron": ">=33",
@@ -65,6 +66,7 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "jest-environment-node": "^29.7.0",
+    "jest-expo": "~51.0.2",
     "jest-react-native": "18.0.0",
     "nx": "^20.1.0",
     "prettier": "^3.3.3",
@@ -78,12 +80,17 @@
     "release-it": "^17.10.0",
     "ts-jest": "^29.2.5",
     "ts-node": "10.9.2",
+    "tslib": "^2.3.0",
     "turbo": "^2.2.3",
     "typescript": "~5.6.3",
     "verdaccio": "^5.0.4"
   },
   "dependencies": {
+    "@expo/metro-config": "~0.18.1",
+    "@expo/metro-runtime": "~3.2.1",
     "expo": "~51.0.8",
+    "expo-splash-screen": "~0.27.4",
+    "expo-status-bar": "~1.12.1",
     "react-dom": "18.2.0"
   }
 }
