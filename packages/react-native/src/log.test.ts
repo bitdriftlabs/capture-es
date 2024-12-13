@@ -1,3 +1,5 @@
+/* eslint-disable no-useless-escape */
+
 // capture-es - bitdrift's ES SDK
 // Copyright Bitdrift, Inc. All rights reserved.
 //
