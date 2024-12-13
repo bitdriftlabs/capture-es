@@ -24,14 +24,14 @@ const BdReactNative = BdReactNativeModule
         get() {
           throw new Error(LINKING_ERROR);
         },
-      }
+      },
     );
 
 export function init(
   key: string,
   options?: { url?: string; enableNetworkInstrumentation?: boolean },
 ): void {
-  return BdReactNative.init(key, options)
+  return BdReactNative.init(key, options);
 }
 
 export function trace(message: string, fields?: LogFields): void {
