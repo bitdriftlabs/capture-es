@@ -17,19 +17,25 @@ import okhttp3.HttpUrl.Companion.toHttpUrl
 class BdReactNativeModule internal constructor(context: ReactApplicationContext):
   BdReactNativeSpec(context) {
 
-  fun getName(): String {
+  override fun getName(): String {
     return NAME
   }
 
   // Example method
   // See https://reactnative.dev/docs/native-modules-android
   @ReactMethod
-  fun init(key: String, url: String) {
-    Capture.Logger.start(apiKey = key, apiUrl = url.toHttpUrl(), sessionStrategy = SessionStrategy.Fixed())
+  override fun init(key: String, options: ReadableMap?) {
+    val apiUrl = options?.getString("apiUrl")
+
+    if (apiUrl != null) {
+      Capture.Logger.start(apiKey = key, apiUrl = apiUrl.toHttpUrl(), sessionStrategy = SessionStrategy.Fixed())
+    } else {
+      Capture.Logger.start(apiKey = key, sessionStrategy = SessionStrategy.Fixed())
+    }
   }
 
   @ReactMethod
-  fun log(level: Double, message: String, jsFields: ReadableMap?) {
+  override fun log(level: Double, message: String, jsFields: ReadableMap?) {
     val fields = jsFields?.toHashMap()?.mapValues { it.value.toString() } ?: emptyMap()
 
     when (level) {
