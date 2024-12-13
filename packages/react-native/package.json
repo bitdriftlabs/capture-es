@@ -79,7 +79,10 @@
   "codegenConfig": {
     "name": "RNBdReactNativeSpec",
     "type": "modules",
-    "jsSrcsDir": "src"
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.bdreactnative"
+    }
   },
   "react-native-builder-bob": {
     "source": "src",
