@@ -8,15 +8,6 @@
 import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
 
-export type Serializable =
-  | string
-  | number
-  | boolean
-  | null
-  | undefined
-  | Serializable[]
-  | { [key: string]: Serializable };
-
 export type LogFields = { [key: string]: string };
 
 export interface Spec extends TurboModule {
