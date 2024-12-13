@@ -24,7 +24,7 @@ const BdReactNative = BdReactNativeModule
         get() {
           throw new Error(LINKING_ERROR);
         },
-      },
+      }
     );
 
 export function init(
