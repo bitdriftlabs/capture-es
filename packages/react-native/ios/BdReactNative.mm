@@ -14,13 +14,23 @@ RCT_EXPORT_METHOD(log:(double)level
 #ifndef RCT_NEW_ARCH_ENABLED
 
 RCT_EXPORT_METHOD(init:(NSString*)apiKey
-    apiURL:(NSString*)apiURL)
+      options:(NSDictionary*)options)
 {
-  [CAPLogger 
-    startWithAPIKey:apiKey
-    sessionStrategy:[CAPSessionStrategy activityBased]
-    apiURL:[NSURL URLWithString:apiURL]
-  ];
+  NSString *apiURL = options[@"url"];
+
+  if (apiURL != NULL) {
+    [CAPLogger
+      startWithAPIKey:apiKey
+      sessionStrategy:[CAPSessionStrategy activityBased]
+      apiURL:[NSURL URLWithString:apiURL]
+    ];
+  } else {
+    [CAPLogger
+      startWithAPIKey:apiKey
+      sessionStrategy:[CAPSessionStrategy activityBased]
+      apiURL:[NSURL URLWithString:@"https://api.bitdrift.io/"]
+    ];
+  }
 }
 
 #else
