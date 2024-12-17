@@ -12,6 +12,13 @@
         "projects": ["@bitdrift/react-native"],
         "params": "ignore"
       }]
+    },
+    "prebuild": {
+      "dependsOn": [{
+        "target": "TODOrelease",
+        "projects": ["@bitdrift/react-native"],
+        "params": "ignore"
+      }]
     }
   }
 }
