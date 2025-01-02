@@ -80,5 +80,6 @@ export async function generateDeviceCode(): Promise<string> {
     body,
   })
     .then((res) => res.json())
+    .then((data) => data.code)
     .catch((err) => err);
 }
