@@ -30,6 +30,16 @@ import Capture
     }
 
     @objc
+    public static func getDeviceID(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
+        let deviceID = Capture.Logger.deviceID
+        if !deviceID.isEmpty {
+            resolve(deviceID)
+        } else {
+            resolve("Unknown")
+        }
+    }
+
+    @objc
     public static func log(_ level: Double, message: String, fields: [String: String]) {
         switch level {
         case 0.0:
