@@ -21,6 +21,7 @@ import {
 } from '@bitdrift/react-native';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
+import { InfoBlock } from './components/InfoBlock';
 
 const LOG_LEVELS = new Map([
   ['info', info],
@@ -29,6 +30,11 @@ const LOG_LEVELS = new Map([
   ['error', error],
   ['warn', warn],
 ]);
+
+const hasAPIKeyConfigured = Boolean(
+  process.env.EXPO_PUBLIC_BITDRIFT_API_KEY &&
+    process.env.EXPO_PUBLIC_BITDRIFT_API_URL,
+);
 
 const sendRandomRequest = async () => {
   const endpoints = [
@@ -76,6 +82,13 @@ const HomeScreen = () => {
       <Text style={styles.title}>
         @bitdrift/react-native Expo Integration Example
       </Text>
+
+      {!hasAPIKeyConfigured && (
+        <InfoBlock
+          warning
+          message="Please configure your Bitdrift API Key and URL in your .env file to see logs in the Bitdrift dashboard."
+        />
+      )}
 
       <View style={styles.inlineContainer}>
         <Pressable

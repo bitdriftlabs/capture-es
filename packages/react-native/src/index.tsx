@@ -74,7 +74,6 @@ export async function getDeviceID(): Promise<string> {
  */
 export async function generateDeviceCode(): Promise<string> {
   const deviceId = await getDeviceID();
-  console.log({ api_key, api_url, deviceId });
   const body = JSON.stringify({ device_id: deviceId });
 
   return fetch(`${api_url}:443/v1/device/code`, {
