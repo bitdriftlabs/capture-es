@@ -4,6 +4,7 @@ export default {
   expo: {
     name: 'ExpoExample',
     slug: 'expo-example',
+    entryPoint: 'expo-router/entry',
     version: '1.0.0',
     orientation: 'portrait',
     icon: './assets/icon.png',
@@ -32,7 +33,8 @@ export default {
       bundler: 'metro',
     },
     plugins: [
-      '../../dist/react-native/app.plugin.js',
+      'expo-router',
+      '../../dist/react-native/app.plugin.js', // In a real project, this would be '@bitdrift/react-native'
       [
         'expo-build-properties',
         {

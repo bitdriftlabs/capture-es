@@ -1,24 +1,34 @@
 /* eslint-disable jsx-a11y/accessible-emoji */
 import '../lib/bitdrift'; // Must be near the top
 
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
-  ScrollView,
   View,
   Text,
   StatusBar,
-  TouchableOpacity,
-  Linking,
-  Button,
-  TextInput,
-  Switch,
   Pressable,
+  ToastAndroid,
 } from 'react-native';
-import Svg, { G, Path } from 'react-native-svg';
-import { generateDeviceCode, debug, error } from '@bitdrift/react-native';
+import {
+  generateDeviceCode,
+  info,
+  debug,
+  trace,
+  error,
+  warn,
+} from '@bitdrift/react-native';
 import axios from 'axios';
+import { Picker } from '@react-native-picker/picker';
+
+const LOG_LEVELS = new Map([
+  ['info', info],
+  ['debug', debug],
+  ['trace', trace],
+  ['error', error],
+  ['warn', warn],
+]);
 
 const sendRandomRequest = async () => {
   const endpoints = [
@@ -29,26 +39,31 @@ const sendRandomRequest = async () => {
     endpoints[Math.floor(Math.random() * endpoints.length)];
   try {
     const response = await axios.get(randomEndpoint);
-    debug('Random Request Response:', response.data);
+    console.log('Random Request Response:', response.data);
   } catch (err: any) {
-    error('Error making random request:', err);
+    console.log('Error making random request:', err);
   }
 };
 
 const HomeScreen = () => {
+  const [selectedLogLevel, setSelectedLogLevel] = useState(
+    LOG_LEVELS.keys().next().value,
+  );
   const [temporaryDeviceCode, setTemporaryDeviceCode] = useState<string | null>(
     null,
   );
-  const [selectedSeverity, setSelectedSeverity] = useState('info');
-  const [logMessage, setLogMessage] = useState('');
 
   const logMessageHandler = () => {
-    console.log(
-      `[${selectedSeverity.toUpperCase()}]: ${logMessage || 'Default log message'}`,
-    );
-    alert(
-      `Logged: ${selectedSeverity.toUpperCase()} - ${logMessage || 'Default log message'}`,
-    );
+    if (selectedLogLevel) {
+      const log = LOG_LEVELS.get(selectedLogLevel);
+      log?.(`[${selectedLogLevel.toUpperCase()}]: Log emitted`, {
+        randomNumber: Math.random(),
+      });
+      ToastAndroid.show(
+        `Logged: [${selectedLogLevel.toUpperCase()}]: Log emitted`,
+        ToastAndroid.SHORT,
+      );
+    }
   };
 
   const handleGenerateTemporaryDeviceCode = async () => {
@@ -62,17 +77,22 @@ const HomeScreen = () => {
         @bitdrift/react-native Expo Integration Example
       </Text>
 
-      <Pressable
-        style={({ pressed }) => [styles.button, pressed && styles.buttonActive]}
-        onPress={handleGenerateTemporaryDeviceCode}
-      >
-        <Text style={styles.buttonText}>Generate Temporary Device Code</Text>
-      </Pressable>
-      {temporaryDeviceCode && (
-        <Text selectable style={{ marginVertical: 10 }}>
-          {temporaryDeviceCode}
-        </Text>
-      )}
+      <View style={styles.inlineContainer}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonActive,
+          ]}
+          onPress={handleGenerateTemporaryDeviceCode}
+        >
+          <Text style={styles.buttonText}>Generate Temporary Device Code</Text>
+        </Pressable>
+        {temporaryDeviceCode && (
+          <Text selectable style={{ margin: 10 }}>
+            {temporaryDeviceCode}
+          </Text>
+        )}
+      </View>
 
       <Pressable
         style={({ pressed }) => [styles.button, pressed && styles.buttonActive]}
@@ -80,14 +100,32 @@ const HomeScreen = () => {
       >
         <Text style={styles.buttonText}>Send Random REST Request</Text>
       </Pressable>
+
+      <View style={styles.inlineContainer}>
+        <Picker
+          selectedValue={selectedLogLevel}
+          onValueChange={(value) => setSelectedLogLevel(value)}
+          style={styles.picker}
+        >
+          {Array.from(LOG_LEVELS.keys()).map((level) => (
+            <Picker.Item key={level} label={level} value={level} />
+          ))}
+        </Picker>
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonActive,
+          ]}
+          onPress={logMessageHandler}
+        >
+          <Text style={styles.buttonText}>Log</Text>
+        </Pressable>
+      </View>
     </View>
   );
 };
 
 export const App = () => {
-  const [whatsNextYCoord, setWhatsNextYCoord] = useState<number>(0);
-  const scrollViewRef = useRef<null | ScrollView>(null);
-
   return (
     <>
       <StatusBar barStyle="dark-content" />
@@ -106,6 +144,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  inlineContainer: {
+    flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -131,6 +174,8 @@ const styles = StyleSheet.create({
     height: 50,
     width: 200,
     marginVertical: 10,
+    marginRight: 10,
+    backgroundColor: '#ccc',
   },
   input: {
     borderWidth: 1,
