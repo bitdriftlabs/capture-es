@@ -67,6 +67,10 @@ export async function getDeviceID(): Promise<string> {
   return NativeBdReactNative.getDeviceID();
 }
 
+/**
+ * Generate a device code for the current device. Useful for streaming logs from a specific device using {@link https://docs.bitdrift.dev/cli/quickstart.html#log-tailing|bd tail}.
+ * @returns The device code for the current device.
+ */
 export async function generateDeviceCode(): Promise<string> {
   const deviceId = await getDeviceID();
   const body = JSON.stringify({ device_id: deviceId });
