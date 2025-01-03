@@ -1,5 +1,4 @@
-import { init, debug } from '@bitdrift/react-native';
-import { SessionStrategy } from 'packages/react-native/src/NativeBdReactNative';
+import { init, debug, SessionStrategy } from '@bitdrift/react-native';
 
 const BITDRIFT_API_KEY = process.env.EXPO_PUBLIC_BITDRIFT_API_KEY;
 const BITDRIFT_API_URL = process.env.EXPO_PUBLIC_BITDRIFT_API_URL;
