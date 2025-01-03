@@ -10,7 +10,10 @@ import { TurboModuleRegistry } from 'react-native';
 
 export type LogFields = { [key: string]: string };
 export type SessionStrategy = 'activity' | 'fixed';
-export type InitOptions = { url?: string; enableNetworkInstrumentation?: boolean };
+export type InitOptions = {
+  url?: string;
+  enableNetworkInstrumentation?: boolean;
+};
 
 export interface Spec extends TurboModule {
   init(
@@ -18,7 +21,10 @@ export interface Spec extends TurboModule {
     sessionStrategy: SessionStrategy,
     options?: InitOptions,
   ): void;
+
   log(level: number, message: string, fields?: LogFields): void;
+
+  setField(key: string, value: string): void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('BdReactNative');

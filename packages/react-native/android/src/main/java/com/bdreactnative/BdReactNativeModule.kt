@@ -48,6 +48,11 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     }
   }
 
+  @ReactMethod
+  override fun setField(key: String, value: String) {
+    Capture.Logger.setField(key, value)
+  }
+
   companion object {
     const val NAME = "BdReactNative"
   }

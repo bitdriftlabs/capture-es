@@ -1,5 +1,10 @@
 import { NativeModules, Platform } from 'react-native';
-import { log, type SerializableLogFields } from './log';
+import {
+  log,
+  type SerializableLogFields,
+  type Serializable,
+  serialize,
+} from './log';
 import { InitOptions, SessionStrategy } from './NativeBdReactNative';
 
 const LINKING_ERROR =
@@ -31,7 +36,7 @@ const BdReactNative = BdReactNativeModule
 export function init(
   key: string,
   sessionStrategy: SessionStrategy,
-  options?: InitOptions
+  options?: InitOptions,
 ): void {
   return BdReactNative.init(key, sessionStrategy, options);
 }
@@ -54,4 +59,9 @@ export function warn(message: string, fields?: SerializableLogFields): void {
 
 export function error(message: string, fields?: SerializableLogFields): void {
   return log(4, message, fields);
+}
+
+/// Set a field to be included in all future log messages. Calling this multiple times for the same key will overwrite the previous value.
+export function setField(key: string, value: Serializable): void {
+  return BdReactNative.setField(key, serialize(value));
 }

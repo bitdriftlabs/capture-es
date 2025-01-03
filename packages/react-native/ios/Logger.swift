@@ -20,7 +20,7 @@ import Capture
 
         let integrator = Capture.Logger.start(
             withAPIKey: key,
-            sessionStrategy: strategy
+            sessionStrategy: strategy,
             apiURL: URL(string: url ?? "https://api.bitdrift.io")!
         )
 
@@ -45,5 +45,10 @@ import Capture
         default:
             return
         }
+    }
+
+    @objc
+    public static func setField(_ key: String, value: String) {
+        Capture.Logger.setField(key, value: value)
     }
 }

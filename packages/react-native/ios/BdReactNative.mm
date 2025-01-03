@@ -12,6 +12,12 @@ RCT_EXPORT_METHOD(log:(double)level
   [CAPLogger logWithLevel:LogLevel(level) message:message fields:fields];
 }
 
+RCT_EXPORT_METHOD(setField:(NSString*)key
+      value:(NSString*)value)
+{
+  [CAPRNLogger setFieldWithKey:key value:value];
+}
+
 #ifndef RCT_NEW_ARCH_ENABLED
 
 RCT_EXPORT_METHOD(init:(NSString*)apiKey
