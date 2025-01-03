@@ -9,7 +9,6 @@ import {
   Text,
   StatusBar,
   Pressable,
-  ToastAndroid,
 } from 'react-native';
 import {
   generateDeviceCode,
@@ -22,6 +21,7 @@ import {
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
 import { InfoBlock } from './components/InfoBlock';
+import { showToast } from './utils/showToast';
 
 const LOG_LEVELS = new Map([
   ['info', info],
@@ -65,10 +65,7 @@ const HomeScreen = () => {
       log?.(`[${selectedLogLevel.toUpperCase()}]: Log emitted`, {
         randomNumber: Math.random(),
       });
-      ToastAndroid.show(
-        `Logged: [${selectedLogLevel.toUpperCase()}]: Log emitted`,
-        ToastAndroid.SHORT,
-      );
+      showToast(`Logged: [${selectedLogLevel.toUpperCase()}]: Log emitted`);
     }
   };
 
