@@ -1,4 +1,4 @@
-const newArchEnabled = process.env.NEW_ARCH === 'true';
+const newArchEnabled = true;
 
 export default {
   expo: {
@@ -33,12 +33,15 @@ export default {
       bundler: 'metro',
     },
     plugins: [
-      [
-        '../../dist/react-native/app.plugin.js',
-        {
-          networkInstrumentation: true,
-        },
-      ], // In a real project, this would be '@bitdrift/react-native'
+      newArchEnabled
+        ? [
+            '../../dist/react-native/app.plugin.js',
+            {
+              networkInstrumentation: true,
+            },
+          ]
+        : '../../dist/react-native/app.plugin.js', // In a real project, this would be '@bitdrift/react-native'
+      ,
       [
         'expo-build-properties',
         {
