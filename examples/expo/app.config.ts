@@ -33,15 +33,12 @@ export default {
       bundler: 'metro',
     },
     plugins: [
-      newArchEnabled
-        ? [
-            '../../dist/react-native/app.plugin.js',
-            {
-              networkInstrumentation: true,
-            },
-          ]
-        : '../../dist/react-native/app.plugin.js', // In a real project, this would be '@bitdrift/react-native'
-      ,
+      [
+        '../../dist/react-native/app.plugin.js', // In a real project, this would be '@bitdrift/react-native'
+        {
+          networkInstrumentation: true,
+        },
+      ],
       [
         'expo-build-properties',
         {

@@ -22,7 +22,7 @@ export interface Spec extends TurboModule {
     options?: InitOptions,
   ): void;
   log(level: number, message: string, fields?: LogFields): void;
-  getDeviceID(): string;
+  getDeviceID(): Promise<string>;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('BdReactNative');
