@@ -36,7 +36,7 @@ export default {
       [
         '../../dist/react-native/app.plugin.js',
         {
-          enableNetworkInstrumentation: true,
+          networkInstrumentation: true,
         },
       ], // In a real project, this would be '@bitdrift/react-native'
       [
