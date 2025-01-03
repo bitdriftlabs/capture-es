@@ -37,13 +37,8 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
   }
 
   @ReactMethod
-  override fun getDeviceID(promise: Promise) {
-    val deviceId = Capture.Logger.deviceId
-    if (deviceId != null) {
-        promise.resolve(deviceId)
-    } else {
-        promise.resolve("Unknown")
-    }
+  override fun getDeviceID(): String {
+    return (Capture.Logger.deviceId ?: "Unknown Device").toString()
   }
 
   @ReactMethod

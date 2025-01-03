@@ -64,7 +64,7 @@ export function error(message: string, fields?: SerializableLogFields): void {
 }
 
 /** Set a field to be included in all future log messages. Calling this multiple times for the same key will overwrite the previous value. */
-export async function getDeviceID(): Promise<string> {
+export function getDeviceID(): string {
   return NativeBdReactNative.getDeviceID();
 }
 
@@ -73,7 +73,7 @@ export async function getDeviceID(): Promise<string> {
  * @returns The device code for the current device.
  */
 export async function generateDeviceCode(): Promise<string> {
-  const deviceId = await getDeviceID();
+  const deviceId = getDeviceID();
   const body = JSON.stringify({ device_id: deviceId });
 
   return fetch(`${api_url}:443/v1/device/code`, {

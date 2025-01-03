@@ -20,7 +20,7 @@ import Capture
 
         let integrator = Capture.Logger.start(
             withAPIKey: key,
-            sessionStrategy: strategy
+            sessionStrategy: strategy,
             apiURL: URL(string: url ?? "https://api.bitdrift.io")!
         )
 
@@ -30,13 +30,8 @@ import Capture
     }
 
     @objc
-    public static func getDeviceID(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        let deviceID = Capture.Logger.deviceID
-        if !deviceID.isEmpty {
-            resolve(deviceID)
-        } else {
-            resolve("Unknown")
-        }
+    public static func getDeviceID() -> String {
+        return Capture.Logger.deviceId ?? "Unknown Device"
     }
 
     @objc
