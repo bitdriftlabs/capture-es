@@ -12,6 +12,12 @@ RCT_EXPORT_METHOD(log:(double)level
   [CAPLogger logWithLevel:LogLevel(level) message:message fields:fields];
 }
 
+RCT_EXPORT_METHOD(getDeviceID:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+{
+  [CAPRNLogger getDeviceID:resolve rejecter:reject];
+}
+
 #ifndef RCT_NEW_ARCH_ENABLED
 
 RCT_EXPORT_METHOD(init:(NSString*)apiKey
