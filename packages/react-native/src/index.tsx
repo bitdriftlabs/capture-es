@@ -74,18 +74,22 @@ export async function getDeviceID(): Promise<string> {
  * @returns The device code for the current device.
  */
 export async function generateDeviceCode(): Promise<string> {
-  const deviceId = await getDeviceID();
-  const body = JSON.stringify({ device_id: deviceId });
+  try {
+    const deviceId = await getDeviceID();
+    const body = JSON.stringify({ device_id: deviceId });
 
-  return fetch(`${api_url}:443/v1/device/code`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-bitdrift-api-key': api_key,
-    },
-    body,
-  })
-    .then((res) => res.json())
-    .then((data) => data.code)
-    .catch((err) => err.message ?? 'Error generating device code');
+    return fetch(`${api_url}:443/v1/device/code`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-bitdrift-api-key': api_key,
+      },
+      body,
+    })
+      .then((res) => res.json())
+      .then((data) => data.code)
+      .catch((err) => err.message ?? 'Error generating device code');
+  } catch {
+    return 'Error generating device code';
+  }
 }

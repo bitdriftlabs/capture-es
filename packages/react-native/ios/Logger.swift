@@ -31,7 +31,12 @@ import Capture
 
     @objc
     public static func getDeviceID(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        resolve(Capture.Logger.deviceID ?? "Unknown")
+        let deviceID = Capture.Logger.deviceID
+        if (deviceID == nil) {
+            reject("device_id_undefined", "Device ID is undefined", nil)
+            return
+        }
+        resolve(deviceID)
     }
 
     @objc

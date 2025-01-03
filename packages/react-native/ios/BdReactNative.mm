@@ -15,7 +15,18 @@ RCT_EXPORT_METHOD(log:(double)level
 RCT_EXPORT_METHOD(getDeviceID:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 {
-  [CAPRNLogger getDeviceID:resolve rejecter:reject];
+  [CAPRNLogger getDeviceID:^(NSString *deviceID) {
+    if (deviceID == nil || [deviceID isEqual:[NSNull null]] || [deviceID isEqualToString:@""]) {
+      NSError *error = [NSError errorWithDomain:@"CAPRNLogger"
+                                           code:404
+                                       userInfo:@{NSLocalizedDescriptionKey: @"Device ID is undefined"}];
+      reject(@"device_id_undefined", @"Device ID is undefined", error);
+    } else {
+      resolve(deviceID);
+    }
+  } rejecter:^(NSString *code, NSString *message, NSError *error) {
+    reject(code, message, error);
+  }];
 }
 
 #ifndef RCT_NEW_ARCH_ENABLED

@@ -42,7 +42,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     if (deviceId != null) {
         promise.resolve(deviceId)
     } else {
-        promise.resolve("Unknown")
+        promise.reject("device_id_undefined", "Device ID is undefined")
     }
   }
 
