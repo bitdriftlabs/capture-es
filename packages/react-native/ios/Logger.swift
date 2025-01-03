@@ -11,16 +11,16 @@ import Capture
     @objc public static func start(key: String, sessionStrategy: String, url: String?, enableNetworkInstrumentation: Bool) {
         let strategy = switch sessionStrategy {
             case "fixed":
-                return SessionStrategy.fixed()
+                SessionStrategy.fixed()
             case "activity":
-                return SessionStrategy.activity()
+                SessionStrategy.activityBased()
             default:
-                return SessionStrategy.fixed()
+                SessionStrategy.fixed()
         }
 
         let integrator = Capture.Logger.start(
             withAPIKey: key,
-            sessionStrategy: strategy
+            sessionStrategy: strategy,
             apiURL: URL(string: url ?? "https://api.bitdrift.io")!
         )
 
@@ -31,12 +31,7 @@ import Capture
 
     @objc
     public static func getDeviceID(_ resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        let deviceID = Capture.Logger.deviceID
-        if !deviceID.isEmpty {
-            resolve(deviceID)
-        } else {
-            resolve("Unknown")
-        }
+        resolve(Capture.Logger.deviceID ?? "Unknown")
     }
 
     @objc

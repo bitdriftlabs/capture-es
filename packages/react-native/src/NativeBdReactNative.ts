@@ -9,7 +9,7 @@ import type { TurboModule } from 'react-native';
 import { TurboModuleRegistry } from 'react-native';
 
 export type LogFields = { [key: string]: string };
-export type SessionStrategy = 'activity' | 'fixed';
+export enum SessionStrategy { Activity, Fixed };
 export type InitOptions = { url?: string; enableNetworkInstrumentation?: boolean };
 
 export interface Spec extends TurboModule {
