@@ -1,4 +1,4 @@
-const newArchEnabled = true;
+const newArchEnabled = process.env.NEW_ARCH !== 'false';
 
 export default {
   expo: {
