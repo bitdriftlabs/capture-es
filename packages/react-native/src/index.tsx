@@ -35,7 +35,7 @@ const BdReactNative = BdReactNativeModule
 export function init(
   key: string,
   sessionStrategy: SessionStrategy,
-  options?: InitOptions
+  options?: InitOptions,
 ): void {
   api_url = options?.url ?? 'api.bitdrift.io';
   api_key = key;
@@ -63,6 +63,7 @@ export function error(message: string, fields?: SerializableLogFields): void {
   return log(4, message, fields);
 }
 
+/** Set a field to be included in all future log messages. Calling this multiple times for the same key will overwrite the previous value. */
 export async function getDeviceID(): Promise<string> {
   return NativeBdReactNative.getDeviceID();
 }
@@ -73,6 +74,7 @@ export async function getDeviceID(): Promise<string> {
  */
 export async function generateDeviceCode(): Promise<string> {
   const deviceId = await getDeviceID();
+  console.log({ api_key, api_url, deviceId });
   const body = JSON.stringify({ device_id: deviceId });
 
   return fetch(`${api_url}:443/v1/device/code`, {
@@ -85,5 +87,5 @@ export async function generateDeviceCode(): Promise<string> {
   })
     .then((res) => res.json())
     .then((data) => data.code)
-    .catch((err) => err);
+    .catch((err) => err.message ?? 'Error generating device code');
 }
