@@ -2,6 +2,7 @@ import { NativeModules, Platform } from 'react-native';
 import { log, type SerializableLogFields } from './log';
 import { InitOptions, SessionStrategy } from './NativeBdReactNative';
 import NativeBdReactNative from './NativeBdReactNative';
+export { SessionStrategy } from './NativeBdReactNative';
 
 let api_url: string;
 let api_key: string;
