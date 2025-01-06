@@ -27,7 +27,7 @@ export interface Spec extends TurboModule {
 
   log(level: number, message: string, fields?: LogFields): void;
 
-  setField(key: string, value: string): void;
+  addField(key: string, value: string): void;
 
   getDeviceID(): Promise<string>;
 }

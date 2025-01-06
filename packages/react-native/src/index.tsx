@@ -1,10 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
-import {
-  log,
-  type SerializableLogFields,
-  type Serializable,
-  serialize,
-} from './log';
+import { log, type SerializableLogFields } from './log';
 import { InitOptions, SessionStrategy } from './NativeBdReactNative';
 import NativeBdReactNative from './NativeBdReactNative';
 export { SessionStrategy } from './NativeBdReactNative';
@@ -69,4 +64,37 @@ export function error(message: string, fields?: SerializableLogFields): void {
   return log(4, message, fields);
 }
 
+/** Adds a field to be included in all future log messages. Calling this multiple times for the same key will overwrite the previous value. */
+export function addField(key: string, value: string): void {
+  return NativeBdReactNative.addField(key, value);
 }
+
+export async function getDeviceID(): Promise<string> {
+  return NativeBdReactNative.getDeviceID();
+}
+
+/**
+ * Generate a device code for the current device. Useful for streaming logs from a specific device using {@link https://docs.bitdrift.dev/cli/quickstart.html#log-tailing|bd tail}.
+ * @returns The device code for the current device.
+ */
+export async function generateDeviceCode(): Promise<string> {
+  try {
+    const deviceId = await getDeviceID();
+    const body = JSON.stringify({ device_id: deviceId });
+
+    return fetch(`${api_url}:443/v1/device/code`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-bitdrift-api-key': api_key,
+      },
+      body,
+    })
+      .then((res) => res.json())
+      .then((data) => data.code)
+      .catch((err) => err.message ?? 'Error generating device code');
+  } catch {
+    return 'Error generating device code';
+  }
+}
+

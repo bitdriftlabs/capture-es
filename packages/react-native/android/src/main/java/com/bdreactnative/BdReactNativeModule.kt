@@ -60,8 +60,8 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
   }
 
   @ReactMethod
-  override fun setField(key: String, value: String) {
-    Capture.Logger.setField(key, value)
+  override fun addField(key: String, value: String) {
+    Capture.Logger.addField(key, value)
   }
 
   companion object {

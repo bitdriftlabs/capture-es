@@ -58,7 +58,7 @@ import Capture
     }
 
     @objc
-    public static func setField(_ key: String, value: String) {
-        Capture.Logger.setField(key, value: value)
+    public static func addField(_ key: String, value: String) {
+        Capture.Logger.addField(withKey: key, value: value)
     }
 }
