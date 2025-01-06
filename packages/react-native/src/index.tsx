@@ -97,4 +97,3 @@ export async function generateDeviceCode(): Promise<string> {
     return 'Error generating device code';
   }
 }
-
