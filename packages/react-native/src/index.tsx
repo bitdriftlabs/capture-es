@@ -6,6 +6,11 @@ import {
   serialize,
 } from './log';
 import { InitOptions, SessionStrategy } from './NativeBdReactNative';
+import NativeBdReactNative from './NativeBdReactNative';
+export { SessionStrategy } from './NativeBdReactNative';
+
+let api_url: string;
+let api_key: string;
 
 const LINKING_ERROR =
   `The package '@bitdrift/react-native' doesn't seem to be linked. Make sure: \n\n` +
@@ -38,6 +43,9 @@ export function init(
   sessionStrategy: SessionStrategy,
   options?: InitOptions,
 ): void {
+  api_url = options?.url ?? 'api.bitdrift.io';
+  api_key = key;
+
   return BdReactNative.init(key, sessionStrategy, options);
 }
 
@@ -61,7 +69,4 @@ export function error(message: string, fields?: SerializableLogFields): void {
   return log(4, message, fields);
 }
 
-/// Set a field to be included in all future log messages. Calling this multiple times for the same key will overwrite the previous value.
-export function setField(key: string, value: Serializable): void {
-  return BdReactNative.setField(key, serialize(value));
 }
