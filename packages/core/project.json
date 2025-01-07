@@ -44,6 +44,15 @@
           "command": "cargo test"
       }
     },
+    "test:js": {
+      "dependsOn": ["build:rs"],
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "./packages/core/jest.config.ts",
+        "passWithNoTests": true
+      }
+    },
     "test:artifacts:js": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
@@ -59,8 +68,7 @@
       }
     },
     "test": {
-        "dependsOn": ["build:rs", "test:rs", "test:artifacts:js"],
-        "parallel": false
+        "dependsOn": ["test:rs", "test:js"]
     },
     "prepare-release": {
       "executor": "nx:run-commands",
