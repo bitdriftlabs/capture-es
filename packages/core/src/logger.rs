@@ -30,14 +30,9 @@ use std::hash::{DefaultHasher, Hash, Hasher};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-// TODO(snowp): This is very similar setup to envoy, we should refactor this into a helper
-// potentially.
-
 //
 // RustLogger
 //
-
-const PLATFORM: Platform = Platform::Other("electron", "electron");
 
 pub struct RustLogger {
   _logger: bd_logger::Logger,
@@ -57,7 +52,6 @@ impl RustLogger {
     os_version: String,
     locale: String,
   ) -> anyhow::Result<Self> {
-    let (tx, rx) = tokio::sync::oneshot::channel();
     let sdk_directory = PathBuf::from(sdk_directory);
 
     let storage = Box::new(DiskStorage::new(sdk_directory.join("storage"))?);
@@ -69,55 +63,47 @@ impl RustLogger {
       Arc::new(UUIDCallbacks),
     )));
     let session_strategy_clone = session_strategy.clone();
+    let shutdown = bd_shutdown::ComponentShutdownTrigger::default();
+
+    let (network, handle) =
+      bd_hyper_network::HyperNetwork::new(&api_address, shutdown.make_shutdown());
+
+    let metadata_provider = Arc::new(MetadataProvider::new(
+      app_id.clone(),
+      app_version.clone(),
+      os,
+      os_version,
+      locale,
+    ));
+
+    let static_metadata = Arc::new(StaticMetadata::new(
+      app_id.clone(),
+      app_version.clone(),
+      // TODO(snowp): This hard codes electron for now, we may want to make this derived from the
+      // env so that we can have this code work for both electron apps and other node-based
+      // programs.
+      &Platform::Electron,
+    ));
+
+    // TODO(snowp): Error handling
+
+    let (logger, _, logger_future) = bd_logger::LoggerBuilder::new(InitParams {
+      sdk_directory,
+      api_key,
+      session_strategy: session_strategy_clone,
+      store,
+      metadata_provider,
+      resource_utilization_target: Box::new(EmptyTarget),
+      session_replay_target: Box::new(EmptyTarget),
+      events_listener_target: Box::new(EmptyTarget),
+      device: device_clone,
+      network: Box::new(handle),
+      static_metadata,
+    })
+    .with_mobile_features(true)
+    .build()?;
 
     std::thread::spawn(move || {
-      let shutdown = bd_shutdown::ComponentShutdownTrigger::default();
-
-      let (network, handle) =
-        bd_hyper_network::HyperNetwork::new(&api_address, shutdown.make_shutdown());
-
-      let metadata_provider = Arc::new(MetadataProvider::new(
-        app_id.clone(),
-        app_version.clone(),
-        os,
-        os_version,
-        locale,
-      ));
-
-      let static_metadata = Arc::new(StaticMetadata::new(
-        app_id.clone(),
-        app_version.clone(),
-        // TODO(snowp): This hard codes electron for now, we may want to make this derived from the
-        // env so that we can have this code work for both electron apps and other node-based
-        // programs.
-        // We set both the OS and kind to electron for now, arguably OS should use the system OS
-        // but we don't use this for anything right now. Using electron avoids conflating this with
-        // ios/android platforms.
-        &PLATFORM,
-      ));
-
-      // TODO(snowp): Error handling
-
-      let (logger, _, logger_future) = bd_logger::LoggerBuilder::new(InitParams {
-        sdk_directory,
-        api_key,
-        session_strategy: session_strategy_clone,
-        store,
-        metadata_provider,
-        resource_utilization_target: Box::new(EmptyTarget),
-        session_replay_target: Box::new(EmptyTarget),
-        events_listener_target: Box::new(EmptyTarget),
-        device: device_clone,
-        network: Box::new(handle),
-        platform: PLATFORM,
-        static_metadata,
-      })
-      .with_mobile_features(true)
-      .build()
-      .unwrap();
-
-      let _ignored = tx.send(logger);
-
       tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
@@ -129,7 +115,6 @@ impl RustLogger {
         });
     });
 
-    let logger = rx.blocking_recv().unwrap();
     let handle = logger.new_logger_handle();
 
     Ok(Self {
@@ -259,11 +244,24 @@ impl bd_metadata::Metadata for StaticMetadata {
   }
 
   fn sdk_version(&self) -> &'static str {
+    // TODO(snowp): Figure out the story for electron for SDK version.
     "0.1.0"
   }
 
   fn platform(&self) -> &Platform {
     self.platform
+  }
+
+  fn os(&self) -> String {
+    if cfg!(target_os = "macos") {
+      "macos".to_string()
+    } else if cfg!(target_os = "linux") {
+      "linux".to_string()
+    } else if cfg!(target_os = "windows") {
+      "windows".to_string()
+    } else {
+      "unknown".to_string()
+    }
   }
 }
 
