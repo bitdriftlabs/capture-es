@@ -112,6 +112,7 @@ impl RustLogger {
           .unwrap()
           .block_on(async {
             // Make sure we hold onto the shutdown handle to avoid an immediate shutdown.
+            #[allow(clippy::no_effect_underscore_binding)]
             let _shutdown = shutdown;
 
             tokio::spawn(network.start());
