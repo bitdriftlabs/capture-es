@@ -12,15 +12,15 @@
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
+use bd_client_common::error::handle_unexpected;
 use bd_key_value::Storage;
 use bd_logger::{
   AnnotatedLogField,
   AnnotatedLogFields,
   InitParams,
-  LogField,
-  LogFieldKind,
   LogLevel,
   LogType,
+  LoggerBuilder,
 };
 use bd_metadata::Platform;
 use bd_session::fixed::{self, UUIDCallbacks};
@@ -85,9 +85,7 @@ impl RustLogger {
       &Platform::Electron,
     ));
 
-    // TODO(snowp): Error handling
-
-    let (logger, _, logger_future) = bd_logger::LoggerBuilder::new(InitParams {
+    let (logger, _, logger_future) = LoggerBuilder::new(InitParams {
       sdk_directory,
       api_key,
       session_strategy: session_strategy_clone,
@@ -103,17 +101,21 @@ impl RustLogger {
     .with_mobile_features(true)
     .build()?;
 
-    std::thread::spawn(move || {
-      tokio::runtime::Builder::new_current_thread()
-        .enable_all()
-        .build()
-        .unwrap()
-        .block_on(async {
-          tokio::spawn(network.start());
+    std::thread::Builder::new()
+      .name("io.bitdrift.capture.logger".to_string())
+      .spawn(move || {
+        tokio::runtime::Builder::new_current_thread()
+          .thread_name("io.bitdrift.capture.logger")
+          .thread_name_fn(|| "io.bitdrift.capture.logger.worker".to_string())
+          .enable_all()
+          .build()
+          .unwrap()
+          .block_on(async {
+            tokio::spawn(network.start());
+            handle_unexpected(logger_future.await, "logger top level run loop");
+          });
+      })?;
 
-          logger_future.await.unwrap();
-        });
-    });
 
     let handle = logger.new_logger_handle();
 
@@ -179,41 +181,11 @@ impl bd_logger::MetadataProvider for MetadataProvider {
 
   fn fields(&self) -> anyhow::Result<bd_logger::AnnotatedLogFields> {
     Ok(vec![
-      AnnotatedLogField {
-        field: LogField {
-          key: "app_id".to_string(),
-          value: self.app_id.clone().into(),
-        },
-        kind: LogFieldKind::Ootb,
-      },
-      AnnotatedLogField {
-        field: LogField {
-          key: "app_version".to_string(),
-          value: self.app_version.clone().into(),
-        },
-        kind: LogFieldKind::Ootb,
-      },
-      AnnotatedLogField {
-        field: LogField {
-          key: "os".to_string(),
-          value: self.os.clone().into(),
-        },
-        kind: LogFieldKind::Ootb,
-      },
-      AnnotatedLogField {
-        field: LogField {
-          key: "os_version".to_string(),
-          value: self.os_version.clone().into(),
-        },
-        kind: LogFieldKind::Ootb,
-      },
-      AnnotatedLogField {
-        field: LogField {
-          key: "_locale".to_string(),
-          value: self.locale.clone().into(),
-        },
-        kind: LogFieldKind::Ootb,
-      },
+      AnnotatedLogField::new_ootb("app_id".to_string(), self.app_id.clone().into()),
+      AnnotatedLogField::new_ootb("app_version".to_string(), self.app_version.clone().into()),
+      AnnotatedLogField::new_ootb("os".to_string(), self.os.clone().into()),
+      AnnotatedLogField::new_ootb("os_version".to_string(), self.os_version.clone().into()),
+      AnnotatedLogField::new_ootb("_locale".to_string(), self.locale.clone().into()),
     ])
   }
 }

@@ -681,6 +681,7 @@ name = "core"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bd-client-common",
  "bd-device",
  "bd-events",
  "bd-hyper-network",
