@@ -45,7 +45,7 @@ impl Logger {
     Ok(Self {
       inner: RustLogger::new(
         api_key,
-        api_address,
+        &api_address,
         sdk_directory,
         app_id,
         app_version,

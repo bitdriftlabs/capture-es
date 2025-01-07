@@ -44,7 +44,7 @@ pub struct RustLogger {
 impl RustLogger {
   pub fn new(
     api_key: String,
-    api_address: String,
+    api_address: &str,
     sdk_directory: String,
     app_id: String,
     app_version: String,
@@ -77,12 +77,12 @@ impl RustLogger {
     ));
 
     let static_metadata = Arc::new(StaticMetadata::new(
-      app_id.clone(),
-      app_version.clone(),
+      app_id,
+      app_version,
       // TODO(snowp): This hard codes electron for now, we may want to make this derived from the
       // env so that we can have this code work for both electron apps and other node-based
       // programs.
-      &Platform::Electron,
+      Platform::Electron,
     ));
 
     let (logger, _, logger_future) = LoggerBuilder::new(InitParams {
@@ -193,11 +193,11 @@ impl bd_logger::MetadataProvider for MetadataProvider {
 struct StaticMetadata {
   app_id: String,
   app_version: String,
-  platform: &'static Platform,
+  platform: Platform,
 }
 
 impl StaticMetadata {
-  pub const fn new(app_id: String, app_version: String, platform: &'static Platform) -> Self {
+  pub const fn new(app_id: String, app_version: String, platform: Platform) -> Self {
     Self {
       app_id,
       app_version,
@@ -221,7 +221,7 @@ impl bd_metadata::Metadata for StaticMetadata {
   }
 
   fn platform(&self) -> &Platform {
-    self.platform
+    &self.platform
   }
 
   fn os(&self) -> String {
