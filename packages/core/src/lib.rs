@@ -32,6 +32,7 @@ pub struct Logger {
 #[napi]
 impl Logger {
   #[napi(constructor)]
+  #[allow(clippy::needless_pass_by_value)]
   pub fn new(
     api_key: String,
     api_address: String,

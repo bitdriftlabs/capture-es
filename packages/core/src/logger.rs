@@ -66,7 +66,7 @@ impl RustLogger {
     let shutdown = bd_shutdown::ComponentShutdownTrigger::default();
 
     let (network, handle) =
-      bd_hyper_network::HyperNetwork::new(&api_address, shutdown.make_shutdown());
+      bd_hyper_network::HyperNetwork::new(api_address, shutdown.make_shutdown());
 
     let metadata_provider = Arc::new(MetadataProvider::new(
       app_id.clone(),
