@@ -59,7 +59,8 @@
       }
     },
     "test": {
-        "dependsOn": ["build:rs", "test:rs", "test:artifacts:js"]
+        "dependsOn": ["build:rs", "test:rs", "test:artifacts:js"],
+        "parallel": false
     },
     "prepare-release": {
       "executor": "nx:run-commands",
