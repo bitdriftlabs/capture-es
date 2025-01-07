@@ -26,13 +26,6 @@
     "!**/__mocks__",
     "!**/.*"
   ],
-  "scripts": {
-    "test": "jest",
-    "typecheck": "tsc --noEmit",
-    "clean": "del-cli android/build example/android/build example/android/app/build example/ios/build lib",
-    "prepare": "bob build",
-    "TODOrelease": "release-it"
-  },
   "keywords": [
     "react-native",
     "ios",
