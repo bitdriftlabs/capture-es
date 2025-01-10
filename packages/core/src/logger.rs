@@ -12,6 +12,10 @@
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
+#[cfg(test)]
+#[path = "./integration_test.rs"]
+mod integration_test;
+
 use crate::SessionStrategy;
 use bd_key_value::Storage;
 use bd_logger::{
@@ -93,6 +97,7 @@ impl RustLogger {
       // env so that we can have this code work for both electron apps and other node-based
       // programs.
       Platform::Electron,
+      device.id(),
     ));
 
     let (network, handle) =
@@ -239,14 +244,21 @@ struct StaticMetadata {
   app_id: String,
   app_version: String,
   platform: Platform,
+  device_id: String,
 }
 
 impl StaticMetadata {
-  pub const fn new(app_id: String, app_version: String, platform: Platform) -> Self {
+  pub const fn new(
+    app_id: String,
+    app_version: String,
+    platform: Platform,
+    device_id: String,
+  ) -> Self {
     Self {
       app_id,
       app_version,
       platform,
+      device_id,
     }
   }
 }
@@ -263,6 +275,10 @@ impl bd_metadata::Metadata for StaticMetadata {
   fn sdk_version(&self) -> &'static str {
     // TODO(snowp): Figure out the story for electron for SDK version.
     "0.1.0"
+  }
+
+  fn device_id(&self) -> String {
+    self.device_id.clone()
   }
 
   fn platform(&self) -> &Platform {
