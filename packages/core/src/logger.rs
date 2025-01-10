@@ -115,7 +115,7 @@ impl RustLogger {
       network: Box::new(handle),
       static_metadata,
     })
-    .with_mobile_features(true)
+    .with_client_stats(true)
     .build()?;
 
     std::thread::Builder::new()
