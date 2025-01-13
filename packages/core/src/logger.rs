@@ -138,7 +138,7 @@ impl RustLogger {
     .build()?;
 
     LoggerBuilder::run_logger_runtime(async {
-      // // Make sure we hold onto the shutdown handle to avoid an immediate shutdown.
+      // Make sure we hold onto the shutdown handle to avoid an immediate shutdown.
       #[allow(clippy::no_effect_underscore_binding)]
       let _shutdown = shutdown;
 
