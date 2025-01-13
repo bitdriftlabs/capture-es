@@ -17,6 +17,7 @@
 mod integration_test;
 
 use crate::SessionStrategy;
+use bd_client_common::error::handle_unexpected;
 use bd_key_value::Storage;
 use bd_logger::{
   AnnotatedLogField,
@@ -137,13 +138,11 @@ impl RustLogger {
     .build()?;
 
     LoggerBuilder::run_logger_runtime(async {
-      // Make sure we hold onto the shutdown handle to avoid an immediate shutdown.
+      // // Make sure we hold onto the shutdown handle to avoid an immediate shutdown.
       #[allow(clippy::no_effect_underscore_binding)]
       let _shutdown = shutdown;
 
-      handle_unexpected::<(), _>(Err(anyhow::anyhow!("test")), "test");
-
-      // Since the error reporting relie on the reporter future we need to make sure that we give
+      // Since the error reporting relies on the reporter future we need to make sure that we give
       // the reporter a chance to report on the error returned from the top level task. To
       // accomplish this we run the reporter in a separate task that we allow to finish after the
       // logger future has completed.
