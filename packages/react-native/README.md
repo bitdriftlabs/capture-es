@@ -112,11 +112,13 @@ To enable network integration in Android a Gradle plugin needs to be added to th
 
 ```gradle
 plugins {
-    id 'io.bitdrift.capture-plugin' version '0.16.6'
+    id 'io.bitdrift.capture-plugin' version '<version>'
 }
 ```
 
-in addition to adding the repository to the `pluginManagement` block in the `settings.gradle` file:
+To find the version to use, use the same version of the Capture SDK that is being used in the React Native project. Check the `build.gradle` file in the `node_modules/@bitdrift/react-native/android` directory for the version of the Capture SDK being used.
+
+In addition to this the plugin repository needs to be added to the `pluginManagement` block in the `settings.gradle` file:
 
 ```gradle
 pluginManagement {
