@@ -28,21 +28,21 @@ const sessionStrategyMap = {
 };
 
 /**
-  * Optional parameters to configure the logger.
-  * @param url - The URL to use to authenticate with the bitdrift API. Defaults to 'api.bitdrift.io'.
-  * @param appVersion - The version of the application. Defaults to the version of the application based on the package.json file.
-  */
+ * Optional parameters to configure the logger.
+ * @param url - The URL to use to authenticate with the bitdrift API. Defaults to 'api.bitdrift.io'.
+ * @param appVersion - The version of the application. Defaults to the version of the application based on the package.json file.
+ */
 export type InitOptions = {
   url?: string;
   appVersion?: string;
 };
 
 /**
-  * Initializes the logger with the given key and session strategy.
-  * @param key - The API key to use to authenticate with the bitdrift API.
-  * @param sessionStrategy - The session strategy to use for logging.
-  * @param options - Optional parameters to configure the logger.
-  */
+ * Initializes the logger with the given key and session strategy.
+ * @param key - The API key to use to authenticate with the bitdrift API.
+ * @param sessionStrategy - The session strategy to use for logging.
+ * @param options - Optional parameters to configure the logger.
+ */
 export const init = (
   key: string,
   sessionStrategy: SessionStrategy,
@@ -68,8 +68,8 @@ export const init = (
 };
 
 /**
-  * Logs a message with severity level 4 (error).
-  */
+ * Logs a message with severity level 4 (error).
+ */
 export const error = (message: string, fields?: LogFields) => {
   if (!logger) throw new Error('Logger not initialized');
 
@@ -77,8 +77,8 @@ export const error = (message: string, fields?: LogFields) => {
 };
 
 /**
-  * Logs a message with severity level 3 (warning).
-  */
+ * Logs a message with severity level 3 (warning).
+ */
 export const warn = (message: string, fields?: LogFields) => {
   if (!logger) throw new Error('Logger not initialized');
 
@@ -86,8 +86,8 @@ export const warn = (message: string, fields?: LogFields) => {
 };
 
 /**
-  * Logs a message with severity level 2 (info).
-  */
+ * Logs a message with severity level 2 (info).
+ */
 export const info = (message: string, fields?: LogFields) => {
   if (!logger) throw new Error('Logger not initialized');
 
@@ -95,8 +95,8 @@ export const info = (message: string, fields?: LogFields) => {
 };
 
 /**
-  * Logs a message with severity level 1 (debug).
-  */
+ * Logs a message with severity level 1 (debug).
+ */
 export const debug = (message: string, fields?: LogFields) => {
   if (!logger) throw new Error('Logger not initialized');
 
@@ -104,8 +104,8 @@ export const debug = (message: string, fields?: LogFields) => {
 };
 
 /**
-  * Logs a message with severity level 0 (trace).
-  */
+ * Logs a message with severity level 0 (trace).
+ */
 export const trace = (message: string, fields?: LogFields) => {
   if (!logger) throw new Error('Logger not initialized');
 
@@ -113,15 +113,15 @@ export const trace = (message: string, fields?: LogFields) => {
 };
 
 /**
-  * Gets the ID of the current session.
-  * @returns The ID of the current session.
-  */
+ * Gets the ID of the current session.
+ * @returns The ID of the current session.
+ */
 export const getSessionID = () => logger?.sessionId;
 
 /**
-  * Generates a temporary device code for the current device.
-  * @returns The generated device code.
-  */
+ * Generates a temporary device code for the current device.
+ * @returns The generated device code.
+ */
 export const generateDeviceCode = async (): Promise<string> => {
   const deviceId = logger?.deviceId;
   const postData = JSON.stringify({ device_id: deviceId });
