@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 version="$1"
 
 # Replace the `capture_version = '1.0.0'` with the new version number
