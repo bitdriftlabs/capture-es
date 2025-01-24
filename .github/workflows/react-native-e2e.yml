@@ -60,8 +60,8 @@ jobs:
         run: npm exec nx prebuild expo-example
         env:
           NEW_ARCH: ${{ matrix.settings.new_arch }}
-      - name: Serve Expo
-        run: npm exec nx start expo-example > /tmp/expo_logs &
+      # - name: Serve Expo
+      #   run: npm exec nx start expo-example > /tmp/expo_logs &
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
