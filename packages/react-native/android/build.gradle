@@ -53,10 +53,6 @@ android {
     }
   }
 
-  kotlinOptions {
-    freeCompilerArgs += ["-Xskip-metadata-version-check"]
-  }
-
   compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
 
   defaultConfig {
