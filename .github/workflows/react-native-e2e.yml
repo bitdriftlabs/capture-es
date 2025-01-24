@@ -22,7 +22,8 @@ jobs:
         run: sudo apt-get install -y lld
 
       - name: Setup rust/dependencies
-        run: rustup target add ${{ matrix.settings.target }}
+      # // TODO we dont need all these
+        run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
       - name: Cache cargo
         uses: actions/cache@v4
