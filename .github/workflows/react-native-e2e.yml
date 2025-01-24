@@ -59,7 +59,7 @@ jobs:
         env:
           NEW_ARCH: ${{ matrix.settings.new_arch }}
       - name: Serve Expo
-        run: npm exec nx start expo-example &
+        run: npm exec nx start expo-example > /tmp/expo_logs &
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -67,4 +67,6 @@ jobs:
           script: cd examples/expo/android && ./gradlew installDebug && maestro test ../maestro_flow.yaml
         env:
           MAESTRO_CLI_NO_ANALYTICS: true
-
+      - name: print logs
+        if: always()
+        run: cat /tmp/expo_logs
