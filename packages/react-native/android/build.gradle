@@ -53,6 +53,10 @@ android {
     }
   }
 
+  kotlinOptions {
+    freeCompilerArgs += ["-Xskip-metadata-version-check"]
+  }
+
   compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
 
   defaultConfig {
@@ -112,7 +116,7 @@ dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  api 'io.bitdrift:capture:0.16.6'
+  api 'io.bitdrift:capture:0.16.9'
 }
 
 if (isNewArchitectureEnabled()) {
