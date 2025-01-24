@@ -25,6 +25,12 @@ jobs:
         # // TODO we dont need all these
         run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
       - name: Cache cargo
         uses: actions/cache@v4
         with:
@@ -52,13 +58,11 @@ jobs:
         run: npm exec nx prebuild expo-example
         env:
           NEW_ARCH: ${{ matrix.settings.new_arch }}
-      - name: Serve Expo
-        run: npm exec nx start expo-example &
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: cd examples/expo/android && ./gradlew installDebug && maestro test ../maestro_flow.yaml
+          script: npm exec nx start expo-example &; cd examples/expo/android && ./gradlew installDebug && maestro test ../maestro_flow.yaml
         env:
           MAESTRO_CLI_NO_ANALYTICS: true
 
