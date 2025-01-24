@@ -1,0 +1,4 @@
+appId: com.bitdrift.io.expoExample
+---
+- launchApp
+- tapOn: "Generate Temporary Device Code"

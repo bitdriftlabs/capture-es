@@ -1,0 +1,54 @@
+name: React Native E2E
+on:
+  pull_request:
+
+jobs:
+  test-android:
+    strategy:
+      matrix:
+        settings:
+          - host: ubuntu-latest
+            new_arch: true
+
+    name: android - NEW_ARCH ${{ matrix.settings.target }}
+    runs-on: ${{ matrix.settings.host }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Javascript
+        uses: ./.github/actions/javascript-setup
+
+      - name: Setup linux dependencies
+        run: sudo apt-get install -y lld
+
+      - name: Setup rust/dependencies
+        run: rustup target add ${{ matrix.settings.target }}
+
+      - name: Cache cargo
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            .cargo-cache
+            target/
+          key: ${{ matrix.settings.target }}-cargo
+
+      - name: Enable KVM group perms
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Prebuild
+        run: npm exec nx prebuild expo-example
+        env:
+          NEW_ARCH: ${{ matrix.settings.new_arch }}
+      - name: Serve Expo
+        run: npm exec nx start expo-example &
+      - name: run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 29
+          script: cd examples/expo && ./gradlew installDebug && maestro test maestro_flow
+
