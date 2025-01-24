@@ -10,7 +10,7 @@ jobs:
           - host: ubuntu-latest
             new_arch: true
 
-    name: android - NEW_ARCH ${{ matrix.settings.target }}
+    name: android - NEW_ARCH ${{ matrix.settings.new_arch }}
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
         run: sudo apt-get install -y lld
 
       - name: Setup rust/dependencies
-      # // TODO we dont need all these
+        # // TODO we dont need all these
         run: rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
 
       - name: Cache cargo
@@ -58,5 +58,7 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 29
-          script: cd examples/expo/android && ./gradlew installDebug && maestro test maestro_flow
+          script: cd examples/expo/android && ./gradlew installDebug && maestro test ../maestro_flow
+        env:
+          MAESTRO_CLI_NO_ANALYTICS: true
 
