@@ -9,6 +9,8 @@ jobs:
         settings:
           - host: ubuntu-latest
             new_arch: true
+          - host: ubuntu-latest
+            new_arch: false
 
     name: android [new_arch = ${{ matrix.settings.new_arch }}]
     runs-on: ${{ matrix.settings.host }}
