@@ -10,7 +10,7 @@ jobs:
           - host: ubuntu-latest
             new_arch: true
 
-    name: android [new_arch = ${{ f matrix.settings.new_arch }}]
+    name: android [new_arch = ${{ matrix.settings.new_arch }}]
     runs-on: ${{ matrix.settings.host }}
     steps:
       - uses: actions/checkout@v4
