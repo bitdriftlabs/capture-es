@@ -13,16 +13,19 @@ export enum SessionStrategy {
   Activity = 'activity',
   Fixed = 'fixed',
 }
-export type InitOptions = {
+
+export type InitOptions<T extends SessionStrategy> = {
   url?: string;
   enableNetworkInstrumentation?: boolean;
-};
+} & (T extends SessionStrategy.Fixed
+  ? { sessionIDGenerator: () => string }
+  : {});
 
 export interface Spec extends TurboModule {
-  init(
+  init<T extends SessionStrategy>(
     key: string,
-    sessionStrategy: SessionStrategy,
-    options?: InitOptions,
+    sessionStrategy: T,
+    options?: InitOptions<T>,
   ): void;
 
   log(level: number, message: string, fields?: LogFields): void;

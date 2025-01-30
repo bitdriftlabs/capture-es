@@ -38,10 +38,10 @@ const BdReactNative = BdReactNativeModule
       },
     );
 
-export function init(
+export function init<T extends SessionStrategy>(
   key: string,
-  sessionStrategy: SessionStrategy,
-  options?: InitOptions,
+  sessionStrategy: T,
+  options?: InitOptions<T>,
 ): void {
   api_url = options?.url ?? 'api.bitdrift.io';
   api_key = key;
