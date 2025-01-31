@@ -1,7 +1,14 @@
 import colorParse from 'color-parse';
 
 type CaptureElement = {
-  type: 'input' | 'label' | 'button' | 'image' | 'transparent' | 'view';
+  type:
+    | 'input'
+    | 'label'
+    | 'button'
+    | 'image'
+    | 'transparent'
+    | 'view'
+    | 'webview';
   x: number;
   y: number;
   width: number;
@@ -26,10 +33,9 @@ enum ReplayViewType {
 
 const getTypeFromElement = (
   element: HTMLElement,
+  targetWindow: Window,
 ): CaptureElement['type'] | null => {
-  const rect = element.getBoundingClientRect();
-  const key = `${rect.x},${rect.y},${rect.width},${rect.height}`;
-  const styles = window.getComputedStyle(element);
+  const styles = targetWindow.getComputedStyle(element);
   if (
     styles.display === 'none' ||
     styles.visibility === 'hidden' ||
@@ -66,8 +72,12 @@ const getTypeFromElement = (
     return 'input';
   }
 
+  if (element.tagName.toLocaleLowerCase() === 'iframe') {
+    return 'webview';
+  }
+
   // TODO: Be smarter
-  const bg = window.getComputedStyle(element).backgroundColor;
+  const bg = targetWindow.getComputedStyle(element).backgroundColor;
   const a = colorParse(bg).alpha;
 
   if (a && a >= 0 && a < 1) {
@@ -88,7 +98,7 @@ const keyFromCaptureElement = ({ type, ...rect }: CaptureElement) =>
 const zIndexFromElement = (element: Element) =>
   parseInt(getComputedStyle(element).zIndex, 10) || 0;
 
-export const captureScreen = () => {
+export const captureScreen = (targetWindow: Window) => {
   const elementsMap = new Map<string, CaptureElement>();
 
   const upsertElement = (value: CaptureElement) => {
@@ -110,7 +120,7 @@ export const captureScreen = () => {
 
   const traverse = (element: HTMLElement) => {
     const rect = element.getBoundingClientRect();
-    const type = getTypeFromElement(element);
+    const type = getTypeFromElement(element, targetWindow);
 
     // Skip element if we can't determine the type.
     if (type) {
@@ -144,8 +154,8 @@ export const captureScreen = () => {
       type: 'view' as const,
       x: 0,
       y: 0,
-      width: window.innerWidth,
-      height: window.innerHeight,
+      width: targetWindow.innerWidth,
+      height: targetWindow.innerHeight,
     },
     ...elementsMap.values(),
   ];
