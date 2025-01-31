@@ -89,6 +89,7 @@
     "@expo/metro-config": "~0.19.8",
     "@expo/metro-runtime": "~4.0.0",
     "@react-native-picker/picker": "2.11.0",
+    "color-parse": "^2.0.2",
     "expo": "~52.0.23",
     "expo-splash-screen": "~0.29.18",
     "expo-status-bar": "~2.0.0",
