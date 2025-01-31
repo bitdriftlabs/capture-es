@@ -1,4 +1,5 @@
 import colorParse from 'color-parse';
+import { matchByRole, matchByTagName } from './utils';
 
 type CaptureElement = {
   type:
@@ -39,45 +40,47 @@ const getTypeFromElement = (
   if (
     styles.display === 'none' ||
     styles.visibility === 'hidden' ||
-    styles.opacity === '0'
+    styles.opacity === '0' ||
+    element.getAttribute('aria-hidden') === 'true'
   ) {
     return null;
   }
 
   if (
-    (element.matches('[role="heading"],[role="label"],[role="paragraph"]'),
-    ['span', 'p'].includes(element.tagName.toLocaleLowerCase()))
+    matchByRole(element, ['heading', 'label', 'paragraph']) ||
+    matchByTagName(element, ['span', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'])
   ) {
     return 'label';
   }
 
   if (
-    element.matches('[role="image"]') ||
-    ['img', 'svg', 'picture'].includes(element.tagName.toLocaleLowerCase())
+    matchByRole(element, ['image']) ||
+    matchByTagName(element, ['img', 'svg', 'picture'])
   ) {
     return 'image';
   }
 
   if (
-    element.matches('[role="button"]') ||
-    element.tagName.toLocaleLowerCase() === 'button'
+    matchByRole(element, ['button', 'link']) ||
+    matchByTagName(element, ['button', 'a'])
   ) {
     return 'button';
   }
 
   if (
-    element.tagName.toLocaleLowerCase() === 'input' &&
-    element.getAttribute('type') !== 'text'
+    matchByTagName(element, ['textarea']) ||
+    (matchByTagName(element, ['input']) &&
+      element.getAttribute('type') !== 'text')
   ) {
     return 'input';
   }
 
-  if (element.tagName.toLocaleLowerCase() === 'iframe') {
+  if (matchByTagName(element, ['iframe'])) {
     return 'webview';
   }
 
   // TODO: Be smarter
-  const bg = targetWindow.getComputedStyle(element).backgroundColor;
+  const bg = styles.backgroundColor;
   const a = colorParse(bg).alpha;
 
   if (a && a >= 0 && a < 1) {
