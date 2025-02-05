@@ -5,7 +5,7 @@
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
-type ParsedColor = {
+export type ParsedColor = {
   space: 'rgb' | 'hsl' | 'hex';
   values: number[];
   alpha: number;
@@ -41,21 +41,34 @@ export function colorParse(input: string | number): ParsedColor {
       parseInt(hex.slice(4, 6), 16),
     ];
     const alpha = hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1;
-    return { space: 'hex', values: rgb, alpha };
+    return {
+      space: 'hex',
+      values: rgb,
+      alpha: Number.parseFloat(alpha.toFixed(2)),
+    };
   }
 
   const rgbMatch = str.match(/^rgb\(([^)]+)\)$/);
   if (rgbMatch !== undefined && rgbMatch !== null) {
     // @ts-ignore
     const values = rgbMatch[1].split(/,\s*/).map(Number);
-    return { space: 'rgb', values: values.slice(0, 3), alpha: values[3] ?? 1 };
+    return {
+      space: 'rgb',
+      values: values.slice(0, 3),
+      alpha: Number.parseFloat((values[3] ?? 1).toFixed(2)),
+    };
   }
 
   const hslMatch = str.match(/^hsl\(([^)]+)\)$/);
   if (hslMatch) {
     // @ts-ignore
-    const values = hslMatch?.[1].split(/,\s*/).map(Number) ?? [];
-    return { space: 'hsl', values: values.slice(0, 3), alpha: values[3] ?? 1 };
+    const values =
+      hslMatch?.[1].split(/,\s*/).map((v) => Number(v.replace('%', ''))) ?? [];
+    return {
+      space: 'hsl',
+      values: values.slice(0, 3),
+      alpha: values[3] ?? 1,
+    };
   }
 
   return { space: 'rgb', values: [0, 0, 0], alpha: 1 };
