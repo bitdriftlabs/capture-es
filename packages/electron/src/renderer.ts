@@ -17,10 +17,12 @@ import {
 export type InitRendererOptions = {
   /** Whether to automatically expose the logger in the main world. Defaults to false. */
   autoExposeInMainWorld?: boolean | AutoExposeOptions;
-  /** Whether to enable session replay, and with what options. Defaults to false. */
-  sessionReplayConfiguration?:
-    | boolean
-    | Pick<AddSessionReplayCaptureOptions, 'frequency'>;
+  experimental?: {
+    /** Whether to enable session replay, and with what options. Defaults to false. */
+    sessionReplayConfiguration?:
+      | boolean
+      | Pick<AddSessionReplayCaptureOptions, 'frequency'>;
+  };
 };
 
 export const initRenderer = (options: InitRendererOptions) => {
@@ -32,7 +34,7 @@ export const initRenderer = (options: InitRendererOptions) => {
     );
   }
 
-  if (options.sessionReplayConfiguration) {
+  if (options?.experimental?.sessionReplayConfiguration) {
     addSessionReplayCapture(window);
   }
 };
