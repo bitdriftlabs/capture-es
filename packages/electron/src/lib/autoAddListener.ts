@@ -6,6 +6,7 @@
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
 import { Logger } from '@bitdrift/core';
+import { constructArrayBuffer } from '@bitdrift/dom';
 import { ipcMain } from 'electron';
 
 /**
@@ -28,10 +29,23 @@ export const autoAddListener = (
   options?: AutoExposeOptions,
 ) => {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-  const logChannel = buildChannelName('log', mergedOptions.channelPrefix);
 
   // Wire up the IPC channel to the logger
+  const logChannel = buildChannelName('log', mergedOptions.channelPrefix);
   ipcMain.on(logChannel, (_, level, message, fields) => {
     logger.log(level, message, fields ?? {});
   });
+
+  // Wire up the IPC channel to the logger
+  const replayChannel = buildChannelName('replay', mergedOptions.channelPrefix);
+  ipcMain.on(
+    replayChannel,
+    (_, screen: [number, number, number, number, number][]) => {
+      const screenBuffer = constructArrayBuffer(screen);
+      logger.log(2, 'Screen captured', {
+        log_type: 1,
+        screen: Buffer.from(screenBuffer),
+      });
+    },
+  );
 };

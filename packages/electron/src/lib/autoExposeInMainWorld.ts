@@ -27,9 +27,7 @@ const DEFAULT_OPTIONS: RequiredAttributes<AutoExposeOptions, 'key'> = {
 const buildChannelName = (tail: string, prefix?: string) =>
   [prefix, 'bitdrift', tail].filter(Boolean).join(':');
 
-export const autoExposeInMainWorld = (
-  options?: AutoExposeOptions,
-) => {
+export const autoExposeInMainWorld = (options?: AutoExposeOptions) => {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
   const logChannel = buildChannelName('log', mergedOptions.channelPrefix);
 

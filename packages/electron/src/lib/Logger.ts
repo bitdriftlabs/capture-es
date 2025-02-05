@@ -35,7 +35,7 @@ export type InitOptions = {
   url?: string;
   /** The version of the application. Defaults to the version of the application based on the package.json file. */
   appVersion?: string;
-  /** Whether to automatically expose the logger in the main world. Defaults to false. */
+  /** Whether to automatically register main event listeners. */
   autoAddMainListener?: boolean | AutoExposeOptions;
 };
 

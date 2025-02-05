@@ -11,4 +11,7 @@ initRenderer({
   autoExposeInMainWorld: {
     key: 'logger',
   },
+  sessionReplayConfiguration: {
+    frequency: 3000,
+  },
 });
