@@ -5,6 +5,7 @@
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
+import { ipcRenderer } from 'electron';
 import { captureScreen } from '@bitdrift/dom';
 
 export type AddSessionReplayCaptureOptions = {
@@ -28,7 +29,12 @@ export const addSessionReplayCapture = (
     const now = Date.now();
     if (now - lastTick > interval) {
       lastTick = now;
-      captureScreen(targetWindow);
+      try {
+        const screen = captureScreen(targetWindow);
+        ipcRenderer.send('bitdrift:replay', screen);
+      } catch {
+        // TODO: log error
+      }
     }
 
     targetWindow.requestIdleCallback(tick);
