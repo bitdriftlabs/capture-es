@@ -61,8 +61,8 @@ export function colorParse(input: string | number): ParsedColor {
 
   const hslMatch = str.match(/^hsl\(([^)]+)\)$/);
   if (hslMatch) {
-    // @ts-ignore
     const values =
+    // @ts-ignore
       hslMatch?.[1].split(/,\s*/).map((v) => Number(v.replace('%', ''))) ?? [];
     return {
       space: 'hsl',

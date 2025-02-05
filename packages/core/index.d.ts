@@ -12,4 +12,5 @@ export declare class Logger {
   get sessionId(): string
   get deviceId(): string
   log(level: number, message: string, fields: Record<string, string | number | boolean | Buffer>): void
+  logSessionReplayScreen(fields: Record<string, string | number | boolean | Buffer>, durationMs: number): void
 }

@@ -48,11 +48,12 @@ export const autoAddListener = (
       },
     ) => {
       const screenBuffer = constructArrayBuffer(payload.screen);
-      logger.log(2, 'Screen captured', {
-        log_type: 1, // TODO(Jackson): Warning that `log_type` is reserved for internal use
-        screen: Buffer.from(screenBuffer),
-        durationMs: payload.durationMs,
-      });
+      logger.logSessionReplayScreen(
+        {
+          screen: Buffer.from(screenBuffer),
+        },
+        payload.durationMs,
+      );
     },
   );
 };
