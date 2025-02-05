@@ -1,5 +1,11 @@
-import { Logger } from '@bitdrift/core';
-import { contextBridge, ipcRenderer, ipcMain } from 'electron';
+// capture-es - bitdrift's ES SDK
+// Copyright Bitdrift, Inc. All rights reserved.
+//
+// Use of this source code is governed by a source available license that can be found in the
+// LICENSE file or at:
+// https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
+
+import { contextBridge, ipcRenderer } from 'electron';
 import { LogFields, RequiredAttributes } from './types';
 import { BitdriftLogLevels } from './constants';
 
@@ -22,16 +28,10 @@ const buildChannelName = (tail: string, prefix?: string) =>
   [prefix, 'bitdrift', tail].filter(Boolean).join(':');
 
 export const autoExposeInMainWorld = (
-  logger: InstanceType<typeof Logger>,
   options?: AutoExposeOptions,
 ) => {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
   const logChannel = buildChannelName('log', mergedOptions.channelPrefix);
-
-  // Wire up the IPC channel to the logger
-  ipcMain.on(logChannel, (_, level, message, fields) => {
-    logger.log(level, message, fields ?? {});
-  });
 
   // Factory for mapping log functions
   const factory = (level: number) => (msg: string, fields: LogFields) =>

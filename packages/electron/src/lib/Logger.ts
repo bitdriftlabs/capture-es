@@ -9,10 +9,8 @@ import { Logger, SessionStrategy as CoreSessionStrategy } from '@bitdrift/core';
 import { app } from 'electron';
 import { platform as osPlatform, release as osRelease } from 'os';
 import * as https from 'https';
-import {
-  type AutoExposeOptions,
-  autoExposeInMainWorld,
-} from './autoExposeInMainWorld';
+
+import { type AutoExposeOptions, autoAddListener } from './autoAddListener';
 import { LogFields } from './types';
 
 let logger: Logger | null = null;
@@ -38,7 +36,7 @@ export type InitOptions = {
   /** The version of the application. Defaults to the version of the application based on the package.json file. */
   appVersion?: string;
   /** Whether to automatically expose the logger in the main world. Defaults to false. */
-  autoExposeInMainWorld?: boolean | AutoExposeOptions;
+  autoAddMainListener?: boolean | AutoExposeOptions;
 };
 
 /**
@@ -69,12 +67,12 @@ export const init = (
     app.getLocaleCountryCode(),
   );
 
-  if (options?.autoExposeInMainWorld) {
-    autoExposeInMainWorld(
+  if (options?.autoAddMainListener) {
+    autoAddListener(
       logger,
-      typeof options.autoExposeInMainWorld === 'boolean'
+      typeof options.autoAddMainListener === 'boolean'
         ? {}
-        : options.autoExposeInMainWorld,
+        : options.autoAddMainListener,
     );
   }
 
