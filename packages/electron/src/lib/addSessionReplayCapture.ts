@@ -9,7 +9,7 @@ import { ipcRenderer } from 'electron';
 import { captureScreen } from '@bitdrift/dom';
 import { type AutoExposeOptions } from './autoExposeInMainWorld';
 import { buildChannelName } from './utils';
-import { BitdriftChannels } from './constants';
+import { BitdriftChannels, BitdriftLogLevels } from './constants';
 
 export type AddSessionReplayCaptureOptions = {
   /**
@@ -38,9 +38,13 @@ export const addSessionReplayCapture = (
           buildChannelName(BitdriftChannels.replay, options?.channelPrefix),
           screen,
         );
-      } catch {
-        // TODO: log error
-        ipcRenderer;
+      } catch (e: unknown) {
+        ipcRenderer.send(
+          buildChannelName(BitdriftChannels.log, options?.channelPrefix),
+          BitdriftLogLevels.error,
+          'Failed to capture screen',
+          { error: e },
+        );
       }
     }
 
