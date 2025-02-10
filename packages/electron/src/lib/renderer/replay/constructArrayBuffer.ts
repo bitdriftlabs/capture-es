@@ -5,27 +5,40 @@
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
-export const constructArrayBuffer = (data: [number, number, number, number, number][]): ArrayBuffer => {
-    const totalSize = data.length * 9; // 5 numbers per tuple
+type RawElement = [
+  number, // type
+  number, // x
+  number, // y
+  number, // width
+  number, // height
+];
 
-    const buffer = new ArrayBuffer(totalSize);
-    const dataView = new DataView(buffer);
+/**
+ * Construct an ArrayBuffer in the bitdrift replay formal from an array of raw elements.
+ * @param data 
+ * @returns 
+ */
+export const constructArrayBuffer = (data: RawElement[]): ArrayBuffer => {
+  const totalSize = data.length * 9; // 5 numbers per tuple
 
-    let offset = 0;
+  const buffer = new ArrayBuffer(totalSize);
+  const dataView = new DataView(buffer);
 
-    for (const [type, x, y, width, height] of data) {
-        const typeWithMask = type | 0b11110000;
-        dataView.setInt8(offset, typeWithMask);
-        offset += 1;
-        dataView.setInt16(offset, x, false);
-        offset += 2;
-        dataView.setInt16(offset, y, false);
-        offset += 2;
-        dataView.setInt16(offset, width, false);
-        offset += 2;
-        dataView.setInt16(offset, height, false);
-        offset += 2;
-    }
+  let offset = 0;
 
-    return buffer;
+  for (const [type, x, y, width, height] of data) {
+    const typeWithMask = type | 0b11110000;
+    dataView.setInt8(offset, typeWithMask);
+    offset += 1;
+    dataView.setInt16(offset, x, false);
+    offset += 2;
+    dataView.setInt16(offset, y, false);
+    offset += 2;
+    dataView.setInt16(offset, width, false);
+    offset += 2;
+    dataView.setInt16(offset, height, false);
+    offset += 2;
+  }
+
+  return buffer;
 };

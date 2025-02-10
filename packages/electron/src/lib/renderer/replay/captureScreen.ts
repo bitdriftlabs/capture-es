@@ -86,7 +86,7 @@ const getTypeFromElement = (
     return 'webview';
   }
 
-  // TODO: Be smarter
+  // Calculate background color alpha
   const bg = styles.backgroundColor;
   const a = colorParse(bg).alpha;
 
