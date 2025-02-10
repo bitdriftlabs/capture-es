@@ -14,7 +14,11 @@ configDotenv();
 init(process.env['BITDRIFT_KEY'] ?? 'invalid key', SessionStrategy.Fixed, {
   url: process.env['BITDRIFT_URL'],
   appVersion: '1.0.0',
-  autoAddMainListener: true,
+  autoAddMainListener: {
+    experimental: {
+      sessionReplayEnabled: true,
+    },
+  },
 });
 
 const createWindow = async () => {
