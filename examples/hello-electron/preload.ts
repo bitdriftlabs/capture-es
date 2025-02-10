@@ -9,7 +9,7 @@ import { initRenderer } from '@bitdrift/electron/renderer';
 
 initRenderer({
   autoExposeInMainWorld: {
-    key: 'logger',
+    exposeAs: 'logger',
   },
   experimental: {
     sessionReplayConfiguration: {

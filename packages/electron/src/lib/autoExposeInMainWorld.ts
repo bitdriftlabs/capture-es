@@ -7,36 +7,37 @@
 
 import { contextBridge, ipcRenderer } from 'electron';
 import { LogFields, RequiredAttributes } from './types';
-import { BitdriftLogLevels } from './constants';
+import { BitdriftChannels, BitdriftLogLevels } from './constants';
+import { buildChannelName } from './utils';
 
 /**
  * Options for automatically exposing objects in the main world.
  */
 export type AutoExposeOptions = Partial<{
   /** The key to used when exposed in the main world. */
-  key: string;
+  exposeAs: string;
   /** The prefix to use for the channel names. Defaults to ''. */
   channelPrefix: string;
 }>;
 
-const DEFAULT_OPTIONS: RequiredAttributes<AutoExposeOptions, 'key'> = {
-  key: 'bitdriftSDK',
+const DEFAULT_OPTIONS: RequiredAttributes<AutoExposeOptions, 'exposeAs'> = {
+  exposeAs: 'bitdriftSDK',
   channelPrefix: undefined,
 };
 
-const buildChannelName = (tail: string, prefix?: string) =>
-  [prefix, 'bitdrift', tail].filter(Boolean).join(':');
-
 export const autoExposeInMainWorld = (options?: AutoExposeOptions) => {
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-  const logChannel = buildChannelName('log', mergedOptions.channelPrefix);
+  const logChannel = buildChannelName(
+    BitdriftChannels.log,
+    mergedOptions.channelPrefix,
+  );
 
   // Factory for mapping log functions
   const factory = (level: number) => (msg: string, fields: LogFields) =>
     ipcRenderer.send(logChannel, level, msg, fields);
 
   // Expose the logger in the main world
-  contextBridge.exposeInMainWorld(mergedOptions.key, {
+  contextBridge.exposeInMainWorld(mergedOptions.exposeAs, {
     trace: factory(BitdriftLogLevels.trace),
     debug: factory(BitdriftLogLevels.debug),
     info: factory(BitdriftLogLevels.info),

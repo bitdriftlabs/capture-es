@@ -17,48 +17,58 @@ import { BitdriftChannels } from './constants';
 export type AutoExposeOptions = Partial<{
   /** The prefix to use for the channel names. Defaults to ''. */
   channelPrefix: string;
+  /** Experimental options */
+  experimental?: {
+    /** Whether to auto register session replay event channel. Defaults to false. */
+    sessionReplayEnabled?: boolean;
+  };
 }>;
 
 const DEFAULT_OPTIONS: AutoExposeOptions = {
   channelPrefix: undefined,
+  experimental: {
+    sessionReplayEnabled: false,
+  },
 };
 
 export const autoAddListener = (
   logger: InstanceType<typeof Logger>,
   options?: AutoExposeOptions,
 ) => {
-  const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
+  const mergedOptions = {
+    ...DEFAULT_OPTIONS,
+    ...options,
+    experimental: { ...DEFAULT_OPTIONS.experimental, ...options?.experimental },
+  };
 
   // Wire up the IPC channel to the logger
-  const logChannel = buildChannelName(
-    BitdriftChannels.log,
-    mergedOptions.channelPrefix,
-  );
-  ipcMain.on(logChannel, (_, level, message, fields) => {
-    logger.log(level, message, fields ?? {});
-  });
-
-  // Wire up the IPC channel to the logger
-  const replayChannel = buildChannelName(
-    BitdriftChannels.replay,
-    mergedOptions.channelPrefix,
-  );
   ipcMain.on(
-    replayChannel,
-    (
-      _,
-      payload: {
-        screen: [number, number, number, number, number][];
-        durationMs: number;
-      },
-    ) => {
-      const screenBuffer = constructArrayBuffer(payload.screen);
-      logger.logSessionReplayScreen(
-        {
-          screen: Buffer.from(screenBuffer),
-        },
-        payload.durationMs,
-      );
+    buildChannelName(BitdriftChannels.log, mergedOptions.channelPrefix),
+    (_, level, message, fields) => {
+      logger.log(level, message, fields ?? {});
     },
   );
+
+  // Wire up the IPC channel to the logger
+
+  if (mergedOptions.experimental?.sessionReplayEnabled) {
+    ipcMain.on(
+      buildChannelName(BitdriftChannels.replay, mergedOptions.channelPrefix),
+      (
+        _,
+        payload: {
+          screen: [number, number, number, number, number][];
+          durationMs: number;
+        },
+      ) => {
+        const screenBuffer = constructArrayBuffer(payload.screen);
+        logger.logSessionReplayScreen(
+          {
+            screen: Buffer.from(screenBuffer),
+          },
+          payload.durationMs,
+        );
+      },
+    );
+  }
 };
