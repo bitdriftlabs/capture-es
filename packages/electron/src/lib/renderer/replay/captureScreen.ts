@@ -40,7 +40,7 @@ enum ReplayViewType {
 }
 
 const getTypeFromElement = (
-  element: HTMLElement,
+  element: Element,
   targetWindow: Window,
 ): CaptureElement['type'] | null => {
   const styles = targetWindow.getComputedStyle(element);
@@ -97,62 +97,89 @@ const getTypeFromElement = (
   return 'view';
 };
 
-const partialKeyFromRect = (rect: {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}) => `${rect.x}~${rect.y}~${rect.width}~${rect.height}`;
-const keyFromCaptureElement = ({ type, ...rect }: CaptureElement) =>
-  `${type}~${partialKeyFromRect(rect)}`;
+type ElementKey =
+  `${CaptureElement['type']}~${number}~${number}~${number}~${number}`;
+
+/**
+ * Builds a typed element key from a capture element.
+ * @param param0
+ * @returns
+ */
+const keyFromCaptureElement = ({
+  type,
+  x,
+  y,
+  width,
+  height,
+}: CaptureElement): ElementKey => `${type}~${x}~${y}~${width}~${height}`;
+
+/**
+ * Calculates the z-index of an element.
+ * @param element
+ * @returns
+ */
 const zIndexFromElement = (element: Element) =>
   parseInt(getComputedStyle(element).zIndex, 10) || 0;
 
+/**
+ * Given a target window, recursively traverses the DOM parsing elements into a screen capture wire frames.
+ * @param targetWindow
+ * @returns
+ */
 export const captureScreen = (targetWindow: Window) => {
   const elementsMap = new Map<string, CaptureElement>();
 
+  /**
+   * Handles the insertion or updating of an element in the elementsMap.
+   * @param value
+   */
   const upsertElement = (value: CaptureElement) => {
-    const partialKey = partialKeyFromRect(value);
     const key = keyFromCaptureElement(value);
-    const existingView = elementsMap.get(`view~${partialKey}`);
+    const viewKey = keyFromCaptureElement({ ...value, type: 'view' });
 
-    if (existingView) {
-      if (value.type !== 'view') {
-        elementsMap.delete(`view~${partialKey}`);
-        elementsMap.set(key, value);
-      }
-
-      // If the element is a view, we should keep the existing view, and skip this one.
-    } else {
-      elementsMap.set(key, value);
+    // Attempt to find an existing view element with the same coords (i.e. the same partial key).
+    // If the new element is not a view, we should remove the existing view with the new element, so that it can be replaced with the new element.
+    // This serves to remove container elements which will clutter the replay view.
+    if (elementsMap.get(viewKey) && value.type !== 'view') {
+      elementsMap.delete(viewKey);
     }
+
+    elementsMap.set(key, value);
   };
 
-  const traverse = (element: HTMLElement) => {
-    const rect = element.getBoundingClientRect();
+  /**
+   * Traverses an element, converting it into a capture element and adding it to the elementsMap.
+   * Recursively traverses the elements children.
+   * @param element
+   * @returns
+   */
+  const traverse = (element: Element) => {
+    const { x, y, width, height } = element.getBoundingClientRect();
     const type = getTypeFromElement(element, targetWindow);
 
     // Skip element if we can't determine the type.
     if (type) {
       upsertElement({
         type,
-        x: rect.x,
-        y: rect.y,
-        width: rect.width,
-        height: rect.height,
+        x,
+        y,
+        width,
+        height,
       });
     }
 
-    // Early return to skip traversing svg elements
+    // Early return to skip traversing svg elements. We may support traversing SVGs in the future.
     if (element.tagName.toLocaleLowerCase() === 'svg') return;
 
-    const orderedChildren = Array.from(element.children).sort(
+    // To ensure that elements are stacked in the correct order, we sort them by z-index.
+    // This is done on a per-parent basis, since sorting _after_ traversal would
+    // blow away the position within the DOM as a factor in stacking.
+    const children = Array.from(element.children).sort(
       (a, b) => zIndexFromElement(a) - zIndexFromElement(b),
     );
 
-    for (const child of orderedChildren) {
-      traverse(child as HTMLElement);
-    }
+    // Recurse into children
+    children.forEach(traverse);
   };
 
   const p1 = performance.now();
