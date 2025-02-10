@@ -19,9 +19,7 @@ export type InitRendererOptions = {
   autoExposeInMainWorld?: boolean | AutoExposeOptions;
   experimental?: {
     /** Whether to enable session replay, and with what options. Defaults to false. */
-    sessionReplayConfiguration?:
-      | boolean
-      | Pick<AddSessionReplayCaptureOptions, 'frequency'>;
+    sessionReplayConfiguration?: boolean | AddSessionReplayCaptureOptions;
   };
 };
 
@@ -35,6 +33,10 @@ export const initRenderer = (options: InitRendererOptions) => {
   }
 
   if (options?.experimental?.sessionReplayConfiguration) {
-    addSessionReplayCapture(window);
+    const sessionReplayOptions =
+      typeof options.experimental.sessionReplayConfiguration === 'boolean'
+        ? {}
+        : options.experimental.sessionReplayConfiguration;
+    addSessionReplayCapture(window, sessionReplayOptions);
   }
 };

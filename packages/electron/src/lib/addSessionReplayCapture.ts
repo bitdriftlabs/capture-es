@@ -7,6 +7,9 @@
 
 import { ipcRenderer } from 'electron';
 import { captureScreen } from '@bitdrift/dom';
+import { type AutoExposeOptions } from './autoExposeInMainWorld';
+import { buildChannelName } from './utils';
+import { BitdriftChannels } from './constants';
 
 export type AddSessionReplayCaptureOptions = {
   /**
@@ -14,7 +17,7 @@ export type AddSessionReplayCaptureOptions = {
    * @default 3000
    * */
   frequency?: number;
-};
+} & Pick<AutoExposeOptions, 'channelPrefix'>;
 
 const DEFAULT_INTERVAL = 3000;
 
@@ -31,9 +34,13 @@ export const addSessionReplayCapture = (
       lastTick = now;
       try {
         const screen = captureScreen(targetWindow);
-        ipcRenderer.send('bitdrift:replay', screen);
+        ipcRenderer.send(
+          buildChannelName(BitdriftChannels.replay, options?.channelPrefix),
+          screen,
+        );
       } catch {
         // TODO: log error
+        ipcRenderer;
       }
     }
 

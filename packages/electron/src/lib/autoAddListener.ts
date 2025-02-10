@@ -8,6 +8,8 @@
 import { Logger } from '@bitdrift/core';
 import { constructArrayBuffer } from '@bitdrift/dom';
 import { ipcMain } from 'electron';
+import { buildChannelName } from './utils';
+import { BitdriftChannels } from './constants';
 
 /**
  * Options for automatically exposing objects in the main world.
@@ -21,9 +23,6 @@ const DEFAULT_OPTIONS: AutoExposeOptions = {
   channelPrefix: undefined,
 };
 
-const buildChannelName = (tail: string, prefix?: string) =>
-  [prefix, 'bitdrift', tail].filter(Boolean).join(':');
-
 export const autoAddListener = (
   logger: InstanceType<typeof Logger>,
   options?: AutoExposeOptions,
@@ -31,13 +30,19 @@ export const autoAddListener = (
   const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
 
   // Wire up the IPC channel to the logger
-  const logChannel = buildChannelName('log', mergedOptions.channelPrefix);
+  const logChannel = buildChannelName(
+    BitdriftChannels.log,
+    mergedOptions.channelPrefix,
+  );
   ipcMain.on(logChannel, (_, level, message, fields) => {
     logger.log(level, message, fields ?? {});
   });
 
   // Wire up the IPC channel to the logger
-  const replayChannel = buildChannelName('replay', mergedOptions.channelPrefix);
+  const replayChannel = buildChannelName(
+    BitdriftChannels.replay,
+    mergedOptions.channelPrefix,
+  );
   ipcMain.on(
     replayChannel,
     (

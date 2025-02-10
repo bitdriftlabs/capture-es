@@ -12,3 +12,17 @@ export const BitdriftLogLevels = Object.freeze({
   warn: 3,
   error: 4,
 });
+
+export const BitdriftChannels = Object.freeze({
+  log: {
+    type: 'bitdriftChannel',
+    value: 'log',
+  },
+  replay: {
+    type: 'bitdriftChannel',
+    value: 'replay',
+  },
+});
+
+export type BitdriftChannels =
+  (typeof BitdriftChannels)[keyof typeof BitdriftChannels];
