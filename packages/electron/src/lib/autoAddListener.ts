@@ -6,10 +6,10 @@
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
 import { Logger } from '@bitdrift/core';
-import { constructArrayBuffer } from '@bitdrift/dom';
 import { ipcMain } from 'electron';
 import { buildChannelName } from './utils';
 import { BitdriftChannels } from './constants';
+import { constructArrayBuffer } from './renderer/replay';
 
 /**
  * Options for automatically exposing objects in the main world.

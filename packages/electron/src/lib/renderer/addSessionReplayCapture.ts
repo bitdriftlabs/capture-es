@@ -6,10 +6,10 @@
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
 import { ipcRenderer } from 'electron';
-import { captureScreen } from '@bitdrift/dom';
 import { type AutoExposeOptions } from './autoExposeInMainWorld';
-import { buildChannelName } from './utils';
-import { BitdriftChannels, BitdriftLogLevels } from './constants';
+import { buildChannelName } from '../utils';
+import { BitdriftChannels, BitdriftLogLevels } from '../constants';
+import { captureScreen } from './replay';
 
 export type AddSessionReplayCaptureOptions = {
   /**

@@ -8,11 +8,9 @@
 import {
   addSessionReplayCapture,
   type AddSessionReplayCaptureOptions,
-} from './lib/addSessionReplayCapture';
-import {
   autoExposeInMainWorld,
   type AutoExposeOptions,
-} from './lib/autoExposeInMainWorld';
+} from './lib/renderer';
 
 export type InitRendererOptions = {
   /** Whether to automatically expose the logger in the main world. Defaults to false. */

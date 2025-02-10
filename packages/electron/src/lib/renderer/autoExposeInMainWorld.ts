@@ -6,9 +6,9 @@
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
 import { contextBridge, ipcRenderer } from 'electron';
-import { LogFields, RequiredAttributes } from './types';
-import { BitdriftChannels, BitdriftLogLevels } from './constants';
-import { buildChannelName } from './utils';
+import { LogFields, RequiredAttributes } from '../types';
+import { BitdriftChannels, BitdriftLogLevels } from '../constants';
+import { buildChannelName } from '../utils';
 
 /**
  * Options for automatically exposing objects in the main world.
