@@ -116,9 +116,10 @@ impl Logger {
   }
 
   #[napi]
-  pub fn log_session_replay_screen(&self,
+  pub fn log_session_replay_screen(
+    &self,
     fields: HashMap<String, Either4<String, u32, bool, Buffer>>,
-    duration_ms: u32
+    duration_ms: u32,
   ) -> Result<()> {
     let fields: AnnotatedLogFields = fields
       .into_iter()

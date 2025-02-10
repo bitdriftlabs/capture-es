@@ -17,7 +17,8 @@
     "build-debug": "nx run-many --target=build --parallel --",
     "test": "nx affected --target=test --parallel",
     "lint": "nx affected --target=lint --parallel",
-    "lint:all": "nx run-many --target=lint --parallel"
+    "lint:all": "nx run-many --target=lint --parallel",
+    "fmt": "cargo +nightly fmt --manifest-path packages/core/Cargo.toml --all"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",
