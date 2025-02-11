@@ -92,6 +92,7 @@ impl Logger {
   }
 
   #[napi]
+  #[allow(clippy::needless_pass_by_value)]
   pub fn remove_field(&self, key: String) {
     self.inner.remove_field(&key);
   }
