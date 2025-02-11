@@ -17,14 +17,19 @@ export type AddSessionReplayCaptureOptions = {
    * @default 3000
    * */
   frequency?: number;
+  /**
+   * The target global window object to capture from.
+   * @default window
+   */
+  targetWindow?: Window;
 } & Pick<AutoExposeOptions, 'channelPrefix'>;
 
 const DEFAULT_INTERVAL = 3000;
 
 export const addSessionReplayCapture = (
-  targetWindow: Window,
   options?: AddSessionReplayCaptureOptions,
 ) => {
+  const targetWindow = options?.targetWindow ?? window;
   const interval = options?.frequency ?? DEFAULT_INTERVAL;
   let lastTick = Date.now();
 

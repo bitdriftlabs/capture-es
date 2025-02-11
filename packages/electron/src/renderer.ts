@@ -35,6 +35,6 @@ export const initRenderer = (options: InitRendererOptions) => {
       typeof options.experimental.sessionReplayConfiguration === 'boolean'
         ? {}
         : options.experimental.sessionReplayConfiguration;
-    addSessionReplayCapture(window, sessionReplayOptions);
+    addSessionReplayCapture(sessionReplayOptions);
   }
 };
