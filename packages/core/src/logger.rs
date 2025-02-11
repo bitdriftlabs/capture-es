@@ -23,6 +23,7 @@ use bd_logger::{
   AnnotatedLogField,
   AnnotatedLogFields,
   InitParams,
+  LogField,
   LogLevel,
   LogType,
   LoggerBuilder,
