@@ -26,22 +26,26 @@ const DEFAULT_OPTIONS: RequiredAttributes<AutoExposeOptions, 'exposeAs'> = {
 };
 
 export const autoExposeInMainWorld = (options?: AutoExposeOptions) => {
-  const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
-  const logChannel = buildChannelName(
-    BitdriftChannels.log,
-    mergedOptions.channelPrefix,
-  );
+  try {
+    const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
+    const logChannel = buildChannelName(
+      BitdriftChannels.log,
+      mergedOptions.channelPrefix,
+    );
 
-  // Factory for mapping log functions
-  const factory = (level: number) => (msg: string, fields: LogFields) =>
-    ipcRenderer.send(logChannel, level, msg, fields);
+    // Factory for mapping log functions
+    const factory = (level: number) => (msg: string, fields: LogFields) =>
+      ipcRenderer.send(logChannel, level, msg, fields);
 
-  // Expose the logger in the main world
-  contextBridge.exposeInMainWorld(mergedOptions.exposeAs, {
-    trace: factory(BitdriftLogLevels.trace),
-    debug: factory(BitdriftLogLevels.debug),
-    info: factory(BitdriftLogLevels.info),
-    warn: factory(BitdriftLogLevels.warn),
-    error: factory(BitdriftLogLevels.error),
-  });
+    // Expose the logger in the main world
+    contextBridge.exposeInMainWorld(mergedOptions.exposeAs, {
+      trace: factory(BitdriftLogLevels.trace),
+      debug: factory(BitdriftLogLevels.debug),
+      info: factory(BitdriftLogLevels.info),
+      warn: factory(BitdriftLogLevels.warn),
+      error: factory(BitdriftLogLevels.error),
+    });
+  } catch (error) {
+    console.error('Failed to expose bitdriftSDK in main world', error);
+  }
 };
