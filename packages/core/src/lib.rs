@@ -132,7 +132,7 @@ impl Logger {
         };
 
         AnnotatedLogField {
-          kind: LogFieldKind::Custom,
+          kind: LogFieldKind::Ootb,
           field: LogField { key, value },
         }
       })
