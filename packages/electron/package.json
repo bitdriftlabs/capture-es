@@ -24,17 +24,5 @@
   },
   "peerDependencies": {
     "electron": ">=28"
-  },
-  "exports": {
-    ".": {
-      "import": "./src/index.js",
-      "require": "./src/index.js",
-      "types": "./src/index.d.ts"
-    },
-    "./renderer": {
-      "import": "./src/renderer.js",
-      "require": "./src/renderer.js",
-      "types": "./src/renderer.d.ts"
-    }
   }
 }
