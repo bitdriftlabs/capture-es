@@ -5,15 +5,12 @@
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
-import { initRenderer } from '@bitdrift/electron/renderer';
+import { Logger } from '@bitdrift/core';
 
-initRenderer({
-  autoExposeInMainWorld: {
-    exposeAs: 'logger',
-  },
-  experimental: {
-    sessionReplayConfiguration: {
-      frequency: 3000,
-    },
-  },
-});
+export type LoggerInstance = Logger;
+
+export type LogParams = Parameters<LoggerInstance['log']>;
+
+export type LogFields = LogParams[2];
+
+export type RequiredAttributes<T, K extends keyof T> = T & Required<Pick<T, K>>;

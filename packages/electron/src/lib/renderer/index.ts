@@ -5,15 +5,5 @@
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
-import { initRenderer } from '@bitdrift/electron/renderer';
-
-initRenderer({
-  autoExposeInMainWorld: {
-    exposeAs: 'logger',
-  },
-  experimental: {
-    sessionReplayConfiguration: {
-      frequency: 3000,
-    },
-  },
-});
+export * from './addSessionReplayCapture';
+export * from './exposeInMainWorld';

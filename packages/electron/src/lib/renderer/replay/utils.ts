@@ -5,15 +5,8 @@
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
-import { initRenderer } from '@bitdrift/electron/renderer';
+export const matchByRole = (element: Element, roles: string[]) =>
+  element.matches(roles.map((role) => `[role="${role}"]`).join(','));
 
-initRenderer({
-  autoExposeInMainWorld: {
-    exposeAs: 'logger',
-  },
-  experimental: {
-    sessionReplayConfiguration: {
-      frequency: 3000,
-    },
-  },
-});
+export const matchByTagName = (element: Element, tagNames: string[]) =>
+  tagNames.includes(element.tagName.toLowerCase());
