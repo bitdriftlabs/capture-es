@@ -25,7 +25,7 @@ const DEFAULT_OPTIONS: RequiredAttributes<AutoExposeOptions, 'exposeAs'> = {
   channelPrefix: undefined,
 };
 
-export const autoExposeInMainWorld = (options?: AutoExposeOptions) => {
+export const exposeInMainWorld = (options?: AutoExposeOptions) => {
   try {
     const mergedOptions = { ...DEFAULT_OPTIONS, ...options };
     const logChannel = buildChannelName(

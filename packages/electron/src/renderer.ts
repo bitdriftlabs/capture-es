@@ -8,8 +8,9 @@
 import {
   addSessionReplayCapture,
   type AddSessionReplayCaptureOptions,
-  autoExposeInMainWorld,
+  exposeInMainWorld,
   type AutoExposeOptions,
+  setSessionReplayCaptureInterval,
 } from './lib/renderer';
 
 export type InitRendererOptions = {
@@ -23,7 +24,7 @@ export type InitRendererOptions = {
 
 export const initRenderer = (options: InitRendererOptions) => {
   if (options.autoExposeInMainWorld) {
-    autoExposeInMainWorld(
+    exposeInMainWorld(
       typeof options.autoExposeInMainWorld === 'boolean'
         ? {}
         : options.autoExposeInMainWorld,
@@ -37,4 +38,13 @@ export const initRenderer = (options: InitRendererOptions) => {
         : options.experimental.sessionReplayConfiguration;
     addSessionReplayCapture(sessionReplayOptions);
   }
+};
+
+// Export internals
+export {
+  exposeInMainWorld,
+  type AutoExposeOptions,
+  addSessionReplayCapture,
+  type AddSessionReplayCaptureOptions,
+  setSessionReplayCaptureInterval,
 };

@@ -6,10 +6,10 @@
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
 import { ipcRenderer } from 'electron';
-import { type AutoExposeOptions } from './autoExposeInMainWorld';
+import { type AutoExposeOptions } from './exposeInMainWorld';
 import { buildChannelName } from '../utils';
 import { BitdriftChannels, BitdriftLogLevels } from '../constants';
-import { captureScreen } from './replay';
+import { captureScreen, type ScreenCaptureResult } from './replay';
 
 export type AddSessionReplayCaptureOptions = {
   /**
@@ -26,8 +26,11 @@ export type AddSessionReplayCaptureOptions = {
 
 const DEFAULT_INTERVAL = 3000;
 
-export const addSessionReplayCapture = (
-  options?: AddSessionReplayCaptureOptions,
+export const setSessionReplayCaptureInterval = (
+  callback: (capture: ScreenCaptureResult) => void,
+  options?: AddSessionReplayCaptureOptions & {
+    onError?: (error: unknown) => void;
+  },
 ) => {
   const targetWindow = options?.targetWindow ?? window;
   const interval = options?.frequency ?? DEFAULT_INTERVAL;
@@ -38,23 +41,37 @@ export const addSessionReplayCapture = (
     if (now - lastTick > interval) {
       lastTick = now;
       try {
-        const screen = captureScreen(targetWindow);
-        ipcRenderer.send(
-          buildChannelName(BitdriftChannels.replay, options?.channelPrefix),
-          screen,
-        );
+        callback(captureScreen(targetWindow));
       } catch (e: unknown) {
+        options?.onError?.(e);
+      }
+    }
+    targetWindow.requestIdleCallback(tick);
+  };
+
+  targetWindow.requestIdleCallback(tick);
+};
+
+export const addSessionReplayCapture = (
+  options?: AddSessionReplayCaptureOptions,
+) => {
+  setSessionReplayCaptureInterval(
+    (capture) => {
+      ipcRenderer.send(
+        buildChannelName(BitdriftChannels.replay, options?.channelPrefix),
+        capture,
+      );
+    },
+    {
+      ...options,
+      onError: (e) => {
         ipcRenderer.send(
           buildChannelName(BitdriftChannels.log, options?.channelPrefix),
           BitdriftLogLevels.error,
           'Failed to capture screen',
           { error: e },
         );
-      }
-    }
-
-    targetWindow.requestIdleCallback(tick);
-  };
-
-  targetWindow.requestIdleCallback(tick);
+      },
+    },
+  );
 };

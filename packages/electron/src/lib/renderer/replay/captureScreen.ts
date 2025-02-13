@@ -121,12 +121,17 @@ const keyFromCaptureElement = ({
 const zIndexFromElement = (element: Element) =>
   parseInt(getComputedStyle(element).zIndex, 10) || 0;
 
+export type ScreenCaptureResult = {
+  screen: [ReplayViewType, number, number, number, number][];
+  durationMs: number;
+};
+
 /**
  * Given a target window, recursively traverses the DOM parsing elements into a screen capture wire frames.
  * @param targetWindow
  * @returns
  */
-export const captureScreen = (targetWindow: Window) => {
+export const captureScreen = (targetWindow: Window): ScreenCaptureResult => {
   const elementsMap = new Map<string, CaptureElement>();
 
   /**
