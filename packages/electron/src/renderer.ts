@@ -14,6 +14,8 @@ import {
 } from './lib/renderer';
 
 export type InitRendererOptions = {
+  /** A prefix to use for the IPC channel names. Will only be used if autoExposeInMainWorld or experimental.sessionReplayConfiguration is set. */
+  channelPrefix?: string;
   /** Whether to automatically expose the logger in the main world. Defaults to false. */
   autoExposeInMainWorld?: boolean | AutoExposeOptions;
   experimental?: {
@@ -26,16 +28,22 @@ export const initRenderer = (options: InitRendererOptions) => {
   if (options.autoExposeInMainWorld) {
     exposeInMainWorld(
       typeof options.autoExposeInMainWorld === 'boolean'
-        ? {}
-        : options.autoExposeInMainWorld,
+        ? { channelPrefix: options.channelPrefix }
+        : {
+            channelPrefix: options.channelPrefix,
+            ...options.autoExposeInMainWorld,
+          },
     );
   }
 
   if (options?.experimental?.sessionReplayConfiguration) {
     const sessionReplayOptions =
       typeof options.experimental.sessionReplayConfiguration === 'boolean'
-        ? {}
-        : options.experimental.sessionReplayConfiguration;
+        ? { channelPrefix: options.channelPrefix }
+        : {
+            channelPrefix: options.channelPrefix,
+            ...options.experimental.sessionReplayConfiguration,
+          };
     addSessionReplayCapture(sessionReplayOptions);
   }
 };
