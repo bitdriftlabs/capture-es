@@ -16,7 +16,8 @@
         "format": ["cjs", "esm"],
         "tsConfig": "{projectRoot}/tsconfig.lib.json",
         "additionalEntryPoints": ["{projectRoot}/src/renderer.ts"],
-        "generateExportsField": true
+        "generateExportsField": true,
+        "external": ["electron"]
       }
     },
     "test": {
