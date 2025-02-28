@@ -29,7 +29,9 @@ describe('bitdrift native logger', () => {
   });
 
   afterAll(() => {
-    fs.rmSync('./store', { recursive: true, force: true });
+    if (fs.existsSync('./store')) {
+      fs.rmSync('./store', { recursive: true, force: true });
+    }
   });
 
   it('logger should be set', () => {
