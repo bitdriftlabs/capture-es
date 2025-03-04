@@ -37,7 +37,7 @@ RCT_EXPORT_METHOD(getSessionURL:(RCTPromiseResolveBlock)resolve reject:(RCTPromi
 
 RCT_EXPORT_METHOD(logScreenView:(NSString *)screenName)
 {
-    [CAPRNLogger screenName:screenName]
+    [CAPRNLogger logScreenViewWithScreenName:screenName];
 }
 
 #ifndef RCT_NEW_ARCH_ENABLED
