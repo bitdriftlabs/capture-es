@@ -86,4 +86,8 @@ import Capture
         }
         resolve(sessionURL)
     }
+
+    @objc public static func logScreenView(screenView: String) {
+        Capture.Logger.logScreenView(screenView)
+    }
 }
