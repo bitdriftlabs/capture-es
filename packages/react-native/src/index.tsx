@@ -8,7 +8,7 @@ import {
 import { InitOptions, SessionStrategy } from './NativeBdReactNative';
 import NativeBdReactNative from './NativeBdReactNative';
 export { SessionStrategy } from './NativeBdReactNative';
-export { LogLevel } from './logAt';
+export { LogLevel } from './internal';
 
 let api_url: string;
 let api_key: string;

@@ -1,4 +1,4 @@
-import { LOG_LEVEL_MAP } from './logAt';
+import { LOG_LEVEL_MAP } from './internal';
 import Native from './NativeBdReactNative';
 import { startSpan, endSpan } from './span';
 

@@ -1,6 +1,7 @@
-import { LogLevel, logAt } from './logAt';
+import { LogLevel } from './internal';
 import { type SerializableLogFields } from './log';
 import { v4 as uuidv4 } from 'uuid';
+import { logAt } from './logAt';
 
 type Span = {
   name: string;

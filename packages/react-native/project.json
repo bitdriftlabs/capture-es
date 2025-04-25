@@ -28,8 +28,21 @@
         ]
       }
     },
+    "prebuild": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "packages/react-native",
+        "commands": [
+          "rm -rf src/internal",
+          "mkdir -p src/internal",
+          "cp -r ../../libs/shared/src/* src/internal"
+        ],
+        "parallel": false
+      }
+    },
     "build": {
       "executor": "nx:run-commands",
+      "dependsOn": ["prebuild"],
       "options": {
         "cwd": "packages/react-native",
         "command": "npx bob build"
