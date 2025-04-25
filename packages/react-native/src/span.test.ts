@@ -1,3 +1,7 @@
+import { LOG_LEVEL_MAP } from './logAt';
+import Native from './NativeBdReactNative';
+import { startSpan } from './span';
+
 jest.mock('react-native', () => ({
   TurboModuleRegistry: {
     getEnforcing: jest.fn().mockReturnValue({
@@ -9,9 +13,6 @@ jest.mock('react-native', () => ({
   },
 }));
 
-import Native from './NativeBdReactNative';
-import { startSpan, endSpan } from './span';
-
 describe('spans', () => {
   beforeEach(() => {
     (Native.log as jest.Mock) = jest.fn();
@@ -21,9 +22,21 @@ describe('spans', () => {
     const fields = { key: 'value' };
 
     const span = startSpan('message', 'error', fields);
-    expect(Native.log).toHaveBeenCalledWith(0, 'message', fields);
+    expect(Native.log).toHaveBeenCalledWith(4, '', {
+      key: 'value',
+      _span_id: expect.any(String),
+      _span_name: 'message',
+      _span_type: 'start',
+    });
 
-    endSpan(span, 'success');
-    expect(Native.log).toHaveBeenCalledWith(0, 'message', fields);
+    span.end('success');
+    expect(Native.log).toHaveBeenCalledWith(4, '', {
+      key: 'value',
+      _span_id: span.id,
+      _span_name: 'message',
+      _span_type: 'end',
+      _span_result: 'success',
+      _duration_ms: expect.any(String),
+    });
   });
 });

@@ -48,6 +48,7 @@ const LogLevels = Object.freeze({
 
 export type LogLevel = keyof typeof LogLevels;
 
+
 export function init(
   key: string,
   sessionStrategy: SessionStrategy,

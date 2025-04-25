@@ -1,8 +1,8 @@
-import { LogLevel, logAt } from '.';
+import { LogLevel, log } from '.';
 import { SerializableLogFields } from './log';
 import { v4 as uuidv4 } from 'uuid';
 
-type Span = {
+type SpanInfo = {
   name: string;
   id: string;
   level: LogLevel;
@@ -11,6 +11,13 @@ type Span = {
   startTimeMs: number;
   parentSpanID?: string;
 };
+
+type Span = {
+  id: string;
+  end: (result: SpanResult, endTimeInterval?: number) => void;
+};
+
+type SpanResult = 'success' | 'failure' | 'error' | 'cancelled' | 'unknown';
 
 /**
  * Signals that an operation has started at this point in time. Each operation consists of start and
@@ -43,12 +50,12 @@ export function startSpan(
   const startSpanFields = {
     ...fields,
     ...{ _span_id: spanUuid, _span_name: name, _span_type: 'start' },
-    ...(parentSpanID ? { _parent_span_id: parentSpanID } : {}),
+    ...parentSpanID ? { _parent_span_id: parentSpanID } : {},
   };
 
-  logAt(level, ``, startSpanFields);
+  log(level, ``, startSpanFields);
 
-  return {
+  const span = {
     name,
     id: spanUuid,
     level,
@@ -57,10 +64,15 @@ export function startSpan(
     parentSpanID,
     startTimeMs: performance.now(),
   };
+
+  return {
+    id: span.id,
+    end: (result: SpanResult, endTimeInterval?: number) => endSpan(span, result, endTimeInterval),
+  };
 }
 
-export function endSpan(
-  span: Span,
+function endSpan(
+  span: SpanInfo,
   result: 'success' | 'failure' | 'error' | 'cancelled' | 'unknown',
   endTimeInterval?: number,
 ): void {
@@ -79,9 +91,10 @@ export function endSpan(
       _span_type: 'end',
       _span_result: result,
     },
-    ...{ _span_parent_id: span.parentSpanID },
+    ...{ '_span_parent_id': span.parentSpanID },
+    ...{ '_duration_ms': duration },
     ...{ _duration_ms: duration },
   };
 
-  logAt(span.level, ``, end_span_fields);
+  log(span.level, ``, end_span_fields);
 }
