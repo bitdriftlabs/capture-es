@@ -30,14 +30,13 @@ const BdReactNativeModule = isTurboModuleEnabled
 const BdReactNative = BdReactNativeModule
   ? BdReactNativeModule
   : new Proxy(
-    {},
-    {
-      get() {
-        throw new Error(LINKING_ERROR);
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
       },
-    },
-  );
-
+    );
 
 export function init(
   key: string,

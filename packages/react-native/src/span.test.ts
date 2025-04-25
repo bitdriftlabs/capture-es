@@ -31,15 +31,14 @@ describe('spans', () => {
         _span_type: 'start',
       });
 
-      expect(Native.log)
-        .toHaveBeenNthCalledWith(2, 4, '', {
-          key: 'value',
-          _span_id: span.id,
-          _span_name: 'message',
-          _span_type: 'end',
-          _span_result: 'success',
-          _duration_ms: '0'
-        });
+      expect(Native.log).toHaveBeenNthCalledWith(2, 4, '', {
+        key: 'value',
+        _span_id: span.id,
+        _span_name: 'message',
+        _span_type: 'end',
+        _span_result: 'success',
+        _duration_ms: '0',
+      });
     });
 
     test('with start time override and no end time override', () => {
@@ -57,15 +56,14 @@ describe('spans', () => {
       });
 
       // Duration still uses performance.now()
-      expect(Native.log)
-        .toHaveBeenNthCalledWith(2, 4, '', {
-          key: 'value',
-          _span_id: span.id,
-          _span_name: 'message',
-          _span_type: 'end',
-          _span_result: 'success',
-          _duration_ms: '0'
-        });
+      expect(Native.log).toHaveBeenNthCalledWith(2, 4, '', {
+        key: 'value',
+        _span_id: span.id,
+        _span_name: 'message',
+        _span_type: 'end',
+        _span_result: 'success',
+        _duration_ms: '0',
+      });
     });
 
     test('with start time override and end time override', () => {
@@ -82,15 +80,14 @@ describe('spans', () => {
         _span_type: 'start',
       });
 
-      expect(Native.log)
-        .toHaveBeenNthCalledWith(2, 4, '', {
-          key: 'value',
-          _span_id: span.id,
-          _span_name: 'message',
-          _span_type: 'end',
-          _span_result: 'success',
-          _duration_ms: '100'
-        });
+      expect(Native.log).toHaveBeenNthCalledWith(2, 4, '', {
+        key: 'value',
+        _span_id: span.id,
+        _span_name: 'message',
+        _span_type: 'end',
+        _span_result: 'success',
+        _duration_ms: '100',
+      });
     });
   });
 });
