@@ -1,7 +1,6 @@
 import { NativeModules, Platform } from 'react-native';
-import { v4 as uuidv4 } from 'uuid';
 import {
-  log,
+  logInternal,
   serialize,
   type SerializableLogFields,
   Serializable,
@@ -39,7 +38,15 @@ const BdReactNative = BdReactNativeModule
     },
   );
 
-export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error';
+const LogLevels = Object.freeze({
+  trace: 0,
+  debug: 1,
+  info: 2,
+  warn: 3,
+  error: 4,
+});
+
+export type LogLevel = keyof typeof LogLevels;
 
 export function init(
   key: string,
@@ -53,29 +60,31 @@ export function init(
 }
 
 export function trace(message: string, fields?: SerializableLogFields): void {
-  return log(0, message, fields);
+  return logInternal(0, message, fields);
 }
 
 export function debug(message: string, fields?: SerializableLogFields): void {
-  return log(1, message, fields);
+  return logInternal(1, message, fields);
 }
 
 export function info(message: string, fields?: SerializableLogFields): void {
-  return log(2, message, fields);
+  return logInternal(2, message, fields);
 }
 
 export function warn(message: string, fields?: SerializableLogFields): void {
-  return log(3, message, fields);
+  return logInternal(3, message, fields);
 }
 
 export function error(message: string, fields?: SerializableLogFields): void {
-  return log(4, message, fields);
+  return logInternal(4, message, fields);
 }
 
-export function logAt(log_level: LogLevel, message: string, fields?: SerializableLogFields): void {
-  const level = { 'trace': 0, 'debug': 1, 'info': 2, 'warn': 3, 'error': 4 }[log_level];
-
-  return log(level, message, fields);
+export function log(
+  log_level: LogLevel,
+  message: string,
+  fields?: SerializableLogFields,
+): void {
+  return logInternal(LogLevels[log_level], message, fields);
 }
 
 /**
@@ -114,9 +123,9 @@ export async function getSessionURL(): Promise<string> {
 }
 
 /**
-  * Logs a screen view event. This can be called to record that a screen was viewed.
-  * @param screenName The name of the screen that was viewed.
-  */
+ * Logs a screen view event. This can be called to record that a screen was viewed.
+ * @param screenName The name of the screen that was viewed.
+ */
 export function logScreenView(screenName: string): void {
   return NativeBdReactNative.logScreenView(screenName);
 }

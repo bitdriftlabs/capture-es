@@ -7,7 +7,6 @@ jest.mock('react-native', () => ({
   Platform: {
     select: jest.fn().mockReturnValue(''),
   },
-
 }));
 
 import Native from './NativeBdReactNative';

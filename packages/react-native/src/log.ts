@@ -20,7 +20,7 @@ export type Serializable =
 
 export type SerializableLogFields = { [key: string]: Serializable };
 
-export const log = (
+export const logInternal = (
   level: number,
   message: string,
   fields?: SerializableLogFields,
@@ -30,12 +30,12 @@ export const log = (
     message,
     fields
       ? Object.entries(fields).reduce<LogFields>(
-          (acc, [key, value]) => ({
-            ...acc,
-            [key]: serialize(value),
-          }),
-          {},
-        )
+        (acc, [key, value]) => ({
+          ...acc,
+          [key]: serialize(value),
+        }),
+        {},
+      )
       : undefined,
   );
 
