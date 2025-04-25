@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
+import { v4 as uuidv4 } from 'uuid';
 import {
   log,
   serialize,
@@ -30,13 +31,15 @@ const BdReactNativeModule = isTurboModuleEnabled
 const BdReactNative = BdReactNativeModule
   ? BdReactNativeModule
   : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
+    {},
+    {
+      get() {
+        throw new Error(LINKING_ERROR);
       },
-    );
+    },
+  );
+
+export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error';
 
 export function init(
   key: string,
@@ -67,6 +70,12 @@ export function warn(message: string, fields?: SerializableLogFields): void {
 
 export function error(message: string, fields?: SerializableLogFields): void {
   return log(4, message, fields);
+}
+
+export function logAt(log_level: LogLevel, message: string, fields?: SerializableLogFields): void {
+  const level = { 'trace': 0, 'debug': 1, 'info': 2, 'warn': 3, 'error': 4 }[log_level];
+
+  return log(level, message, fields);
 }
 
 /**
@@ -110,6 +119,17 @@ export async function getSessionURL(): Promise<string> {
   */
 export function logScreenView(screenName: string): void {
   return NativeBdReactNative.logScreenView(screenName);
+}
+
+/**
+ * Writes an app launch TTI log event. This event should be logged only once per Logger configuration.
+ * Consecutive calls have no effect.
+ *
+ * @param {number} tti_ms - The time between a user's intent to launch the app and when the app becomes
+ *                       interactive. Calls with a negative duration are ignored.
+ */
+export function logAppLaunchTTI(tti_ms: number): void {
+  return NativeBdReactNative.logAppLaunchTTI(tti_ms);
 }
 
 /**

@@ -7,7 +7,7 @@
 
 /* eslint-disable no-useless-escape */
 
-import { log } from './log';
+import { log, } from './log';
 import Native from './NativeBdReactNative';
 
 jest.mock('react-native', () => ({

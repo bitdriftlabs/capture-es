@@ -15,4 +15,5 @@ export declare class Logger {
   removeField(key: string): void
   log(level: number, message: string, fields: Record<string, string | number | boolean | Buffer>): void
   logSessionReplayScreen(fields: Record<string, string | number | boolean | Buffer>, durationMs: number): void
+  logAppLaunchTTI(fields: Record<string, string | number | boolean | Buffer>, durationMs: number): void
 }
