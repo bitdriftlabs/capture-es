@@ -29,5 +29,5 @@ module.exports = {
   },
   transformIgnorePatterns: [`/node_modules/(?!(${esModules})/)`],
   coverageDirectory: '../../coverage/packages/react-native',
-  testPathIgnorePatterns: ['<rootDir>/dist',],
+  testPathIgnorePatterns: ['<rootDir>/dist'],
 };

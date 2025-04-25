@@ -50,7 +50,7 @@ export function startSpan(
   const startSpanFields = {
     ...fields,
     ...{ _span_id: spanUuid, _span_name: name, _span_type: 'start' },
-    ...parentSpanID ? { _parent_span_id: parentSpanID } : {},
+    ...(parentSpanID ? { _parent_span_id: parentSpanID } : {}),
   };
 
   log(level, ``, startSpanFields);
@@ -67,7 +67,8 @@ export function startSpan(
 
   return {
     id: span.id,
-    end: (result: SpanResult, endTimeInterval?: number) => endSpan(span, result, endTimeInterval),
+    end: (result: SpanResult, endTimeInterval?: number) =>
+      endSpan(span, result, endTimeInterval),
   };
 }
 
@@ -91,8 +92,8 @@ function endSpan(
       _span_type: 'end',
       _span_result: result,
     },
-    ...{ '_span_parent_id': span.parentSpanID },
-    ...{ '_duration_ms': duration },
+    ...{ _span_parent_id: span.parentSpanID },
+    ...{ _duration_ms: duration },
     ...{ _duration_ms: duration },
   };
 

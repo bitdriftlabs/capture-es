@@ -30,12 +30,12 @@ export const logInternal = (
     message,
     fields
       ? Object.entries(fields).reduce<LogFields>(
-        (acc, [key, value]) => ({
-          ...acc,
-          [key]: serialize(value),
-        }),
-        {},
-      )
+          (acc, [key, value]) => ({
+            ...acc,
+            [key]: serialize(value),
+          }),
+          {},
+        )
       : undefined,
   );
 
