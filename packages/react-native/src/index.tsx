@@ -4,6 +4,7 @@ import {
   serialize,
   type SerializableLogFields,
   Serializable,
+  LogLevel,
 } from './log';
 import { InitOptions, SessionStrategy } from './NativeBdReactNative';
 import NativeBdReactNative from './NativeBdReactNative';
@@ -50,23 +51,23 @@ export function init(
 }
 
 export function trace(message: string, fields?: SerializableLogFields): void {
-  return logInternal(0, message, fields);
+  return logInternal('trace', message, fields);
 }
 
 export function debug(message: string, fields?: SerializableLogFields): void {
-  return logInternal(1, message, fields);
+  return logInternal('debug', message, fields);
 }
 
 export function info(message: string, fields?: SerializableLogFields): void {
-  return logInternal(2, message, fields);
+  return logInternal('info', message, fields);
 }
 
 export function warn(message: string, fields?: SerializableLogFields): void {
-  return logInternal(3, message, fields);
+  return logInternal('warn', message, fields);
 }
 
 export function error(message: string, fields?: SerializableLogFields): void {
-  return logInternal(4, message, fields);
+  return logInternal('error', message, fields);
 }
 
 export function log(
@@ -74,7 +75,7 @@ export function log(
   message: string,
   fields?: SerializableLogFields,
 ): void {
-  return logInternal(LogLevels[log_level], message, fields);
+  return logInternal(log_level, message, fields);
 }
 
 /**
