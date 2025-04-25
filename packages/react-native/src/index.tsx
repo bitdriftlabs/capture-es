@@ -30,23 +30,14 @@ const BdReactNativeModule = isTurboModuleEnabled
 const BdReactNative = BdReactNativeModule
   ? BdReactNativeModule
   : new Proxy(
-      {},
-      {
-        get() {
-          throw new Error(LINKING_ERROR);
-        },
+    {},
+    {
+      get() {
+        throw new Error(LINKING_ERROR);
       },
-    );
+    },
+  );
 
-const LogLevels = Object.freeze({
-  trace: 0,
-  debug: 1,
-  info: 2,
-  warn: 3,
-  error: 4,
-});
-
-export type LogLevel = keyof typeof LogLevels;
 
 export function init(
   key: string,

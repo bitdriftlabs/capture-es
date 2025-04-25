@@ -36,7 +36,7 @@ describe('log', () => {
     ${{ key: { nested: { nested: { nested: 'value' } } } }} | ${{ key: '{"nested":{"nested":{"nested":"value"}}}' }}
     ${{ key: [1, true, 'foobar'] }}                         | ${{ key: '[1,true,\"foobar\"]' }}
   `('calls Native.log with the correct fields', ({ fields, expected }) => {
-    logInternal(0, 'message', fields);
+    logInternal('trace', 'message', fields);
 
     expect(Native.log).toHaveBeenCalledWith(0, 'message', expected);
   });

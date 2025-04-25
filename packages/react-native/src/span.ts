@@ -1,5 +1,4 @@
-import { LogLevel, log } from '.';
-import { SerializableLogFields } from './log';
+import { SerializableLogFields, logInternal, LogLevel } from './log';
 import { v4 as uuidv4 } from 'uuid';
 
 type SpanInfo = {
@@ -53,7 +52,7 @@ export function startSpan(
     ...(parentSpanID ? { _parent_span_id: parentSpanID } : {}),
   };
 
-  log(level, ``, startSpanFields);
+  logInternal(level, ``, startSpanFields);
 
   const span = {
     name,
@@ -92,10 +91,9 @@ function endSpan(
       _span_type: 'end',
       _span_result: result,
     },
-    ...{ _span_parent_id: span.parentSpanID },
-    ...{ _duration_ms: duration },
+    ...(span.parentSpanID ? { _span_parent_id: span.parentSpanID } : {}),
     ...{ _duration_ms: duration },
   };
 
-  log(span.level, ``, end_span_fields);
+  logInternal(span.level, ``, end_span_fields);
 }
