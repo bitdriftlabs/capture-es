@@ -56,6 +56,7 @@ export function startSpan(
     startTimeInterval,
     parentSpanID,
     startTimeMs: performance.now(),
+    end: (result: SpanResult, endTimeInterval?: number) => endSpan(name, result, endTimeInterval),
   };
 }
 
