@@ -80,7 +80,7 @@ export function startSpan(
 
 function endSpan(
   span: SpanInfo,
-  result: 'success' | 'failure' | 'error' | 'cancelled' | 'unknown',
+  result: SpanResult,
   endTimeInterval?: number,
 ): void {
   let duration;
@@ -90,7 +90,7 @@ function endSpan(
     duration = performance.now() - span.startTimeMs;
   }
 
-  let end_span_fields = {
+  const endSpanFields = {
     ...span.fields,
     ...{
       _span_id: span.id,
@@ -102,5 +102,5 @@ function endSpan(
     ...{ _duration_ms: duration },
   };
 
-  logInternal(span.level, ``, end_span_fields);
+  logInternal(span.level, ``, endSpanFields);
 }
