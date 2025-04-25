@@ -1,5 +1,4 @@
 import { NativeModules, Platform } from 'react-native';
-import { v4 as uuidv4 } from 'uuid';
 import {
   log,
   serialize,
@@ -9,6 +8,7 @@ import {
 import { InitOptions, SessionStrategy } from './NativeBdReactNative';
 import NativeBdReactNative from './NativeBdReactNative';
 export { SessionStrategy } from './NativeBdReactNative';
+export { LogLevel } from './logAt';
 
 let api_url: string;
 let api_key: string;
@@ -31,15 +31,13 @@ const BdReactNativeModule = isTurboModuleEnabled
 const BdReactNative = BdReactNativeModule
   ? BdReactNativeModule
   : new Proxy(
-    {},
-    {
-      get() {
-        throw new Error(LINKING_ERROR);
+      {},
+      {
+        get() {
+          throw new Error(LINKING_ERROR);
+        },
       },
-    },
-  );
-
-export type LogLevel = 'trace' | 'debug' | 'info' | 'warn' | 'error';
+    );
 
 export function init(
   key: string,
@@ -70,12 +68,6 @@ export function warn(message: string, fields?: SerializableLogFields): void {
 
 export function error(message: string, fields?: SerializableLogFields): void {
   return log(4, message, fields);
-}
-
-export function logAt(log_level: LogLevel, message: string, fields?: SerializableLogFields): void {
-  const level = { 'trace': 0, 'debug': 1, 'info': 2, 'warn': 3, 'error': 4 }[log_level];
-
-  return log(level, message, fields);
 }
 
 /**
@@ -114,9 +106,9 @@ export async function getSessionURL(): Promise<string> {
 }
 
 /**
-  * Logs a screen view event. This can be called to record that a screen was viewed.
-  * @param screenName The name of the screen that was viewed.
-  */
+ * Logs a screen view event. This can be called to record that a screen was viewed.
+ * @param screenName The name of the screen that was viewed.
+ */
 export function logScreenView(screenName: string): void {
   return NativeBdReactNative.logScreenView(screenName);
 }

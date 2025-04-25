@@ -1,17 +1,16 @@
-import { LogLevel, logAt } from ".";
-import { SerializableLogFields } from "./log";
+import { LogLevel, logAt } from './logAt';
+import { type SerializableLogFields } from './log';
 import { v4 as uuidv4 } from 'uuid';
 
 type Span = {
-  name: string,
-  id: string,
-  level: LogLevel,
-  fields?: SerializableLogFields,
-  startTimeInterval?: number,
-  startTimeMs: number,
-  parentSpanID?: string,
+  name: string;
+  id: string;
+  level: LogLevel;
+  fields?: SerializableLogFields;
+  startTimeInterval?: number;
+  startTimeMs: number;
+  parentSpanID?: string;
 };
-
 
 /**
  * Signals that an operation has started at this point in time. Each operation consists of start and
@@ -37,14 +36,14 @@ export function startSpan(
   level: LogLevel,
   fields?: SerializableLogFields,
   startTimeInterval?: number,
-  parentSpanID?: string
+  parentSpanID?: string,
 ): Span {
   let span_uuid = uuidv4();
 
   let start_span_fields = {
     ...fields,
-    ...{ '_span_id': span_uuid, '_span_name': name, '_span_type': 'start', },
-    ...parentSpanID ? { '_parent_span_id': parentSpanID } : {},
+    ...{ _span_id: span_uuid, _span_name: name, _span_type: 'start' },
+    ...(parentSpanID ? { _parent_span_id: parentSpanID } : {}),
   };
 
   logAt(level, ``, start_span_fields);
@@ -60,7 +59,8 @@ export function startSpan(
   };
 }
 
-export function endSpan(span: Span,
+export function endSpan(
+  span: Span,
   result: 'success' | 'failure' | 'error' | 'cancelled' | 'unknown',
   endTimeInterval?: number,
 ): void {
@@ -73,12 +73,15 @@ export function endSpan(span: Span,
 
   let end_span_fields = {
     ...span.fields,
-    ...{ '_span_id': span.id, '_span_name': span.name, '_span_type': 'end', '_span_result': result },
-    ...{ '_span_parent_id': span.parentSpanID },
-    ...{ '_duration_ms': duration },
+    ...{
+      _span_id: span.id,
+      _span_name: span.name,
+      _span_type: 'end',
+      _span_result: result,
+    },
+    ...(span.parentSpanID ? { _span_parent_id: span.parentSpanID } : {}),
+    ...{ _duration_ms: duration },
   };
 
   logAt(span.level, ``, end_span_fields);
 }
-
-
