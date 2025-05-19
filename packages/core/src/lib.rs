@@ -89,7 +89,7 @@ impl Logger {
       Either4::C(value) => value.to_string().into(),
       Either4::D(value) => value.to_vec().into(),
     };
-    self.inner.add_field(field, value.into());
+    self.inner.add_field(field, value);
   }
 
   #[napi]
