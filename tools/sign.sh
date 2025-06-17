@@ -1,7 +1,6 @@
 #!/bin/bash
 
-# Fail on any error
-set -e
+set -euo pipefail
 
 #
 # Install our provisioning certificates on the runner machine and sign the given
