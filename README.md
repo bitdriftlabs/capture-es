@@ -49,8 +49,4 @@ plugin files can be edited directly for a smoother development experience.
 
 ## Example Apps
 
-To run either of the example apps, refer to the READMEs in `examples/`
-
-```
-
-```
+To run either of the example apps, refer to the READMEs in `examples/`.
