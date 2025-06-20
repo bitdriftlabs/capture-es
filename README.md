@@ -10,21 +10,21 @@ To install dependencies, run
 $ npm ci
 ```
 
-## Available Scripts
+## Electron
 
 Builds the electron library in debug mode:
 
-### `nx build electron`
+`nx build electron`
 
-Buld the electron library in release mode, suitable for distribution:
+Build the electron library in release mode, suitable for distribution:
 
-### `nx build electron -c release`
+`nx build electron -c release`
 
 Runs the test suite:
 
-### `nx test electron`
+`nx test electron`
 
-## Exploring capture-es
+### Exploring Electron
 
 After building capture-es, you can explore its exports at the Node REPL:
 
@@ -34,14 +34,12 @@ $ node
 > require('./dist/native.node').init("<api key>")
 ```
 
-## Distribution
+## React Native
 
-To distribute the electron library, run:
+The React Native library needs to run in the context of an app, so use the `expo` example app
+to build and develop the plugin. By opening the `expo` app in XCode or Android Studio, the
+plugin files can be edited directly for a smoother development experience.
 
-```sh
-nx build electron -c release
-npm pack ./dist/electron
-```
+## Example Apps
 
-This produces a .tgz in the project root that can be distributed and installed with npm.
-
+To run either of the example apps, refer to the READMEs in `examples/`
