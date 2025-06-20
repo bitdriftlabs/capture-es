@@ -12,27 +12,34 @@ $ npm ci
 
 ## Electron
 
-Builds the electron library in debug mode:
+The electron library consists of two parts
 
-`nx build electron`
+- `@bitdrift/core` - the native bindings that allow calling into the Rust shared code.
+- `@bitdrift/electron` - the top level library providing a JS API for `@bitdrift/core`.
 
-Build the electron library in release mode, suitable for distribution:
+The indirection allows us to have users install `@bitdrift/electron` and download the
+architecture appropriate version of `@bitdrift/core`.
 
-`nx build electron -c release`
+### Useful commands
 
-Runs the test suite:
+Builds the electron native library in debug mode:
 
-`nx test electron`
+`nx build @bitdrift/core`
 
-### Exploring Electron
+Build the electron native library in release mode, suitable for distribution:
 
-After building capture-es, you can explore its exports at the Node REPL:
+`nx build @bitdrift/core -c release`
 
-```sh
-$ nx build electron
-$ node
-> require('./dist/native.node').init("<api key>")
-```
+Runs the electron native library test suite:
+
+`nx test @bitdrift/core`
+
+Runs the electron JS library test suite:
+
+`nx test @bitdrift/electron`
+
+Most of the development of the electron logger tends to be done via the example app which can
+be used to interact with the library.
 
 ## React Native
 
@@ -43,3 +50,7 @@ plugin files can be edited directly for a smoother development experience.
 ## Example Apps
 
 To run either of the example apps, refer to the READMEs in `examples/`
+
+```
+
+```
