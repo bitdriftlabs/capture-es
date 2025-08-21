@@ -24,7 +24,7 @@
     "@babel/core": "^7.26.0",
     "@babel/preset-react": "^7.25.9",
     "@commitlint/config-conventional": "^19.5.0",
-    "@expo/cli": "~0.22.7",
+    "@expo/cli": "^0.24.20",
     "@napi-rs/cli": "^2.18.4",
     "@nx/esbuild": "^20.3.1",
     "@nx/eslint": "20.3.1",
@@ -91,7 +91,7 @@
     "expo": "^53.0.20",
     "expo-splash-screen": "~0.30.10",
     "expo-status-bar": "~2.2.3",
-    "metro": "^0.82.0",
+    "metro": "^0.82.5",
     "metro-config": "^0.80.12",
     "metro-resolver": "^0.80.12"
   },
