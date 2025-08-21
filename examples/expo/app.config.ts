@@ -46,7 +46,7 @@ export default {
           android: {
             minSdkVersion: 24,
             newArchEnabled,
-            kotlinVersion: '2.1',
+            kotlinVersion: '2.1.21',
           },
         },
       ],
