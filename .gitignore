@@ -114,3 +114,5 @@ examples/expo/ios
 examples/expo/android
 .env
 examples/hello-electron/.env
+.cursor/rules/nx-rules.mdc
+.github/instructions/nx.instructions.md

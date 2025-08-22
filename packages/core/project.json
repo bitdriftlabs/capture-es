@@ -18,29 +18,26 @@
     "move-artifacts": {
       "executor": "nx:run-commands",
       "options": {
-          "cwd": "packages/core",
-          "commands": [
-              "napi create-npm-dir -t .",
-              "napi artifacts"
-          ],
-          "parallel": false
+        "cwd": "packages/core",
+        "commands": ["napi create-npm-dir -t .", "napi artifacts"],
+        "parallel": false
       }
     },
     "lint": {
       "executor": "nx:run-commands",
       "options": {
-          "cwd": "packages/core",
-          "commands": [
-            "cargo clippy --workspace --bins --examples --tests -- --no-deps",
-            "cargo +nightly fmt --all --check"
-          ]
+        "cwd": "packages/core",
+        "commands": [
+          "cargo clippy --workspace --bins --examples --tests -- --no-deps",
+          "cargo +nightly fmt --all --check"
+        ]
       }
     },
     "test:rs": {
       "executor": "nx:run-commands",
       "options": {
-          "cwd": "packages/core",
-          "command": "cargo test"
+        "cwd": "packages/core",
+        "command": "cargo test"
       }
     },
     "test:js": {
@@ -67,18 +64,18 @@
       }
     },
     "test": {
-        "dependsOn": ["test:rs", "test:js"]
+      "dependsOn": ["test:rs", "test:js"]
     },
     "prepare-release": {
       "executor": "nx:run-commands",
       "options": {
-          "commands": [
-            "napi prepublish -p packages/core/npm -c packages/core/package.json --skip-gh-release",
-            "mkdir -p dist/{projectRoot}",
-            "cp LICENSE {projectRoot}/index.d.ts {projectRoot}/index.js {projectRoot}/package.json {projectRoot}/README.md dist/{projectRoot}"
-          ],
-          "parallel": false,
-          "forwardAllArgs": false
+        "commands": [
+          "napi prepublish -p packages/core/npm -c packages/core/package.json --skip-gh-release",
+          "mkdir -p dist/{projectRoot}",
+          "cp LICENSE {projectRoot}/index.d.ts {projectRoot}/index.js {projectRoot}/package.json {projectRoot}/README.md dist/{projectRoot}"
+        ],
+        "parallel": false,
+        "forwardAllArgs": false
       }
     }
   }
