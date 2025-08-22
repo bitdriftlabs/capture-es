@@ -62,12 +62,12 @@
     "eslint-plugin-react": "7.37.2",
     "eslint-plugin-react-hooks": "5.0.0",
     "expo-build-properties": "~0.14.8",
-    "expo-yarn-workspaces": "^2.3.2",
     "jest": "30.0.5",
     "jest-environment-jsdom": "30.0.5",
     "jest-environment-node": "^29.7.0",
     "jest-expo": "53.0.9",
     "jest-react-native": "^18.0.0",
+    "jest-util": "30.0.5",
     "metro": "^0.82.5",
     "metro-config": "^0.82.5",
     "metro-resolver": "^0.82.5",
@@ -76,7 +76,7 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-native": "0.79.6",
-    "react-native-builder-bob": "^0.35.2",
+    "react-native-builder-bob": "^0.40.13",
     "react-native-svg": "15.11.2",
     "react-native-svg-transformer": "1.5.1",
     "react-native-web": "0.20.0",
@@ -85,18 +85,17 @@
     "ts-jest": "29.4.1",
     "ts-node": "10.9.2",
     "tslib": "^2.3.0",
-    "typescript": "~5.8.3",
-    "jest-util": "30.0.5"
+    "typescript": "~5.8.3"
   },
   "dependencies": {
     "@expo/metro-runtime": "5.0.4",
+    "@react-native-community/cli": "18.0.0",
+    "@react-native-community/cli-platform-android": "18.0.0",
+    "@react-native-community/cli-platform-ios": "18.0.0",
     "@react-native-picker/picker": "2.11.1",
     "expo": "53.0.20",
     "expo-splash-screen": "0.30.9",
-    "expo-status-bar": "2.2.3",
-    "@react-native-community/cli": "18.0.0",
-    "@react-native-community/cli-platform-ios": "18.0.0",
-    "@react-native-community/cli-platform-android": "18.0.0"
+    "expo-status-bar": "2.2.3"
   },
   "overrides": {
     "got": "^11.8.6"
