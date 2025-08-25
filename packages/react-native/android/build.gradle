@@ -81,11 +81,6 @@ android {
     targetCompatibility JavaVersion.VERSION_1_8
   }
 
-  kotlinOptions {
-    languageVersion = "2.1"
-    apiVersion = "2.1"
-  }
-
   sourceSets {
     main {
       if (isNewArchitectureEnabled()) {
