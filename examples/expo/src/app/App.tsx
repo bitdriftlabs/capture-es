@@ -24,6 +24,7 @@ import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
 import { InfoBlock } from './components/InfoBlock';
 import { showToast } from './utils/showToast';
+import * as Sentry from '@sentry/react-native';
 
 const LOG_LEVELS = new Map([
   ['info', info],
@@ -50,6 +51,15 @@ const sendRandomRequest = async () => {
     console.log('Random Request Response:', response.data);
   } catch (err: any) {
     console.log('Error making random request:', err);
+  }
+};
+
+const triggerReactError = () => {
+  try {
+    throw new Error('Triggered React Error - This is intentional for testing error reporting');
+  } catch (error) {
+    Sentry.captureException(error);
+    showToast('Test error sent');
   }
 };
 
@@ -116,6 +126,13 @@ const HomeScreen = () => {
         onPress={sendRandomRequest}
       >
         <Text style={styles.buttonText}>Send Random REST Request</Text>
+      </Pressable>
+
+      <Pressable
+        style={({ pressed }) => [styles.button, pressed && styles.buttonActive]}
+        onPress={triggerReactError}
+      >
+        <Text style={styles.buttonText}>Trigger React Error</Text>
       </Pressable>
 
       <View style={styles.inlineContainer}>

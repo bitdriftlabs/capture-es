@@ -5,10 +5,10 @@
   "dependencies": {
     "@bitdrift/react-native": "../../dist/react-native",
     "@react-native-picker/picker": "*",
+    "@sentry/react-native": "^6.20.0",
     "@testing-library/jest-native": "*",
     "@testing-library/react-native": "*",
     "expo": "*",
-    "metro-config": "*",
     "react": "18.2.0",
     "react-native": "*",
     "react-native-svg": "*",
@@ -18,5 +18,9 @@
     "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . examples/expo",
     "android": "expo run:android",
     "ios": "expo run:ios"
+  },
+  "devDependencies": {
+    "metro": "^0.80.12",
+    "metro-config": "^0.80.12"
   }
 }
