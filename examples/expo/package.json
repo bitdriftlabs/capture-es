@@ -12,7 +12,9 @@
     "react": "18.2.0",
     "react-native": "*",
     "react-native-svg": "*",
-    "react-native-web": "*"
+    "react-native-web": "*",
+    "@bugsnag/react-native": "^7.25.0",
+    "@sentry/react-native": "^6.20.0"
   },
   "scripts": {
     "eas-build-post-install": "cd ../../ && node tools/scripts/eas-build-post-install.mjs . examples/expo",
