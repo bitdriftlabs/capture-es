@@ -49,5 +49,15 @@ export default {
         },
       ],
     ],
+    extra: {
+      bugsnag: {
+        apiKey: process.env.EXPO_PUBLIC_BUGSNAG_API_KEY || 'your_bugsnag_api_key_here',
+        releaseStage: process.env.EXPO_PUBLIC_RELEASE_STAGE || 'development',
+      },
+      sentry: {
+        dsn: process.env.EXPO_PUBLIC_SENTRY_DSN || 'your_sentry_dsn_here',
+        environment: process.env.EXPO_PUBLIC_RELEASE_STAGE || 'development',
+      },
+    },
   },
 };
