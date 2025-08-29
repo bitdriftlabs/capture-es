@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { Colors } from '../lib/colors';
 
+import {
+  generateDeviceCode,
+} from '@bitdrift/react-native';
+
 export const DeviceCodeSection = () => {
   const [temporaryDeviceCode, setTemporaryDeviceCode] = useState<string | null>(null);
-
-  const generateDeviceCode = async (): Promise<string> => {
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    return `DEV_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
-  };
 
   const handleGenerateTemporaryDeviceCode = async () => {
     try {

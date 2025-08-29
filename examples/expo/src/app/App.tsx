@@ -3,7 +3,7 @@ import '../lib/bitdrift'; // Must be near the top
 import React, { useEffect } from 'react';
 import { StatusBar, StyleSheet } from 'react-native';
 import { Colors } from '../lib/colors';
-import { HomeScreen } from '../components/HomeScreen';
+import { HomeScreen } from '../sections/HomeScreen';
 
 export default function App() {
   useEffect(() => {
