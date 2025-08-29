@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, View, Text } from 'react-native';
-import { getSessionID } from '@bitdrift/react-native';
+import { getSessionID, logAppLaunchTTI, logScreenView } from '@bitdrift/react-native';
 import { Colors } from '../lib/colors';
 import { LogSection } from './LogSection';
 import { ErrorSection } from './ErrorSection';
@@ -13,13 +13,10 @@ export const HomeScreen = () => {
 
   useEffect(() => {
     const fetchSessionInfo = async () => {
-      try {
-        const id = await getSessionID();
-        setSessionId(id);
-      } catch (error) {
-        console.log('Session info not available yet:', error);
-        setSessionId('Initializing...');
-      }
+      const id = await getSessionID();
+      setSessionId(id);
+      logScreenView('HomeScreen');
+      logAppLaunchTTI(1.0);
     };
     fetchSessionInfo();
   }, []);
