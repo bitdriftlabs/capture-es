@@ -70,7 +70,7 @@ const HomeScreen = () => {
 
       logScreenView('HomeScreen');
       logAppLaunchTTI(1.0);
-      showToast(`Logged: [${selectedLogLevel.toUpperCase()}]: Log emitted`);
+      showToast(`Logged: [${selectedLogLevel.toUpperCase()}]: Log emitted from HomeScreen`);
     }
   };
 
