@@ -22,11 +22,8 @@ app/release.keystore
 app/.cxx/
 .cxx/
 
-# Gradle wrapper
-gradle/
-gradlew
-gradlew.bat
-gradle.properties
+# Gradle wrapper (keep gradlew files for CI)
+.gradle/
 
 # Android NDK
 obj/
