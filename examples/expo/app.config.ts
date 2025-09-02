@@ -50,10 +50,6 @@ export default {
       ],
     ],
     extra: {
-      bugsnag: {
-        apiKey: process.env.EXPO_PUBLIC_BUGSNAG_API_KEY || '',
-        releaseStage: 'development',
-      },
       sentry: {
         dsn: process.env.EXPO_PUBLIC_SENTRY_DSN || '',
         environment: 'development',
