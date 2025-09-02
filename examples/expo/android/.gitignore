@@ -16,8 +16,7 @@ local.properties
 *.dex
 *.class
 
-# Android specific files
-app/debug.keystore
+# Android specific files (keep debug.keystore for CI)
 app/release.keystore
 app/.cxx/
 .cxx/
