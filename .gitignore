@@ -111,7 +111,6 @@ npm-debug.*
 *.orig.*
 web-build/
 cache/
-examples/expo/ios
-examples/expo/android
+
 .env
 examples/hello-electron/.env

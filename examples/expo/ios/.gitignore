@@ -1,0 +1,19 @@
+# Xcode build files
+*/build/*
+xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/xcuserdata/
+DerivedData/
+
+# iOS build artifacts
+*.ipa
+*.dSYM.zip
+*.dSYM
+*.app
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# iOS bundle
+*.jsbundle

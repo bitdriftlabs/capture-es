@@ -1,0 +1,50 @@
+# Android Studio / IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Android build artifacts
+build/
+app/build/
+.gradle/
+local.properties
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+
+# Android specific files
+app/debug.keystore
+app/release.keystore
+app/.cxx/
+.cxx/
+
+# Gradle wrapper
+gradle/
+gradlew
+gradlew.bat
+gradle.properties
+
+# Android NDK
+obj/
+.externalNativeBuild/
+.cxx/
+
+# Android lint
+lint-results.xml
+lint-tmp/
+
+# Android test results
+androidTest/
+test-results/
+test-report.html
+
+# Android signing
+keystore.properties
+signing.properties
+
+# Android bundle
+*.jsbundle
