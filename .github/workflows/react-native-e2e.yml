@@ -60,8 +60,13 @@ jobs:
         run: npm exec nx prebuild expo-example
         env:
           NEW_ARCH: ${{ matrix.settings.new_arch }}
+          EXPO_PUBLIC_BITDRIFT_API_KEY: ${{ secrets.BITDRIFT_API_KEY }}
+          EXPO_PUBLIC_BITDRIFT_API_URL: ${{ secrets.BITDRIFT_API_URL }}
       - name: Serve Expo
         run: npm exec nx start expo-example > /tmp/expo_logs &
+        env:
+          EXPO_PUBLIC_BITDRIFT_API_KEY: ${{ secrets.BITDRIFT_API_KEY }}
+          EXPO_PUBLIC_BITDRIFT_API_URL: ${{ secrets.BITDRIFT_API_URL }}
       - name: run tests
         uses: reactivecircus/android-emulator-runner@v2
         with:
@@ -69,6 +74,8 @@ jobs:
           script: cd examples/expo/android && ./gradlew installDebug --build-cache -PreactNativeDevServerPort=19000 -PreactNativeArchitectures=x86 && maestro test ../maestro_flow.yaml
         env:
           MAESTRO_CLI_NO_ANALYTICS: true
+          EXPO_PUBLIC_BITDRIFT_API_KEY: ${{ secrets.BITDRIFT_API_KEY }}
+          EXPO_PUBLIC_BITDRIFT_API_URL: ${{ secrets.BITDRIFT_API_URL }}
       - name: Upload Maestro artifacts
         uses: actions/upload-artifact@v4
         if: failure()
