@@ -6,7 +6,7 @@ on:
 
 jobs:
   auto-publish:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.title, 'Update Capture SDK to') && github.event.pull_request.user.login == 'github-actions[bot]'
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.title, 'Update Capture SDK version to') && github.event.pull_request.user.login == 'github-actions[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
