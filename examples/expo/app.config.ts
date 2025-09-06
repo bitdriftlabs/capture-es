@@ -49,5 +49,11 @@ export default {
         },
       ],
     ],
+    extra: {
+      sentry: {
+        dsn: process.env.EXPO_PUBLIC_SENTRY_DSN || '',
+        environment: 'development',
+      },
+    },
   },
 };

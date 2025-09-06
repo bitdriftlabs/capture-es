@@ -8,9 +8,24 @@ import {
   getSessionURL,
   getDeviceID,
 } from '@bitdrift/react-native';
+import * as Sentry from '@sentry/react-native';
 
 const BITDRIFT_API_KEY = process.env.EXPO_PUBLIC_BITDRIFT_API_KEY;
 const BITDRIFT_API_URL = process.env.EXPO_PUBLIC_BITDRIFT_API_URL;
+const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN;
+
+if (SENTRY_DSN && SENTRY_DSN.trim() !== '') {
+  Sentry.init({
+    dsn: SENTRY_DSN,
+    environment: 'development',
+    enableAutoSessionTracking: true,
+    enableAutoPerformanceTracing: true,
+    tracesSampleRate: 1.0,
+  });
+  console.log('Sentry initialized');
+} else {
+  console.log('Sentry not configured - DSN missing or empty');
+}
 
 if (BITDRIFT_API_KEY && BITDRIFT_API_URL) {
   init(BITDRIFT_API_KEY, SessionStrategy.Activity, {
