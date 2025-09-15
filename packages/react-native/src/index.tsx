@@ -8,6 +8,8 @@ import {
 } from './log';
 import { InitOptions, SessionStrategy, CrashReportingOptions } from './NativeBdReactNative';
 import NativeBdReactNative from './NativeBdReactNative';
+import reactNativePackageJson from 'react-native/package.json';
+import packageJson from '../package.json';
 export { SessionStrategy, CrashReportingOptions } from './NativeBdReactNative';
 
 let api_url: string;
@@ -46,8 +48,16 @@ export function init(
 ): void {
   api_url = options?.url ?? 'api.bitdrift.io';
   api_key = key;
+  
+  BdReactNative.init(key, sessionStrategy, options ?? {});
 
-  return BdReactNative.init(key, sessionStrategy, options ?? {});
+  addGlobalFields();
+}
+
+function addGlobalFields() {
+  addField('react_native_version', reactNativePackageJson.version);
+  addField('bitdrift_react_native_sdk_version', packageJson.version);
+  addField('platform', Platform.OS);
 }
 
 export function trace(message: string, fields?: SerializableLogFields): void {
