@@ -46,8 +46,34 @@ export function init(
 ): void {
   api_url = options?.url ?? 'api.bitdrift.io';
   api_key = key;
+  
+  BdReactNative.init(key, sessionStrategy, options ?? {});
 
-  return BdReactNative.init(key, sessionStrategy, options ?? {});
+  addGlobalFields();
+}
+
+function addGlobalFields() {
+  const safeGet = (getter: () => string) => {
+    try {
+      return getter();
+    } catch {
+      return 'unknown';
+    }
+  };
+
+  const reactNativeVersion = safeGet(
+    () => require('react-native/package.json').version
+  );
+  addField('react_native_version', reactNativeVersion);
+
+  const sdkVersion = safeGet(() => require('../package.json').version);
+  addField('bitdrift_react_native_sdk_version', sdkVersion);
+
+  const platform = safeGet(() => {
+    const { Platform } = require('react-native');
+    return Platform.OS;
+  });
+  addField('platform', platform);
 }
 
 export function trace(message: string, fields?: SerializableLogFields): void {
