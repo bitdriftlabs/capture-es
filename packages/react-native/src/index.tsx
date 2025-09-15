@@ -8,6 +8,8 @@ import {
 } from './log';
 import { InitOptions, SessionStrategy, CrashReportingOptions } from './NativeBdReactNative';
 import NativeBdReactNative from './NativeBdReactNative';
+import reactNativePackageJson from 'react-native/package.json';
+import packageJson from '../package.json';
 export { SessionStrategy, CrashReportingOptions } from './NativeBdReactNative';
 
 let api_url: string;
@@ -53,27 +55,9 @@ export function init(
 }
 
 function addGlobalFields() {
-  const safeGet = (getter: () => string) => {
-    try {
-      return getter();
-    } catch {
-      return 'unknown';
-    }
-  };
-
-  const reactNativeVersion = safeGet(
-    () => require('react-native/package.json').version
-  );
-  addField('react_native_version', reactNativeVersion);
-
-  const sdkVersion = safeGet(() => require('../package.json').version);
-  addField('bitdrift_react_native_sdk_version', sdkVersion);
-
-  const platform = safeGet(() => {
-    const { Platform } = require('react-native');
-    return Platform.OS;
-  });
-  addField('platform', platform);
+  addField('react_native_version', reactNativePackageJson.version);
+  addField('bitdrift_react_native_sdk_version', packageJson.version);
+  addField('platform', Platform.OS);
 }
 
 export function trace(message: string, fields?: SerializableLogFields): void {
