@@ -52,4 +52,6 @@ if (BITDRIFT_API_KEY && BITDRIFT_API_URL) {
   removeField('environment');
   addField('environment', 'expo');
   debug('expo example initialized');
+} else {
+  console.log('Bitdrift API key or URL not found, skipping initialization');
 }
