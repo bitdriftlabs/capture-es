@@ -79,6 +79,67 @@ export function log(
 }
 
 /**
+ * Initialize Capture and automatically register global JS error handlers so exceptions and
+ * unhandled promise rejections are reported without manual logging across the app.
+ *
+ * Call this once during app startup, before rendering your root component.
+ */
+export function initWithAutoCapture(
+  key: string,
+  sessionStrategy: SessionStrategy,
+  options?: InitOptions,
+): void {
+  init(key, sessionStrategy, options);
+
+  const gAny: any = global as any;
+  const previousHandler = gAny.ErrorUtils?.getGlobalHandler?.();
+
+  gAny.ErrorUtils?.setGlobalHandler?.((err: unknown, isFatal?: boolean) => {
+    const e = err as { message?: string; stack?: string } | string;
+    const message = typeof e === 'string' ? e : e?.message ?? 'Unhandled JS error';
+    const stack = typeof e === 'object' && e && 'stack' in e ? (e as any).stack ?? '' : '';
+
+    try {
+      logInternal('error', message, {
+        stack,
+        isFatal: String(Boolean(isFatal)),
+        where: 'rn:ErrorUtils',
+      });
+    } catch {
+      // To handle?
+    }
+
+    if (previousHandler) {
+      try {
+        previousHandler(err as any, isFatal);
+      } catch {
+        // To handle?
+      }
+    }
+  });
+
+  // unhandled promise rejections when available
+  try {
+    const anyGlobal: any = globalThis as any;
+    if (typeof anyGlobal.addEventListener === 'function') {
+      anyGlobal.addEventListener('unhandledrejection', (evt: any) => {
+        const r = evt?.reason as { message?: string; stack?: string } | string;
+        const reason = typeof r === 'string' ? r : r?.message ?? String(r);
+        const stack = typeof r === 'object' && r && 'stack' in r ? (r as any).stack ?? '' : '';
+
+        try {
+          logInternal('error', 'Unhandled promise rejection', {
+            reason,
+            stack,
+            where: 'rn:unhandledrejection',
+          });
+        } catch {}
+      });
+    }
+  } catch {}
+}
+
+/**
  * Adds a field to be included in all future log messages.
  *
  * Calling this multiple times for the same key will overwrite the previous value.
