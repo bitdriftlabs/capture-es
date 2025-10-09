@@ -1,4 +1,5 @@
 import { NativeModules, Platform } from 'react-native';
+import { installGlobalErrorHandler } from './globalErrorHandler';
 import {
   logInternal,
   serialize,
@@ -46,6 +47,10 @@ export function init(
 ): void {
   api_url = options?.url ?? 'api.bitdrift.io';
   api_key = key;
+  // Install JS global error handler if enabled via config
+  if (options?.crashReporting?.enableJsGlobalHandler === true) {
+    installGlobalErrorHandler();
+  }
 
   return BdReactNative.init(key, sessionStrategy, options ?? {});
 }

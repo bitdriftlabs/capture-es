@@ -53,6 +53,11 @@ const sendRandomRequest = async () => {
   }
 };
 
+const triggerGlobalJsError = () => {
+  throw new Error('Triggered Global JS Error - Intentional for testing');
+};
+
+
 const HomeScreen = () => {
   const [selectedLogLevel, setSelectedLogLevel] = useState(
     LOG_LEVELS.keys().next().value,
@@ -128,6 +133,8 @@ const HomeScreen = () => {
             <Picker.Item key={level} label={level} value={level} />
           ))}
         </Picker>
+      </View>
+      <View style={styles.inlineContainer}>
         <Pressable
           style={({ pressed }) => [
             styles.button,
@@ -136,6 +143,15 @@ const HomeScreen = () => {
           onPress={logMessageHandler}
         >
           <Text style={styles.buttonText}>Log</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.buttonRow}>
+        <Pressable
+          style={({ pressed }) => [styles.button, pressed && styles.buttonActive]}
+          onPress={triggerGlobalJsError}
+        >
+          <Text style={styles.buttonText}>Trigger Global JS Error</Text>
         </Pressable>
       </View>
     </View>
@@ -168,6 +184,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    columnGap: 10,
+    rowGap: 10,
   },
   title: {
     fontSize: 24,
