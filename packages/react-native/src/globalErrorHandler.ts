@@ -6,32 +6,21 @@
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
 import { log } from './index';
-
-type ErrorUtilsType = {
-  setGlobalHandler?: (handler: (error: unknown, isFatal?: boolean) => void) => void;
-  getGlobalHandler?: () => ((error: unknown, isFatal?: boolean) => void) | undefined;
-};
-
-function getErrorUtils(): ErrorUtilsType | undefined {
-  const g = global as unknown as { ErrorUtils?: ErrorUtilsType };
-  return g.ErrorUtils;
-}
+import { ErrorUtils } from 'react-native';
 
 export function installGlobalErrorHandler(): void {
   
-  const ErrorUtilsGlobal = getErrorUtils();
-
   if (
-    !ErrorUtilsGlobal ||
-    typeof ErrorUtilsGlobal.setGlobalHandler !== 'function' ||
-    typeof ErrorUtilsGlobal.getGlobalHandler !== 'function'
+    !ErrorUtils ||
+    typeof ErrorUtils.setGlobalHandler !== 'function' ||
+    typeof ErrorUtils.getGlobalHandler !== 'function'
   ) {
     return;
   }
 
-  const previousHandler = ErrorUtilsGlobal.getGlobalHandler?.();
+  const previousHandler = ErrorUtils.getGlobalHandler?.();
 
-  ErrorUtilsGlobal.setGlobalHandler((error: unknown, isFatal?: boolean) => {
+  ErrorUtils.setGlobalHandler((error: unknown, isFatal?: boolean) => {
     try {
       const message = error instanceof Error ? `${error.name}: ${error.message}` : 'Unknown JS error';
       const stack = error instanceof Error ? error.stack : undefined;
@@ -44,12 +33,16 @@ export function installGlobalErrorHandler(): void {
         stack,
       });
 
-    } finally {
+    } catch(error){
+      console.error('Failed to log global error:', error);
+      
+    }finally {
       // Always forward to the previous handler; guard against its failures
       try {
         previousHandler?.(error, isFatal);
-      } catch {
-        // Ignore errors from previous handler
+      } catch (previousHandlerError) {
+        // Log error from previous handler to avoid silent failures
+        console.error('Previous error handler failed:', previousHandlerError);
       }
     }
   });
