@@ -1,4 +1,4 @@
-// capture-sdk - bitdrift's client SDK
+// capture-es - bitdrift's ES SDK
 // Copyright Bitdrift, Inc. All rights reserved.
 //
 // Use of this source code is governed by a source available license that can be found in the
