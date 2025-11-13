@@ -45,6 +45,14 @@ RCT_EXPORT_METHOD(logAppLaunchTTI:(double)ttiMs)
     [CAPRNLogger logAppLaunchTTIWithTTI:ttiMs / 1000];
 }
 
+RCT_EXPORT_METHOD(reportJsError:(NSString*)name
+      message:(NSString*)message
+      stack:(NSString*)stack
+      isFatal:(BOOL)isFatal)
+{
+    [CAPRNLogger reportJsErrorWithName:name message:message stack:stack isFatal:isFatal];
+}
+
 #ifndef RCT_NEW_ARCH_ENABLED
 
 RCT_EXPORT_METHOD(init:(NSString*)apiKey
