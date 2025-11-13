@@ -115,4 +115,10 @@ import Capture
     public static func logAppLaunchTTI(TTI: TimeInterval) {
         Capture.Logger.logAppLaunchTTI(TTI)
     }
+
+    @objc
+    public static func reportJsError(name: String, message: String, stack: String, isFatal: Bool) {
+        // TODO: Implement JSC error reporting to native layer
+        // This will call the native Capture SDK to process the error
+    }
 }
