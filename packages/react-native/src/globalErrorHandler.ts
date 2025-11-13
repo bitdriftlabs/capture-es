@@ -87,9 +87,12 @@ function processJsError(
 
   // Try to symbolicate the stack trace using React Native's internal APIs
   let symbolicationAttempted = false;
-  
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - React Native internal API (may not exist in all versions)
     const parseErrorStackModule = require('react-native/Libraries/Core/Devtools/parseErrorStack');
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
     // @ts-ignore - React Native internal API (may not exist in all versions)
     const symbolicateStackTraceModule = require('react-native/Libraries/Core/Devtools/symbolicateStackTrace');
 
@@ -115,11 +118,10 @@ function processJsError(
         symbolicationAttempted = true;
         
         symbolicateStackTrace(parsedFrames)
-          .then((symbolicated: any) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+          .then((symbolicated: unknown) => {
             const symbolicatedFrames = Array.isArray(symbolicated)
               ? symbolicated
-              : (symbolicated.stack || []);
+              : ((symbolicated as { stack?: unknown[] })?.stack || []);
 
             if (symbolicatedFrames && symbolicatedFrames.length > 0) {
               // Reconstruct stack with symbolicated source file paths
@@ -127,21 +129,36 @@ function processJsError(
               let symbolicatedStack = '';
               // eslint-disable @typescript-eslint/no-unsafe-member-access
               for (const frame of symbolicatedFrames) {
-                const location = frame.file || 'unknown';
-                const line = frame.lineNumber != null ? `:${frame.lineNumber}` : '';
-                const col = frame.column != null ? `:${frame.column}` : '';
-                symbolicatedStack += `${frame.methodName} at ${location}${line}${col}\n`;
+                const frameObj = frame as { file?: string; lineNumber?: number | null; column?: number | null; methodName?: string };
+                const location = frameObj.file || 'unknown';
+                const line = frameObj.lineNumber != null ? `:${frameObj.lineNumber}` : '';
+                const col = frameObj.column != null ? `:${frameObj.column}` : '';
+                const methodName = frameObj.methodName || 'unknown';
+                symbolicatedStack += `${methodName} at ${location}${line}${col}\n`;
               }
               onProcessed(name, message, symbolicatedStack);
-            } 
+            } else {
+              // Symbolication returned empty, use raw stack
+              onProcessed(name, message, rawStack);
+            }
           })
-        return; 
+          .catch(() => {
+            // Symbolication failed (network error, timeout, etc.), use raw stack
+            onProcessed(name, message, rawStack);
+          });
+        return;
       }
     }
+  } catch {
+    // Modules don't exist, can't be loaded, or functions aren't available
+    // (e.g., in production builds, different RN versions, or APIs removed)
+    // Fall through to use raw stack
+  }
 
-  // If failed to desinbolicate passing empty stack
+  // Fallback: use raw stack if symbolication is unavailable or failed
+  // Only call if we didn't attempt symbolication (to avoid duplicate calls)
   if (!symbolicationAttempted) {
-    onProcessed(name, message, '');
+    onProcessed(name, message, rawStack);
   }
 }
 
