@@ -32,4 +32,6 @@ abstract class BdReactNativeSpec internal constructor(context: ReactApplicationC
   abstract fun logScreenView(screenView: String)
 
   abstract fun logAppLaunchTTI(ttiMs: Double)
+
+  abstract fun reportJsError(name: String, message: String, stack: String, isFatal: Boolean)
 }

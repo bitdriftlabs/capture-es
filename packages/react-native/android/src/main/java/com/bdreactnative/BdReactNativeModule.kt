@@ -7,6 +7,7 @@
 
 package com.bdreactnative
 
+import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
@@ -110,6 +111,11 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
   @ReactMethod
   override fun logAppLaunchTTI(ttiMs: Double) {
     Capture.Logger.logAppLaunchTTI(ttiMs.toDuration(DurationUnit.MILLISECONDS))
+  }
+
+  @ReactMethod
+  override fun reportJsError(name: String, message: String, stack: String, isFatal: Boolean) {
+    // TODO(Fran): Will be handled on a separate PR
   }
 
   companion object {
