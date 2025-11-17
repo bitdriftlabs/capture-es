@@ -117,7 +117,14 @@ import Capture
     }
 
     @objc
-    public static func reportJsError(name: String, message: String, stack: String, isFatal: Bool) {
+    public static func reportJsError(
+        name: String,
+        message: String,
+        stack: String,
+        isFatal: Bool,
+        engine: String,
+        debuggerId: String
+    ) {
         // TODO: Implement JSC error reporting to native layer
         // This will call the native Capture SDK to process the error
     }

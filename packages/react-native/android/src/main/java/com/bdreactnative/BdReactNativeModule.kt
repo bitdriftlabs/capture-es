@@ -119,7 +119,14 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
   }
 
   @ReactMethod
-  override fun reportJsError(name: String, message: String, stack: String, isFatal: Boolean) {
+  override fun reportJsError(
+    name: String,
+    message: String,
+    stack: String,
+    isFatal: Boolean,
+    engine: String,
+    debuggerId: String,
+  ) {
     // TODO(Fran): Will be handled on a separate PR
   }
 

@@ -48,9 +48,11 @@ RCT_EXPORT_METHOD(logAppLaunchTTI:(double)ttiMs)
 RCT_EXPORT_METHOD(reportJsError:(NSString*)name
       message:(NSString*)message
       stack:(NSString*)stack
-      isFatal:(BOOL)isFatal)
+      isFatal:(BOOL)isFatal
+      engine:(NSString*)engine
+      debuggerId:(NSString*)debuggerId)
 {
-    [CAPRNLogger reportJsErrorWithName:name message:message stack:stack isFatal:isFatal];
+    [CAPRNLogger reportJsErrorWithName:name message:message stack:stack isFatal:isFatal engine:engine debuggerId:debuggerId];
 }
 
 #ifndef RCT_NEW_ARCH_ENABLED
