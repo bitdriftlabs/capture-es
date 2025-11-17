@@ -116,7 +116,7 @@ import Capture
 
     @objc
     public static func reportJsError(
-        name: String,
+        errorName: String,
         message: String,
         stack: String,
         isFatal: Bool,

@@ -120,7 +120,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
 
   @ReactMethod
   override fun reportJsError(
-    name: String,
+    errorName: String,
     message: String,
     stack: String,
     isFatal: Boolean,
