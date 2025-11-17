@@ -6,7 +6,7 @@
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
 import { withPlugins } from '@expo/config-plugins';
-import { withAppBuildGradle, withSettingsGradle } from '@expo/config-plugins';
+import { withAppBuildGradle, withSettingsGradle, withProjectBuildGradle } from '@expo/config-plugins';
 import type { ConfigPlugin } from '@expo/config-plugins';
 import PluginProps from './config';
 
@@ -62,19 +62,90 @@ const withBitdriftSettingsGradle: ConfigPlugin<PluginProps | void> = (
         'pluginManagement {',
         `pluginManagement {
     repositories {
+        mavenLocal()
         mavenCentral()
         gradlePluginPortal()
         maven {
             url 'https://dl.bitdrift.io/sdk/android-maven'
             content {
-                includeGroupByRegex "io\\\\.bitdrift.*"
+                includeGroupByRegex "io\\.bitdrift.*"
             }
         }
     } 
 `,
       );
+
+      // Ensure application dependency resolution also has the necessary repositories
+      if (config.modResults.contents.includes('dependencyResolutionManagement {')) {
+        if (!config.modResults.contents.includes('dependencyResolutionManagement {\n    repositories')) {
+          config.modResults.contents = config.modResults.contents.replace(
+            'dependencyResolutionManagement {',
+            `dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+        maven {
+            url 'https://dl.bitdrift.io/sdk/android-maven'
+            content {
+                includeGroupByRegex "io\\.bitdrift.*"
+            }
+        }
+    }
+`,
+          );
+        }
+      } else {
+        // Append a full block if the project doesn't define dependencyResolutionManagement yet
+        config.modResults.contents += `
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+        maven {
+            url 'https://dl.bitdrift.io/sdk/android-maven'
+            content {
+                includeGroupByRegex "io\\.bitdrift.*"
+            }
+        }
+    }
+}
+`;
+      }
     }
 
+    return config;
+  });
+};
+
+// Ensure the root project has repositories for resolving dependencies when projects rely on root build.gradle
+const withBitdriftProjectBuildGradle: ConfigPlugin<PluginProps | void> = (
+  config,
+  _props,
+) => {
+  return withProjectBuildGradle(config, (config) => {
+    if (!config.modResults.contents.includes('dl.bitdrift.io')) {
+      config.modResults.contents += `
+
+allprojects {
+    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+        maven {
+            url 'https://dl.bitdrift.io/sdk/android-maven'
+            content {
+                includeGroupByRegex "io\\.bitdrift.*"
+            }
+        }
+    }
+}
+`;
+    }
     return config;
   });
 };
@@ -83,6 +154,7 @@ const withAndroid: ConfigPlugin<PluginProps | void> = (config, props) => {
   return withPlugins(config, [
     [withBitdriftAppBuildGradle, props],
     [withBitdriftSettingsGradle, props],
+    [withBitdriftProjectBuildGradle, props],
   ]);
 };
 
