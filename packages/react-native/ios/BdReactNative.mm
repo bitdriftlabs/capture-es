@@ -45,14 +45,14 @@ RCT_EXPORT_METHOD(logAppLaunchTTI:(double)ttiMs)
     [CAPRNLogger logAppLaunchTTIWithTTI:ttiMs / 1000];
 }
 
-RCT_EXPORT_METHOD(reportJsError:(NSString*)name
+RCT_EXPORT_METHOD(reportJsError:(NSString*)errorName
       message:(NSString*)message
       stack:(NSString*)stack
       isFatal:(BOOL)isFatal
       engine:(NSString*)engine
       debuggerId:(NSString*)debuggerId)
 {
-    [CAPRNLogger reportJsErrorWithName:name message:message stack:stack isFatal:isFatal engine:engine debuggerId:debuggerId];
+    [CAPRNLogger reportJsErrorWithErrorName:errorName message:message stack:stack isFatal:isFatal engine:engine debuggerId:debuggerId];
 }
 
 #ifndef RCT_NEW_ARCH_ENABLED

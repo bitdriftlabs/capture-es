@@ -50,7 +50,7 @@ export interface Spec extends TurboModule {
   logAppLaunchTTI(tti_ms: number): void;
 
   reportJsError(
-    name: string,
+    errorName: string,
     message: string,
     stack: string,
     isFatal: boolean,
