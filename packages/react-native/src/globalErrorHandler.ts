@@ -30,9 +30,10 @@ export function installGlobalErrorHandler(): void {
     try {
       // Process error with symbolication (if available) and pass to native layer
       processJsError(error, (name, message, stack) => {
-
         const isFatalIssue = Boolean(isFatal)
-        NativeBdReactNative.reportJsError(name, message, stack, isFatalIssue);
+        const engine = detectEngine()
+        const debuggerId = ''
+        NativeBdReactNative.reportJsError(name, message, stack, isFatalIssue, engine, debuggerId);
          
         // TODO(Fran). To remove. For now, temporary log via standard logging
         const logMessage = error instanceof Error ? `${error.name}: ${error.message}` : 'Unknown JS error';
@@ -165,4 +166,9 @@ function processJsError(
 function getErrorUtils(): ErrorUtilsType | undefined {
   const g = global as unknown as { ErrorUtils?: ErrorUtilsType };
   return g.ErrorUtils;
+}
+
+function detectEngine(): string {
+  const g = global as unknown as { HermesInternal?: unknown };
+  return g.HermesInternal != null ? 'hermes' : 'jsc';
 }
