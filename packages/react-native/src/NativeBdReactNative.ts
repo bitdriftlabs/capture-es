@@ -17,7 +17,7 @@ export type CrashReportingOptions = {
   /** Enable native fatal issues reporting (e.g. JVM crashes, JNI crashes, etc) */
   enableNativeFatalIssues?: boolean;
   /** Enable JS global error handler via ErrorUtils.setGlobalHandler */
-  enableJsGlobalHandler?: boolean;
+  enableJsErrors?: boolean;
 };
 
 export type InitOptions = {
