@@ -10,37 +10,67 @@ import { withAppBuildGradle, withSettingsGradle, withProjectBuildGradle } from '
 import type { ConfigPlugin } from '@expo/config-plugins';
 import PluginProps from './config';
 
+const BITDRIFT_MAVEN_URL = 'https://dl.bitdrift.io/sdk/android-maven';
+const BITDRIFT_REPO_INDICATOR = 'dl.bitdrift.io';
+const CAPTURE_PLUGIN_VERSION = '0.19.1';
+
+const hasBitdriftRepo = (contents: string): boolean => {
+  return contents.includes(BITDRIFT_REPO_INDICATOR);
+};
+
+const bitdriftMavenRepo = (useRegex: boolean = false): string => {
+  const contentFilter = useRegex
+    ? `includeGroupByRegex "io\\.bitdrift.*"`
+    : `includeGroup 'io.bitdrift'`;
+  return `        maven {
+            url '${BITDRIFT_MAVEN_URL}'
+            content {
+                ${contentFilter}
+            }
+        }`;
+};
+
+const pluginManagementRepositories = (): string => {
+  return `    repositories {
+        mavenLocal()
+        mavenCentral()
+        gradlePluginPortal()
+${bitdriftMavenRepo(true)}
+    }`;
+};
+
+const dependencyRepositories = (): string => {
+  return `    repositories {
+        mavenLocal()
+        google()
+        mavenCentral()
+${bitdriftMavenRepo(true)}
+    }`;
+};
+
 const withBitdriftAppBuildGradle: ConfigPlugin<PluginProps | void> = (
   config,
   props,
 ) => {
   return withAppBuildGradle(config, (config) => {
-    if (!config.modResults.contents.includes('dl.bitdrift.io')) {
-      // TODO(snowp): Eventually we'd always install the plugin and gate the okhttp instrumentation
-      // config on the networkInstrumentation prop.
-      if (props && props.networkInstrumentation) {
-        // Add the capture-plugin at the very top of the file.
-        config.modResults.contents =
-          `plugins {
-    id 'io.bitdrift.capture-plugin' version '0.19.1'
+    if (hasBitdriftRepo(config.modResults.contents)) {
+      return config;
+    }
+
+    if (props?.networkInstrumentation) {
+      config.modResults.contents = `plugins {
+    id 'io.bitdrift.capture-plugin' version '${CAPTURE_PLUGIN_VERSION}'
 }
 
-` + config.modResults.contents;
-      }
+${config.modResults.contents}`;
+    }
 
-      // Define the bitdrift maven repository at the end. This is necessary to resolve the SDK dependency specified by the plugin.
-      config.modResults.contents += `
+    config.modResults.contents += `
 
 repositories {
-    maven {
-        url 'https://dl.bitdrift.io/sdk/android-maven'
-        content {
-          includeGroup 'io.bitdrift'
-        }
-    }
+${bitdriftMavenRepo(false)}
 }
 `;
-    }
 
     return config;
   });
@@ -50,102 +80,60 @@ const withBitdriftSettingsGradle: ConfigPlugin<PluginProps | void> = (
   config,
   _props,
 ) => {
-  // Add the bitdrift maven repository to the pluginManagement block to allow the plugin to resolve the SDK dependency. This is safe to do regardless of whether the network instrumentation is enabled or not.
   return withSettingsGradle(config, (config) => {
-    if (!config.modResults.contents.includes('dl.bitdrift.io')) {
-      // There will be a pluginManagement block in the settings.gradle file already, so we need to insert ourselves
-      // into the existing block.
-      //
-      // Note that we use a regex here because we need to resolve both the `io.bitdrift` group as well as the
-      // `io.bitdrift.capture-plugin` group.
+    if (hasBitdriftRepo(config.modResults.contents)) {
+      return config;
+    }
+
+    if (config.modResults.contents.includes('pluginManagement {')) {
       config.modResults.contents = config.modResults.contents.replace(
         'pluginManagement {',
         `pluginManagement {
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        gradlePluginPortal()
-        maven {
-            url 'https://dl.bitdrift.io/sdk/android-maven'
-            content {
-                includeGroupByRegex "io\\.bitdrift.*"
-            }
-        }
-    } 
+${pluginManagementRepositories()}
 `,
       );
-
-      // Ensure application dependency resolution also has the necessary repositories
-      if (config.modResults.contents.includes('dependencyResolutionManagement {')) {
-        if (!config.modResults.contents.includes('dependencyResolutionManagement {\n    repositories')) {
-          config.modResults.contents = config.modResults.contents.replace(
-            'dependencyResolutionManagement {',
-            `dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-    repositories {
-        mavenLocal()
-        google()
-        mavenCentral()
-        maven {
-            url 'https://dl.bitdrift.io/sdk/android-maven'
-            content {
-                includeGroupByRegex "io\\.bitdrift.*"
-            }
-        }
     }
+
+    if (config.modResults.contents.includes('dependencyResolutionManagement {')) {
+      if (!config.modResults.contents.includes('dependencyResolutionManagement {\n    repositories')) {
+        config.modResults.contents = config.modResults.contents.replace(
+          'dependencyResolutionManagement {',
+          `dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
+${dependencyRepositories()}
 `,
-          );
-        }
-      } else {
-        // Append a full block if the project doesn't define dependencyResolutionManagement yet
-        config.modResults.contents += `
+        );
+      }
+    } else {
+      config.modResults.contents += `
 
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
-    repositories {
-        mavenLocal()
-        google()
-        mavenCentral()
-        maven {
-            url 'https://dl.bitdrift.io/sdk/android-maven'
-            content {
-                includeGroupByRegex "io\\.bitdrift.*"
-            }
-        }
-    }
+${dependencyRepositories()}
 }
 `;
-      }
     }
 
     return config;
   });
 };
 
-// Ensure the root project has repositories for resolving dependencies when projects rely on root build.gradle
 const withBitdriftProjectBuildGradle: ConfigPlugin<PluginProps | void> = (
   config,
   _props,
 ) => {
   return withProjectBuildGradle(config, (config) => {
-    if (!config.modResults.contents.includes('dl.bitdrift.io')) {
-      config.modResults.contents += `
+    if (hasBitdriftRepo(config.modResults.contents)) {
+      return config;
+    }
+
+    config.modResults.contents += `
 
 allprojects {
-    repositories {
-        mavenLocal()
-        google()
-        mavenCentral()
-        maven {
-            url 'https://dl.bitdrift.io/sdk/android-maven'
-            content {
-                includeGroupByRegex "io\\.bitdrift.*"
-            }
-        }
-    }
+${dependencyRepositories()}
 }
 `;
-    }
+
     return config;
   });
 };
