@@ -49,7 +49,14 @@ export interface Spec extends TurboModule {
 
   logAppLaunchTTI(tti_ms: number): void;
 
-  reportJsError(name: string, message: string, stack: string, isFatal: boolean): void;
+  reportJsError(
+    name: string,
+    message: string,
+    stack: string,
+    isFatal: boolean,
+    engine: string,
+    debuggerId: string,
+  ): void;
 }
 
 export default TurboModuleRegistry.getEnforcing<Spec>('BdReactNative');
