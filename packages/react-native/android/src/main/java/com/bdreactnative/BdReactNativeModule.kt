@@ -4,6 +4,7 @@
 // Use of this source code is governed by a source available license that can be found in the
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 
 package com.bdreactnative
 
@@ -41,7 +42,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     val strategy =
     when (sessionStrategy) {
       "fixed" -> SessionStrategy.Fixed()
-      "activity" -> SessionStrategy.ActivityBased()
+      "activity" -> SessionStrategy.Fixed()
       else -> throw IllegalArgumentException("Invalid session strategy: $sessionStrategy")
     }
 
@@ -127,6 +128,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     engine: String,
     debuggerId: String,
   ) {
+    Capture.Logger.persistJavaScriptReport(errorName, message, stack, isFatal, engine, debuggerId)
     // TODO(Fran): Will be handled on a separate PR
   }
 

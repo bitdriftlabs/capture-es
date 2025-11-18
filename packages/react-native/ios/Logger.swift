@@ -6,6 +6,13 @@
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
 import Capture
+import Foundation
+
+@_silgen_name("capture_process_issue_reports")
+func capture_process_issue_reports(
+    _ logger_id: Int64,
+    _ session_value: Int32
+)
 
 @objc public class CAPRNLogger: NSObject {
     @objc public static func start(
@@ -127,5 +134,19 @@ import Capture
     ) {
         // TODO: Implement JSC error reporting to native layer
         // This will call the native Capture SDK to process the error
+    }
+
+    @objc
+    public static func testProcessIssueReports(
+        loggerId: Int64,
+        sessionValue: Int32,
+        resolve: @escaping RCTPromiseResolveBlock,
+        rejecter reject: @escaping RCTPromiseRejectBlock
+    ) {
+        capture_process_issue_reports(
+            loggerId,
+            sessionValue
+        )
+        resolve(["success": true, "loggerId": loggerId, "sessionValue": sessionValue])
     }
 }

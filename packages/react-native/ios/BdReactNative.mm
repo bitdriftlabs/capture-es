@@ -55,6 +55,14 @@ RCT_EXPORT_METHOD(reportJsError:(NSString*)errorName
     [CAPRNLogger reportJsErrorWithErrorName:errorName message:message stack:stack isFatal:isFatal engine:engine debuggerId:debuggerId];
 }
 
+RCT_EXPORT_METHOD(testProcessIssueReports:(NSNumber*)loggerId
+      sessionValue:(NSNumber*)sessionValue
+      resolve:(RCTPromiseResolveBlock)resolve
+      reject:(RCTPromiseRejectBlock)reject)
+{
+    [CAPRNLogger testProcessIssueReportsWithLoggerId:[loggerId longLongValue] sessionValue:[sessionValue intValue] resolve:resolve rejecter:reject];
+}
+
 #ifndef RCT_NEW_ARCH_ENABLED
 
 RCT_EXPORT_METHOD(init:(NSString*)apiKey
