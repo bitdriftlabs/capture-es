@@ -22,6 +22,7 @@ import { init, trace, debug, info, warn, error, SessionStrategy } from '@bitdrif
 init('<api key>', SessionStrategy.Activity, {
   crashReporting: {
     enableNativeFatalIssues: true, // Enable native crash reporting (crashes, ANRs, etc.)
+    enableJsErrors: true, // Enable JavaScript error reporting (fatal and non-fatal)
   },
 });
 
@@ -84,11 +85,13 @@ The `crashReporting` option allows you to configure crash and error reporting be
 ```js
 init('<api key>', SessionStrategy.Activity, {
   crashReporting: {
+    enableJsErrors: true, // Enable JavaScript error reporting (fatal and non-fatal)
     enableNativeFatalIssues: true, // Enable native crash reporting (crashes, ANRs, etc.)
   }
 });
 ```
 
+- `enableJsErrors`: When `true`, enables reporting of JavaScript errors (both fatal and non-fatal) via React Native's global error handler. Captures unhandled exceptions with stack traces. Defaults to `false`.
 - `enableNativeFatalIssues`: When `true`, enables reporting of native fatal issues including crashes, ANRs (Application Not Responding), and other critical errors. Defaults to `false`.
 
 ```js

@@ -39,6 +39,6 @@ abstract class BdReactNativeSpec internal constructor(context: ReactApplicationC
     stack: String,
     isFatal: Boolean,
     engine: String,
-    debuggerId: String,
+    libraryVersion: String,
   )
 }
