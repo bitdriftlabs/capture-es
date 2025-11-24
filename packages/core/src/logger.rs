@@ -356,7 +356,7 @@ impl Storage for DiskStorage {
     std::fs::write(self.path(key), value.as_bytes())?;
 
     let mut state = guard.clone();
-    state.insert(key.to_string(), value.clone());
+    state.insert(key.to_string(), value.to_owned());
     *guard = state;
 
     Ok(())
