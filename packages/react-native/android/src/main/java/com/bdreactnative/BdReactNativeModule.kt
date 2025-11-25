@@ -38,7 +38,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     val apiUrl = options?.getString("url") ?: "https://api.bitdrift.io"
     val crashReportingOptions = options?.getMap("crashReporting")
     val enableNativeFatalIssues = crashReportingOptions?.getBoolean("enableNativeFatalIssues") ?: false
-    val enableJsErrors = crashReportingOptions?.getBoolean("enableJsErrors") ?: false
+    val enableJsErrors = crashReportingOptions?.getBoolean("UNSTABLE_enableJsErrors") ?: false
 
     ReportDirectory.setupWatcherDirectory(reactApplicationContext, enableJsErrors)
 

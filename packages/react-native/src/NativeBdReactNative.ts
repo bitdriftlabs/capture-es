@@ -16,8 +16,8 @@ export enum SessionStrategy {
 export type CrashReportingOptions = {
   /** Enable native fatal issues reporting (e.g. JVM crashes, JNI crashes, etc) */
   enableNativeFatalIssues?: boolean;
-  /** [EXPERIMENTAL] Enable JS global error handler via ErrorUtils.setGlobalHandler. This is an experimental feature at the moment and may change in future releases. */
-  enableJsErrors?: boolean;
+  /** Enable JS global error handler via ErrorUtils.setGlobalHandler. This is an experimental feature at the moment and may change in future releases. */
+  UNSTABLE_enableJsErrors?: boolean;
 };
 
 export type InitOptions = {

@@ -18,7 +18,7 @@ if (BITDRIFT_API_KEY && BITDRIFT_API_URL) {
     enableNetworkInstrumentation: true,
     crashReporting: {
       enableNativeFatalIssues: true,
-      enableJsErrors: true,
+      UNSTABLE_enableJsErrors: true,
     },
   });
 

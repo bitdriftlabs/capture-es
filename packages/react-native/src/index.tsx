@@ -48,7 +48,7 @@ export function init(
   api_url = options?.url ?? 'api.bitdrift.io';
   api_key = key;
   // Install JS global error handler if enabled via config
-  if (options?.crashReporting?.enableJsErrors === true) {
+  if (options?.crashReporting?.UNSTABLE_enableJsErrors === true) {
     installGlobalErrorHandler();
   }
 

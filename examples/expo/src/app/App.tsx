@@ -58,7 +58,11 @@ const sendRandomRequest = async () => {
   }
 };
 
-const triggerGlobalJsError = (errorType: string = 'Error') => {
+const ERROR_TYPES = ['Error', 'TypeError', 'ReferenceError', 'SyntaxError', 'RangeError', 'PromiseRejection', 'AsyncError'] as const;
+
+type ErrorType = typeof ERROR_TYPES[number];
+
+const triggerGlobalJsError = (errorType: ErrorType = 'Error') => {
   const buildType = __DEV__ ? 'Debug' : 'Release';
   const message = `${buildType} build - ${errorType} error triggered for testing`;
   
@@ -87,13 +91,13 @@ const triggerGlobalJsError = (errorType: string = 'Error') => {
 
 const LOG_LEVEL_ARRAY = Array.from(LOG_LEVELS.keys());
 
-const ERROR_TYPES = ['Error', 'TypeError', 'ReferenceError', 'SyntaxError', 'RangeError', 'PromiseRejection', 'AsyncError'];
-
 const HomeScreen = () => {
   const [selectedLogLevel, setSelectedLogLevel] = useState(
     LOG_LEVEL_ARRAY[0] || 'info',
   );
-  const [selectedErrorType, setSelectedErrorType] = useState(ERROR_TYPES[0]);
+  const [selectedErrorType, setSelectedErrorType] = useState<ErrorType>(
+    ERROR_TYPES[0],
+  );
   const [temporaryDeviceCode, setTemporaryDeviceCode] = useState<string | null>(
     null,
   );
@@ -228,8 +232,9 @@ const HomeScreen = () => {
                     {LOG_LEVEL_ARRAY.map((level) => (
                       <Picker.Item 
                         key={level} 
-                        label={level.charAt(0).toUpperCase() + level.slice(1)} 
+                        label={level} 
                         value={String(level)} 
+                        style={{ textTransform: 'capitalize' }}
                       />
                     ))}
                   </Picker>
@@ -245,7 +250,7 @@ const HomeScreen = () => {
               style={styles.pickerAndroid}
             >
               {LOG_LEVEL_ARRAY.map((level) => (
-                <Picker.Item key={level} label={level.charAt(0).toUpperCase() + level.slice(1)} value={level} />
+                <Picker.Item key={level} label={level} value={level} style={{ textTransform: 'capitalize' }} />
               ))}
             </Picker>
           </View>
@@ -294,8 +299,10 @@ const HomeScreen = () => {
                   <Picker
                     selectedValue={selectedErrorType || ERROR_TYPES[0]}
                     onValueChange={(value: string) => {
-                      setSelectedErrorType(value);
-                      setShowErrorPickerModal(false);
+                      if (ERROR_TYPES.includes(value as ErrorType)) {
+                        setSelectedErrorType(value as ErrorType);
+                        setShowErrorPickerModal(false);
+                      }
                     }}
                     style={styles.picker}
                   >
@@ -315,7 +322,11 @@ const HomeScreen = () => {
           <View style={styles.pickerWrapper}>
             <Picker
               selectedValue={selectedErrorType || ERROR_TYPES[0]}
-              onValueChange={(value: string) => setSelectedErrorType(value)}
+              onValueChange={(value: string) => {
+                if (ERROR_TYPES.includes(value as ErrorType)) {
+                  setSelectedErrorType(value as ErrorType);
+                }
+              }}
               style={styles.pickerAndroid}
             >
               {ERROR_TYPES.map((type) => (
