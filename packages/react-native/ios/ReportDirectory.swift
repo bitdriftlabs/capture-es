@@ -8,9 +8,9 @@
 import Foundation
 
 enum ReportDirectory {
-    /// Returns the SDK base directory in Application Support
+    private static let fileManager = FileManager.default
+    
     static func sdkBaseDirectory() -> URL? {
-        let fileManager = FileManager.default
         return try? fileManager.url(
             for: .applicationSupportDirectory,
             in: .userDomainMask,
@@ -19,47 +19,32 @@ enum ReportDirectory {
         )
     }
     
-    /// Ensures the SDK directory exists and returns its path
     static func ensureSDKDirectory() -> URL? {
         guard let baseDir = sdkBaseDirectory() else {
             return nil
         }
         
         let sdkDir = baseDir.appendingPathComponent("bitdrift_capture", isDirectory: true)
-        let fileManager = FileManager.default
         
         if !fileManager.fileExists(atPath: sdkDir.path) {
-            do {
-                try fileManager.createDirectory(at: sdkDir, withIntermediateDirectories: true)
-            } catch {
-                return nil
-            }
+            try? fileManager.createDirectory(at: sdkDir, withIntermediateDirectories: true)
         }
         
         return sdkDir
     }
     
-    /// Returns the reports directory path for the given error type
-    /// Creates the directory if it doesn't exist
     static func reportsDirectory(isFatal: Bool) -> URL? {
         guard let sdkDir = ensureSDKDirectory() else {
             return nil
         }
         
-        let reportsDir: URL
-        if isFatal {
-            reportsDir = sdkDir.appendingPathComponent("reports/new", isDirectory: true)
-        } else {
-            reportsDir = sdkDir.appendingPathComponent("reports/watcher/current_session", isDirectory: true)
-        }
+        let reportsDir = sdkDir.appendingPathComponent(
+            isFatal ? "reports/new" : "reports/watcher/current_session",
+            isDirectory: true
+        )
         
-        let fileManager = FileManager.default
         if !fileManager.fileExists(atPath: reportsDir.path) {
-            do {
-                try fileManager.createDirectory(at: reportsDir, withIntermediateDirectories: true)
-            } catch {
-                return nil
-            }
+            try? fileManager.createDirectory(at: reportsDir, withIntermediateDirectories: true)
         }
         
         guard fileManager.isWritableFile(atPath: reportsDir.path) else {
@@ -69,7 +54,6 @@ enum ReportDirectory {
         return reportsDir
     }
     
-    /// Generates a destination path for a JavaScript error report
     static func destinationPath(isFatal: Bool) -> String? {
         guard let reportsDir = reportsDirectory(isFatal: isFatal) else {
             return nil
