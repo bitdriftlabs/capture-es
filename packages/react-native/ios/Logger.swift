@@ -6,11 +6,17 @@
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
 import Capture
+import Foundation
 
 @objc public class CAPRNLogger: NSObject {
+    private static var apiKeyPrefix: String? = nil
+    private static var sessionStrategy: String? = nil
+    private static var apiURL: String? = nil
+    
     @objc public static func start(
         key: String, sessionStrategy: String, url: String?, enableNetworkInstrumentation: Bool, enableNativeFatalIssues: Bool
     ) {
+        
         let strategy =
             switch sessionStrategy {
             case "fixed":
@@ -31,9 +37,10 @@ import Capture
             sessionStrategy: strategy,
             configuration: configuration
         )
+        
 
         if enableNetworkInstrumentation {
-            integrator?.enableIntegrations([.urlSession()])
+            integrator?.enableIntegrations([.urlSession()], disableSwizzling: false)
         }
     }
 
@@ -121,9 +128,53 @@ import Capture
         stack: String,
         isFatal: Bool,
         engine: String,
-        debuggerId: String
+        reactNativeVersion: String
     ) {
-        // TODO: Implement JSC error reporting to native layer
-        // This will call the native Capture SDK to process the error
+        guard let destinationPath = ReportDirectory.destinationPath(isFatal: isFatal) else {
+            return
+        }
+        
+        let debugId = DebugId.fromBundle() ?? ""
+        let deviceMetadata = DeviceMetadata.current()
+        let appMetadata = AppMetadata.current()
+        
+        let timeInterval = Date().timeIntervalSince1970
+        let timestampSeconds = UInt64(timeInterval)
+        let fractionalSeconds = timeInterval - Double(timestampSeconds)
+        let timestampNanos = UInt32(fractionalSeconds * 1_000_000_000)
+        
+        let sdkVersion = (reactNativeVersion.isEmpty || reactNativeVersion == "unknown")
+            ? Self.getSDKVersion()
+            : reactNativeVersion
+        
+        JavaScriptErrorReport.persist(
+            errorName: errorName,
+            message: message,
+            stack: stack,
+            isFatal: isFatal,
+            engine: engine,
+            debugId: debugId,
+            timestampSeconds: timestampSeconds,
+            timestampNanos: timestampNanos,
+            destinationPath: destinationPath,
+            deviceMetadata: deviceMetadata,
+            appMetadata: appMetadata,
+            sdkVersion: sdkVersion
+        )
+    }
+    
+    private static func getSDKVersion() -> String {
+        if let packagePath = Bundle.main.path(forResource: "package", ofType: "json"),
+           let packageData = try? Data(contentsOf: URL(fileURLWithPath: packagePath)),
+           let packageJson = try? JSONSerialization.jsonObject(with: packageData) as? [String: Any],
+           let version = packageJson["version"] as? String {
+            return version
+        }
+
+        if let sdkVersion = Bundle.main.infoDictionary?["BdReactNativeVersion"] as? String {
+            return sdkVersion
+        }
+
+        return "unknown"
     }
 }

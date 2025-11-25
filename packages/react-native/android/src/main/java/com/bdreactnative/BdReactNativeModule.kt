@@ -14,17 +14,19 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
 import io.bitdrift.capture.Capture
 import io.bitdrift.capture.providers.session.SessionStrategy
-import io.bitdrift.capture.utils.SdkDirectory
 import com.facebook.react.bridge.Promise
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import io.bitdrift.capture.Configuration
-import java.io.File
 
 class BdReactNativeModule internal constructor(context: ReactApplicationContext) :
   BdReactNativeSpec(context) {
+
+  private val debugId: String? by lazy {
+    DebugId.fromBundle(reactApplicationContext.assets)
+  }
 
   override fun getName(): String {
     return NAME
@@ -37,7 +39,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     val enableNativeFatalIssues = crashReportingOptions?.getBoolean("enableNativeFatalIssues") ?: false
     val enableJsErrors = crashReportingOptions?.getBoolean("enableJsErrors") ?: false
 
-    setupReportWatcherDirectory(enableJsErrors)
+    ReportDirectory.setupWatcherDirectory(reactApplicationContext, enableJsErrors)
 
     val strategy =
     when (sessionStrategy) {
@@ -85,7 +87,6 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     }
   }
 
-
   @ReactMethod
   override fun log(level: Double, message: String, jsFields: ReadableMap?) {
     val fields = jsFields?.toHashMap()?.mapValues { it.value.toString() } ?: emptyMap()
@@ -126,44 +127,21 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     stack: String,
     isFatal: Boolean,
     engine: String,
-    debuggerId: String,
+    libraryVersion: String,
   ) {
+    Log.d(NAME, "reportJsError called with message $message. debugId: ${this.debugId}")
+    
     Capture.Logger.persistJavaScriptReport(
       errorName,
       message,
       stack,
       isFatal,
       engine,
-      debuggerId,
+      this.debugId ?: "",
+      libraryVersion,
     )
   }
 
-  private fun setupReportWatcherDirectory(enableJsErrors: Boolean) {
-    runCatching {
-      val watcherDir = File(SdkDirectory.getPath(reactApplicationContext), "reports/watcher")
-
-      if (enableJsErrors) {
-        createWatcherDirectory(watcherDir)
-      } else {
-        removeWatcherDirectory(watcherDir)
-      }
-    }.onFailure { error ->
-      val action = if (enableJsErrors) "enable" else "disable"
-      Log.w(NAME, "Failed to handle directory modifications for enableJsErrors $enableJsErrors: $error")
-    }
-  }
-
-  private fun createWatcherDirectory(watcherDir: File) {
-    if (!watcherDir.exists() && !watcherDir.mkdirs()) {
-      Log.w(NAME, "Failed to create reports/watcher directory")
-    }
-  }
-
-  private fun removeWatcherDirectory(watcherDir: File) {
-    if (watcherDir.exists() && !watcherDir.deleteRecursively()) {
-      Log.w(NAME, "Failed to delete reports/watcher directory")
-    }
-  }
 
   companion object {
     const val NAME = "BdReactNative"

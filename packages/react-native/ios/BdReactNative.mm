@@ -50,9 +50,9 @@ RCT_EXPORT_METHOD(reportJsError:(NSString*)errorName
       stack:(NSString*)stack
       isFatal:(BOOL)isFatal
       engine:(NSString*)engine
-      debuggerId:(NSString*)debuggerId)
+      libraryVersion:(NSString*)libraryVersion)
 {
-    [CAPRNLogger reportJsErrorWithErrorName:errorName message:message stack:stack isFatal:isFatal engine:engine debuggerId:debuggerId];
+    [CAPRNLogger reportJsErrorWithErrorName:errorName message:message stack:stack isFatal:isFatal engine:engine reactNativeVersion:libraryVersion];
 }
 
 #ifndef RCT_NEW_ARCH_ENABLED

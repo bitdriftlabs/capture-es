@@ -55,7 +55,7 @@ export interface Spec extends TurboModule {
     stack: string,
     isFatal: boolean,
     engine: string,
-    debuggerId: string,
+    libraryVersion: string,
   ): void;
 }
 
