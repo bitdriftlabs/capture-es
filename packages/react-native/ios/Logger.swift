@@ -9,9 +9,6 @@ import Capture
 import Foundation
 
 @objc public class CAPRNLogger: NSObject {
-    private static var apiKeyPrefix: String? = nil
-    private static var sessionStrategy: String? = nil
-    private static var apiURL: String? = nil
     
     @objc public static func start(
         key: String, sessionStrategy: String, url: String?, enableNetworkInstrumentation: Bool, enableNativeFatalIssues: Bool
@@ -40,7 +37,7 @@ import Foundation
         
 
         if enableNetworkInstrumentation {
-            integrator?.enableIntegrations([.urlSession()], disableSwizzling: false)
+            integrator?.enableIntegrations([.urlSession()])
         }
     }
 
@@ -134,6 +131,7 @@ import Foundation
             return
         }
         
+        // TODO(FranAguilera): BIT-6642 Fully implement debug id generation that should match with the generated sourcemaps
         let debugId = DebugId.fromBundle() ?? ""
         let deviceMetadata = DeviceMetadata.current()
         let appMetadata = AppMetadata.current()
@@ -142,10 +140,6 @@ import Foundation
         let timestampSeconds = UInt64(timeInterval)
         let fractionalSeconds = timeInterval - Double(timestampSeconds)
         let timestampNanos = UInt32(fractionalSeconds * 1_000_000_000)
-        
-        let sdkVersion = (reactNativeVersion.isEmpty || reactNativeVersion == "unknown")
-            ? Self.getSDKVersion()
-            : reactNativeVersion
         
         JavaScriptErrorReport.persist(
             errorName: errorName,
@@ -159,22 +153,7 @@ import Foundation
             destinationPath: destinationPath,
             deviceMetadata: deviceMetadata,
             appMetadata: appMetadata,
-            sdkVersion: sdkVersion
+            sdkVersion: reactNativeVersion
         )
-    }
-    
-    private static func getSDKVersion() -> String {
-        if let packagePath = Bundle.main.path(forResource: "package", ofType: "json"),
-           let packageData = try? Data(contentsOf: URL(fileURLWithPath: packagePath)),
-           let packageJson = try? JSONSerialization.jsonObject(with: packageData) as? [String: Any],
-           let version = packageJson["version"] as? String {
-            return version
-        }
-
-        if let sdkVersion = Bundle.main.infoDictionary?["BdReactNativeVersion"] as? String {
-            return sdkVersion
-        }
-
-        return "unknown"
     }
 }
