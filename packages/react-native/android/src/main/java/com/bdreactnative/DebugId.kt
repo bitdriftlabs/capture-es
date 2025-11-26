@@ -14,15 +14,15 @@ import java.security.MessageDigest
 object DebugId {
     private const val TAG = "BdReactNative"
     private const val BUNDLE_FILE = "index.android.bundle"
+    private const val BUFFER_SIZE = 8192
 
     /**
-     * Generates a debug ID from the JavaScript bundle's MD5 hash (UUID format).
+     * Generates a debug ID from the JavaScript bundle's MD5 hash.
      * Returns null if the bundle cannot be found or read.
      */
     fun fromBundle(assets: AssetManager): String? {
         return try {
-            val md5Hash = calculateBundleMD5(assets)
-            formatHashAsUUID(md5Hash)
+            calculateBundleMD5(assets)
         } catch (e: Exception) {
             Log.e(TAG, "Could not generate debug ID from bundle", e)
             null
@@ -31,21 +31,17 @@ object DebugId {
 
     private fun calculateBundleMD5(assets: AssetManager): String {
         val messageDigest = MessageDigest.getInstance("MD5")
+        val buffer = ByteArray(BUFFER_SIZE)
         
         assets.open(BUNDLE_FILE).use { inputStream ->
-            val bundleBytes = inputStream.readBytes()
-            messageDigest.update(bundleBytes)
+            var bytesRead = inputStream.read(buffer)
+            while (bytesRead != -1) {
+                messageDigest.update(buffer, 0, bytesRead)
+                bytesRead = inputStream.read(buffer)
+            }
         }
         
         val hashBytes = messageDigest.digest()
         return hashBytes.joinToString("") { "%02x".format(it) }
-    }
-
-    private fun formatHashAsUUID(hashHex: String): String {
-        return "${hashHex.substring(0, 8)}-" +
-               "${hashHex.substring(8, 12)}-" +
-               "${hashHex.substring(12, 16)}-" +
-               "${hashHex.substring(16, 20)}-" +
-               "${hashHex.substring(20, 32)}"
     }
 }
