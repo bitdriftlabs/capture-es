@@ -35,10 +35,7 @@ enum ReportDirectory {
     }
     
     static func getWatcherDirectory() -> URL? {
-        guard let sdkDir = ensureSDKDirectory() else {
-            return nil
-        }
-        return sdkDir.appendingPathComponent(watcherDirPath, isDirectory: true)
+        return ensureSDKDirectory()?.appendingPathComponent(watcherDirPath, isDirectory: true)
     }
     
     static func setupWatcherDirectory(enableJsErrors: Bool) {
