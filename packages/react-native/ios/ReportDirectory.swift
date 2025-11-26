@@ -9,6 +9,7 @@ import Foundation
 
 enum ReportDirectory {
     private static let fileManager = FileManager.default
+    private static let watcherDirPath = "reports/watcher"
     
     static func sdkBaseDirectory() -> URL? {
         return try? fileManager.url(
@@ -31,6 +32,30 @@ enum ReportDirectory {
         }
         
         return sdkDir
+    }
+    
+    static func getWatcherDirectory() -> URL? {
+        guard let sdkDir = ensureSDKDirectory() else {
+            return nil
+        }
+        return sdkDir.appendingPathComponent(watcherDirPath, isDirectory: true)
+    }
+    
+    static func setupWatcherDirectory(enableJsErrors: Bool) {
+        guard let sdkDir = ensureSDKDirectory() else {
+            return
+        }
+        let watcherDir = sdkDir.appendingPathComponent(watcherDirPath, isDirectory: true)
+        
+        if enableJsErrors {
+            if !fileManager.fileExists(atPath: watcherDir.path) {
+                try? fileManager.createDirectory(at: watcherDir, withIntermediateDirectories: true)
+            }
+        } else {
+            if fileManager.fileExists(atPath: watcherDir.path) {
+                try? fileManager.removeItem(at: watcherDir)
+            }
+        }
     }
     
     static func reportsDirectory(isFatal: Bool) -> URL? {
