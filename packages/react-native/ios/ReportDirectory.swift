@@ -60,10 +60,14 @@ enum ReportDirectory {
             return nil
         }
         
-        let reportsDir = sdkDir.appendingPathComponent(
-            isFatal ? "reports/new" : "reports/watcher/current_session",
-            isDirectory: true
-        )
+        let reportsDir: URL
+        if isFatal {
+            reportsDir = sdkDir.appendingPathComponent("reports/new", isDirectory: true)
+        } else if let watcherDir = getWatcherDirectory() {
+            reportsDir = watcherDir.appendingPathComponent("current_session", isDirectory: true)
+        } else {
+            return nil
+        }
         
         if !fileManager.fileExists(atPath: reportsDir.path) {
             try? fileManager.createDirectory(at: reportsDir, withIntermediateDirectories: true)
