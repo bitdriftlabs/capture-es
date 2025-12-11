@@ -5,6 +5,7 @@
 // LICENSE file or at:
 // https://polyformproject.org/wp-content/uploads/2020/06/PolyForm-Shield-1.0.0.txt
 
+import { Platform } from 'react-native';
 import { logInternal } from './log';
 import NativeBdReactNative from './NativeBdReactNative';
 import { processJsError } from './jsErrorProcessor';
@@ -29,9 +30,11 @@ export function installGlobalErrorHandler(): void {
   const previousHandler = ErrorUtilsGlobal.getGlobalHandler?.();
 
   ErrorUtilsGlobal.setGlobalHandler((error: unknown, isFatal?: boolean) => {
-    // New Architecture handles fatal errors gracefully, so mark as non-fatal to avoid false positives
+    // Android New Architecture handles fatal errors gracefully, so mark as non-fatal to allow reporting multiple non-fatals without requiring a new cold launch
+    // iOS New Architecture still crashes the app so we honor the original isFatal flag
     const reactNativeIsFatal = Boolean(isFatal ?? false);
-    const actualIsFatal = reactNativeIsFatal && !detectNewArchitecture();
+    const isAndroidNewArch = Platform.OS === 'android' && detectNewArchitecture();    
+    const actualIsFatal = reactNativeIsFatal && !isAndroidNewArch;
     
     try {
       processJsError(error, (name, message, stack) => {
