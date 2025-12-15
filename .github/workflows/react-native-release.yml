@@ -30,7 +30,7 @@ jobs:
           npm version --workspace @bitdrift/react-native $VERSION
           npx nx prepare-release @bitdrift/react-native
       - name: Publish release
-        run: npm publish ./dist/react-native --provenance --access public
+        run: npm publish ./dist/react-native --provenance
       - name: Create a PR with the updated version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
