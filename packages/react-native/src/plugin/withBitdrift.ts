@@ -8,13 +8,17 @@
 import { withPlugins } from '@expo/config-plugins';
 import type { ConfigPlugin } from '@expo/config-plugins';
 import withAndroid from './withAndroid';
+import withIOS from './withIOS';
 import PluginProps from './config';
 
 const withBitdriftPlugin: ConfigPlugin<PluginProps | void> = (
   config,
   props,
 ) => {
-  return withPlugins(config, [[withAndroid, props]]);
+  return withPlugins(config, [
+    [withAndroid, props],
+    [withIOS, props],
+  ]);
 };
 
 export default withBitdriftPlugin;
