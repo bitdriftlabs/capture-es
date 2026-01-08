@@ -59,8 +59,8 @@ jobs:
       - name: Create .env file
         run: |
           cd examples/expo
-          echo "EXPO_PUBLIC_BITDRIFT_API_KEY=fake_key" > .env
-          echo "EXPO_PUBLIC_BITDRIFT_API_URL=https://api.bitdrift.io" >> .env
+          cp .env.example .env
+          echo "EXPO_PUBLIC_BITDRIFT_API_KEY=fake_key" >> .env
       - name: Prebuild
         run: npm exec nx prebuild expo-example
         env:
