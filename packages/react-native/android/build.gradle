@@ -53,7 +53,7 @@ android {
     }
   }
 
-  compileSdkVersion getExtOrIntegerDefault("compileSdkVersion")
+  compileSdkVersion getExtOrIntegerDefault("compileSdkVersion") ?: 33
 
   defaultConfig {
     minSdkVersion getExtOrIntegerDefault("minSdkVersion")
@@ -97,10 +97,15 @@ android {
 }
 
 repositories {
+  mavenLocal()
   mavenCentral()
   google()
   maven {
     url "https://dl.bitdrift.io/sdk/android-maven"
+  }
+  // Add local build repositories
+  flatDir {
+    dirs "${rootProject.projectDir}/../../../android/app/libs"
   }
 }
 
@@ -112,7 +117,8 @@ dependencies {
   //noinspection GradleDynamicVersion
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-  api 'io.bitdrift:capture:0.22.1'
+
+  api 'io.bitdrift:capture:1.0.0' // Pointing to local branch
 }
 
 if (isNewArchitectureEnabled()) {

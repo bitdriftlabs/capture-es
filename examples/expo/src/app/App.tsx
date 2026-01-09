@@ -157,7 +157,7 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>
-        @bitdrift/react-native Expo Integration Example
+        @bitdrift/react-native Expo Integration Example. SDK version 0.11.0
       </Text>
 
       <Text testID="sdk-status">
