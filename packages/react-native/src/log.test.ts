@@ -128,7 +128,6 @@ describe('error', () => {
       'Error occurred',
       {
         _error: 'EmptyError',
-        _error_details: '',
       }
     );
   });

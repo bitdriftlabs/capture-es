@@ -79,7 +79,7 @@ export function error(
   const combinedFields = error ? {
     ...fields,
     _error: error.name || 'Error',
-    _error_details: error.message || undefined,
+    ...(error.message && { _error_details: error.message }),
   } : fields;
   
   return logInternal('error', message, combinedFields);
