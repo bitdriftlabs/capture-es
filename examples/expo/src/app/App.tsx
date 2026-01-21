@@ -24,6 +24,7 @@ import {
   warn,
   logScreenView,
   logAppLaunchTTI,
+  setFeatureFlagExposure,
 } from '@bitdrift/react-native';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
@@ -38,10 +39,7 @@ const LOG_LEVELS = new Map([
   ['warn', warn],
 ]);
 
-const hasAPIKeyConfigured = Boolean(
-  process.env.EXPO_PUBLIC_BITDRIFT_API_KEY &&
-    process.env.EXPO_PUBLIC_BITDRIFT_API_URL,
-);
+const hasAPIKeyConfigured = Boolean(process.env.EXPO_PUBLIC_BITDRIFT_API_KEY);
 
 const sendRandomRequest = async () => {
   const endpoints = [
@@ -83,6 +81,16 @@ const triggerGlobalJsError = (errorType: ErrorType = 'TypeError') => {
         throw new Error(message);
       }, 0);
       return;
+  }
+};
+
+const triggerLogErrorExample = () => {
+  try {
+    const data = JSON.parse('{ invalid json }');
+    console.log(data);
+  } catch (err) {
+    error('JSON parsing failed in example', err);
+    showToast('Error logged with error API');
   }
 };
 
@@ -134,6 +142,16 @@ const HomeScreen = () => {
     } else {
       Alert.alert('Error', 'Session URL not available');
     }
+  };
+
+  const handleSetFeatureFlagString = () => {
+    setFeatureFlagExposure('dark_mode', 'enabled');
+    showToast('Feature flag set: dark_mode = enabled');
+  };
+
+  const handleSetFeatureFlagBoolean = () => {
+    setFeatureFlagExposure('experimental_feature', true);
+    showToast('Feature flag set: experimental_feature = true');
   };
 
   return (
@@ -334,10 +352,48 @@ const HomeScreen = () => {
       </View>
       <View style={styles.buttonRow}>
         <Pressable
-          style={({ pressed }) => [styles.button, pressed && styles.buttonActive]}
+          style={({ pressed }) => [
+            styles.button,
+            styles.errorButton,
+            pressed && styles.buttonActive,
+          ]}
           onPress={() => triggerGlobalJsError(selectedErrorType)}
         >
           <Text style={styles.buttonText}>Trigger {selectedErrorType}</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.buttonRow}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            styles.logErrorButton,
+            pressed && styles.buttonActive,
+          ]}
+          onPress={triggerLogErrorExample}
+        >
+          <Text style={styles.buttonText}>Test logError API</Text>
+        </Pressable>
+      </View>
+
+      <View style={styles.buttonRow}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonActive,
+          ]}
+          onPress={handleSetFeatureFlagString}
+        >
+          <Text style={styles.buttonText}>Set Flag (String)</Text>
+        </Pressable>
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            pressed && styles.buttonActive,
+          ]}
+          onPress={handleSetFeatureFlagBoolean}
+        >
+          <Text style={styles.buttonText}>Set Flag (Boolean)</Text>
         </Pressable>
       </View>
 
@@ -389,6 +445,12 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 5,
     marginVertical: 10,
+  },
+  errorButton: {
+    backgroundColor: '#e74c3c',
+  },
+  logErrorButton: {
+    backgroundColor: '#007ACC',
   },
   buttonActive: {
     backgroundColor: '#007867',

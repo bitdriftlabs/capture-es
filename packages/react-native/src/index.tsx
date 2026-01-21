@@ -71,8 +71,18 @@ export function warn(message: string, fields?: SerializableLogFields): void {
   return logInternal('warn', message, fields);
 }
 
-export function error(message: string, fields?: SerializableLogFields): void {
-  return logInternal('error', message, fields);
+export function error(
+  message: string,
+  error?: Error | null,
+  fields?: SerializableLogFields,
+): void {
+  const combinedFields = error ? {
+    ...fields,
+    _error: error.name || 'Error',
+    ...(error.message && { _error_details: error.message }),
+  } : fields;
+  
+  return logInternal('error', message, combinedFields);
 }
 
 export function log(
@@ -135,6 +145,22 @@ export function logScreenView(screenName: string): void {
  */
 export function logAppLaunchTTI(tti_ms: number): void {
   return NativeBdReactNative.logAppLaunchTTI(tti_ms);
+}
+
+/**
+ * Records a feature flag exposure with a variant. Use this method to track when
+ * a user is exposed to a specific feature flag variant in your application. The exposure
+ * is recorded with a timestamp and tracked for the duration of the process.
+ *
+ * @param name the name of the flag being exposed
+ * @param variant the variant of the flag being exposed
+ */
+export function setFeatureFlagExposure(name: string, variant: string | boolean): void {
+  if (typeof variant === 'boolean') {
+    return NativeBdReactNative.setFeatureFlagExposureBool(name, variant);
+  } else {
+    return NativeBdReactNative.setFeatureFlagExposureString(name, variant);
+  }
 }
 
 /**

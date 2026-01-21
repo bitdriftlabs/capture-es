@@ -109,6 +109,31 @@ warn('Hello, World!');
 
 error('Hello, World!');
 
+// Optionally pass an Error object to automatically capture error details
+try {
+  // some code that might throw
+} catch (err) {
+  error('Failed to process request', err);
+  // Or with additional fields
+  error('Failed to process request', err, { userId: '123' });
+}
+
+```
+
+### Feature Flag Tracking
+
+Track feature flag exposures to understand which variants users are seeing:
+
+```js
+import { setFeatureFlagExposure } from '@bitdrift/react-native';
+
+// Track string variant
+setFeatureFlagExposure('dark_mode', 'enabled');
+setFeatureFlagExposure('new_ui', 'variant_b');
+
+// Track boolean variant
+setFeatureFlagExposure('experimental_feature', true);
+setFeatureFlagExposure('beta_mode', false);
 ```
 
 ### Network Integration
