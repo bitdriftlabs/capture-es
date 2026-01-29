@@ -7,7 +7,7 @@
 
 import './lib/bitdrift';
 
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -18,13 +18,15 @@ import {
   Clipboard,
   Alert,
 } from 'react-native';
-import {error, getSessionURL} from '@bitdrift/react-native';
+import { getSessionURL } from '@bitdrift/react-native';
 
 function App(): JSX.Element {
   const [sessionURL, setSessionURL] = useState<string | null>(null);
 
   useEffect(() => {
-    getSessionURL().then(setSessionURL).catch(() => {});
+    getSessionURL()
+      .then(setSessionURL)
+      .catch(() => undefined);
   }, []);
 
   const copySessionURL = () => {
@@ -38,12 +40,15 @@ function App(): JSX.Element {
 
   const triggerNonFatalError = () => {
     const err = new Error('Non-fatal error via ErrorUtils');
-    const g = global as unknown as { ErrorUtils?: { reportError?: (e: Error) => void } };
+    const g = globalThis as unknown as {
+      ErrorUtils?: { reportError?: (e: Error) => void };
+    };
     g.ErrorUtils?.reportError?.(err);
   };
 
-  // @ts-ignore - HermesInternal is not in types but exists at runtime
-  const isHermes = typeof HermesInternal !== 'undefined';
+  const hermesInternal = (globalThis as { HermesInternal?: unknown })
+    .HermesInternal;
+  const isHermes = typeof hermesInternal !== 'undefined';
   const jsEngine = isHermes ? 'Hermes' : 'JavaScriptCore (JSC)';
 
   return (
@@ -63,16 +68,24 @@ function App(): JSX.Element {
           <Text style={styles.buttonText}>Copy Session URL</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.nonFatalButton} onPress={triggerNonFatalError}>
+        <TouchableOpacity
+          style={styles.nonFatalButton}
+          onPress={triggerNonFatalError}
+        >
           <Text style={styles.buttonText}>Non-Fatal Error</Text>
         </TouchableOpacity>
-
       </View>
     </SafeAreaView>
   );
 }
 
-function InfoRow({label, value}: {label: string; value: string}): JSX.Element {
+function InfoRow({
+  label,
+  value,
+}: {
+  label: string;
+  value: string;
+}): JSX.Element {
   return (
     <View style={styles.infoRow}>
       <Text style={styles.infoLabel}>{label}:</Text>

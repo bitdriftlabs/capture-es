@@ -31,6 +31,12 @@ npm start
 yarn start
 ```
 
+### Nx (from repo root)
+
+```sh
+npx nx run hermes-sample:start
+```
+
 ## Step 2: Build and run your app
 
 With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
@@ -43,6 +49,12 @@ npm run android
 
 # Release build
 npm run android -- --mode=release
+```
+
+#### Nx (from repo root)
+
+```sh
+npx nx run hermes-sample:run-android
 ```
 
 ### iOS
@@ -69,6 +81,12 @@ npm run ios
 
 # Release build
 npm run ios -- --mode=Release
+```
+
+#### Nx (from repo root)
+
+```sh
+npx nx run hermes-sample:run-ios
 ```
 
 If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
