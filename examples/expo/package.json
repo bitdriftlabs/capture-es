@@ -10,7 +10,7 @@
     "expo": "*",
     "metro-config": "*",
     "react": "18.2.0",
-    "react-native": "*",
+    "react-native": "0.79.5",
     "react-native-svg": "*",
     "react-native-web": "*"
   },

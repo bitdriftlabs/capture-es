@@ -1,7 +1,7 @@
 /* eslint-disable jsx-a11y/accessible-emoji */
 import '../lib/bitdrift'; // Must be near the top
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -13,6 +13,9 @@ import {
   Alert,
   Modal,
   Platform,
+  FlatList,
+  Animated,
+  ScrollView,
 } from 'react-native';
 import {
   generateDeviceCode,
@@ -92,6 +95,163 @@ const triggerLogErrorExample = () => {
     error('JSON parsing failed in example', err);
     showToast('Error logged with error API');
   }
+};
+
+const generateRandomItems = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    id: `${Date.now()}-${i}-${Math.random()}`,
+    value: Math.random() * 1000,
+    color: `hsl(${Math.random() * 360}, 70%, 50%)`,
+  }));
+};
+
+const AnimatedBox = ({ color, index }: { color: string; index: number }) => {
+  const animValue = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(animValue, {
+          toValue: 1,
+          duration: 100 + Math.random() * 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(animValue, {
+          toValue: 0,
+          duration: 100 + Math.random() * 200,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    animation.start();
+    return () => animation.stop();
+  }, [animValue]);
+
+  const scale = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.8, 1.2],
+  });
+
+  const rotate = animValue.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg'],
+  });
+
+  return (
+    <Animated.View
+      style={[
+        styles.animatedBox,
+        {
+          backgroundColor: color,
+          transform: [{ scale }, { rotate }],
+        },
+      ]}
+    >
+      <Text style={styles.boxText}>{index}</Text>
+    </Animated.View>
+  );
+};
+
+const StressTestComponent = () => {
+  const [isRunning, setIsRunning] = useState(false);
+  const [items, setItems] = useState(generateRandomItems(50));
+  const [counter, setCounter] = useState(0);
+  const [animatedBoxes, setAnimatedBoxes] = useState<string[]>([]);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const flatListRef = useRef<FlatList>(null);
+
+  const startStressTest = useCallback(() => {
+    setIsRunning(true);
+    setAnimatedBoxes(Array.from({ length: 20 }, () => `hsl(${Math.random() * 360}, 70%, 50%)`));
+
+    intervalRef.current = setInterval(() => {
+      setItems(generateRandomItems(50 + Math.floor(Math.random() * 50)));
+      setCounter((c) => c + 1);
+      setAnimatedBoxes(Array.from({ length: 20 }, () => `hsl(${Math.random() * 360}, 70%, 50%)`));
+
+      if (flatListRef.current) {
+        flatListRef.current.scrollToOffset({
+          offset: Math.random() * 500,
+          animated: true,
+        });
+      }
+    }, 50);
+  }, []);
+
+  const stopStressTest = useCallback(() => {
+    setIsRunning(false);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    setAnimatedBoxes([]);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []);
+
+  const renderItem = useCallback(({ item }: { item: { id: string; value: number; color: string } }) => (
+    <View style={[styles.listItem, { backgroundColor: item.color }]}>
+      <Text style={styles.listItemText}>{item.value.toFixed(2)}</Text>
+    </View>
+  ), []);
+
+  return (
+    <View style={styles.stressTestContainer}>
+      <Text style={styles.stressTestTitle}>Crash Reproduction Stress Test</Text>
+      <Text style={styles.stressTestInfo}>
+        Updates: {counter} | Items: {items.length}
+      </Text>
+
+      <View style={styles.buttonRow}>
+        <Pressable
+          style={({ pressed }) => [
+            styles.button,
+            isRunning ? styles.stopButton : styles.startButton,
+            pressed && styles.buttonActive,
+          ]}
+          onPress={isRunning ? stopStressTest : startStressTest}
+        >
+          <Text style={styles.buttonText}>
+            {isRunning ? 'Stop Stress Test' : 'Start Stress Test'}
+          </Text>
+        </Pressable>
+      </View>
+
+      <Text style={styles.stressTestHint}>
+        While running: Press Cmd+R rapidly to trigger crash
+      </Text>
+
+      {isRunning && (
+        <>
+          <View style={styles.animatedBoxesContainer}>
+            {animatedBoxes.map((color, index) => (
+              <AnimatedBox key={`${color}-${index}`} color={color} index={index} />
+            ))}
+          </View>
+
+          <FlatList
+            ref={flatListRef}
+            data={items}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            style={styles.flatList}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            removeClippedSubviews={false}
+            initialNumToRender={50}
+            maxToRenderPerBatch={50}
+            windowSize={21}
+          />
+        </>
+      )}
+    </View>
+  );
 };
 
 
@@ -410,7 +570,10 @@ export const App = () => {
           flex: 1,
         }}
       >
-        <HomeScreen />
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
+          <StressTestComponent />
+          <HomeScreen />
+        </ScrollView>
       </SafeAreaView>
     </>
   );
@@ -535,6 +698,71 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: '80%',
     marginVertical: 10,
+  },
+  stressTestContainer: {
+    padding: 15,
+    backgroundColor: '#f5f5f5',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+  },
+  stressTestTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333',
+  },
+  stressTestInfo: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 10,
+  },
+  stressTestHint: {
+    fontSize: 12,
+    color: '#e74c3c',
+    fontStyle: 'italic',
+    marginTop: 5,
+  },
+  startButton: {
+    backgroundColor: '#e74c3c',
+  },
+  stopButton: {
+    backgroundColor: '#27ae60',
+  },
+  animatedBoxesContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    marginVertical: 10,
+    gap: 5,
+  },
+  animatedBox: {
+    width: 30,
+    height: 30,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  boxText: {
+    color: '#fff',
+    fontSize: 10,
+    fontWeight: 'bold',
+  },
+  flatList: {
+    height: 60,
+    marginTop: 10,
+  },
+  listItem: {
+    width: 50,
+    height: 50,
+    marginHorizontal: 2,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  listItemText: {
+    color: '#fff',
+    fontSize: 8,
+    fontWeight: 'bold',
   },
 });
 

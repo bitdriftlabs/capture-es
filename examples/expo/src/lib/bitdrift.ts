@@ -12,7 +12,7 @@ import {
 const BITDRIFT_API_KEY = process.env.EXPO_PUBLIC_BITDRIFT_API_KEY;
 
 if (BITDRIFT_API_KEY) {
-  init(BITDRIFT_API_KEY, SessionStrategy.Fixed, {
+  init(BITDRIFT_API_KEY, SessionStrategy.Activity, {
     url: process.env.EXPO_PUBLIC_BITDRIFT_API_URL ?? 'https://api.bitdrift.io',
     enableNetworkInstrumentation: true,
     
