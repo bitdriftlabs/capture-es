@@ -8,6 +8,8 @@
 import Capture
 import Foundation
 
+let CAPRNIssueReportDidEmitNotification = Notification.Name("BdReactNative.onBeforeReportSend")
+
 @objc public class CAPRNLogger: NSObject {
     
     private static let debugId: String? = {
@@ -31,7 +33,11 @@ import Foundation
 
         let configuration = Configuration(
             enableFatalIssueReporting: enableNativeFatalIssues,
-            apiURL: URL(string: url ?? "https://api.bitdrift.io")!
+            apiURL: URL(string: url ?? "https://api.bitdrift.io")!,
+            issueCallbackConfiguration: IssueCallbackConfiguration(
+                callbackQueue: DispatchQueue(label: "io.bitdrift.capture.reactnative.issue-callback", qos: .utility),
+                issueReportCallback: CAPRNIssueReportCallback()
+            )
         )
 
         let integrator = Capture.Logger.start(
@@ -169,5 +175,21 @@ import Foundation
     @objc
     public static func setFeatureFlagExposureBool(name: String, variant: Bool) {
         Capture.Logger.setFeatureFlagExposure(withName: name, variant: variant)
+    }
+}
+
+private final class CAPRNIssueReportCallback: NSObject, IssueReportCallback {
+    func onBeforeReportSend(report: IssueReport) {
+        NotificationCenter.default.post(
+            name: CAPRNIssueReportDidEmitNotification,
+            object: nil,
+            userInfo: [
+                "reportType": report.reportType,
+                "reason": report.reason,
+                "details": report.details,
+                "sessionId": report.sessionID,
+                "fields": report.fields,
+            ]
+        )
     }
 }

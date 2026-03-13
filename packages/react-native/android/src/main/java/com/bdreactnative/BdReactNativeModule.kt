@@ -12,6 +12,7 @@ import android.util.Log
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import io.bitdrift.capture.Capture
 import io.bitdrift.capture.providers.session.SessionStrategy
 import com.facebook.react.bridge.Promise
@@ -20,9 +21,19 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import io.bitdrift.capture.Configuration
+import io.bitdrift.capture.reports.IssueCallbackConfiguration
+import io.bitdrift.capture.reports.IssueReportCallback
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 class BdReactNativeModule internal constructor(context: ReactApplicationContext) :
   BdReactNativeSpec(context) {
+
+  private val issueCallbackExecutor: ExecutorService by lazy {
+    Executors.newSingleThreadExecutor { runnable ->
+      Thread(runnable, ISSUE_CALLBACK_THREAD_NAME)
+    }
+  }
 
   private val debugId: String? by lazy {
     DebugId.fromBundle(reactApplicationContext.assets)
@@ -48,8 +59,41 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
       else -> throw IllegalArgumentException("Invalid session strategy: $sessionStrategy")
     }
 
-    val configuration = Configuration(enableFatalIssueReporting = enableNativeFatalIssues)
+    val issueCallbackConfiguration =
+      IssueCallbackConfiguration(
+        executor = issueCallbackExecutor,
+        issueReportCallback = IssueReportCallback { report -> emitIssueReport(report) },
+      )
+
+    val configuration = Configuration(
+      enableFatalIssueReporting = enableNativeFatalIssues,
+      issueCallbackConfiguration = issueCallbackConfiguration,
+    )
     Capture.Logger.start(apiKey = key, apiUrl = apiUrl.toHttpUrl(), sessionStrategy = strategy, configuration = configuration)
+  }
+
+  private fun emitIssueReport(report: io.bitdrift.capture.reports.Report) {
+    if (!reactApplicationContext.hasActiveCatalystInstance()) {
+      return
+    }
+
+    val payload =
+      mutableMapOf<String, Any>(
+        "reportType" to report.reportType,
+        "reason" to report.reason,
+        "details" to report.details,
+        "sessionId" to report.sessionId,
+        "fields" to report.fields,
+      )
+
+    reactApplicationContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      .emit(ISSUE_REPORT_EVENT, payload)
+  }
+
+  override fun invalidate() {
+    issueCallbackExecutor.shutdown()
+    super.invalidate()
   }
 
   @ReactMethod
@@ -148,6 +192,8 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
 
   companion object {
     const val NAME = "BdReactNative"
+    private const val ISSUE_REPORT_EVENT = "BdReactNative.onBeforeReportSend"
+    private const val ISSUE_CALLBACK_THREAD_NAME = "io.bitdrift.capture.reactnative.issue-callback"
 
     private fun ReadableMap?.getBooleanOrDefault(key: String, defaultValue: Boolean): Boolean =
       this?.takeIf { it.hasKey(key) }?.getBoolean(key) ?: defaultValue

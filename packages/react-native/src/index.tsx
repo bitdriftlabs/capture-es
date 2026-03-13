@@ -1,4 +1,4 @@
-import { NativeModules, Platform } from 'react-native';
+import { DeviceEventEmitter, NativeModules, Platform } from 'react-native';
 import { installGlobalErrorHandler } from './globalErrorHandler';
 import {
   logInternal,
@@ -7,12 +7,36 @@ import {
   Serializable,
   LogLevel,
 } from './log';
-import { InitOptions, SessionStrategy } from './NativeBdReactNative';
+import {
+  InitOptions as NativeInitOptions,
+  CrashReportingOptions as NativeCrashReportingOptions,
+  SessionStrategy,
+} from './NativeBdReactNative';
 import NativeBdReactNative from './NativeBdReactNative';
-export { SessionStrategy, type CrashReportingOptions } from './NativeBdReactNative';
+export { SessionStrategy } from './NativeBdReactNative';
+
+const ISSUE_REPORT_EVENT = 'BdReactNative.onBeforeReportSend';
+
+export type IssueReport = {
+  reportType: string;
+  reason: string;
+  details: string;
+  sessionId: string;
+  fields: Record<string, string>;
+};
+
+export type CrashReportingOptions = NativeCrashReportingOptions & {
+  onBeforeReportSend?: (report: IssueReport) => void;
+  onBeforeReportSendExecutor?: (task: () => void) => void;
+};
+
+export type InitOptions = Omit<NativeInitOptions, 'crashReporting'> & {
+  crashReporting?: CrashReportingOptions;
+};
 
 let api_url: string;
 let api_key: string;
+let onBeforeReportSendListener: { remove: () => void } | undefined;
 
 const LINKING_ERROR =
   `The package '@bitdrift/react-native' doesn't seem to be linked. Make sure: \n\n` +
@@ -52,7 +76,36 @@ export function init(
     installGlobalErrorHandler();
   }
 
-  return BdReactNative.init(key, sessionStrategy, options ?? {});
+  onBeforeReportSendListener?.remove();
+  onBeforeReportSendListener = undefined;
+
+  if (options?.crashReporting?.onBeforeReportSend) {
+    const callback = options.crashReporting.onBeforeReportSend;
+    const executor = options.crashReporting.onBeforeReportSendExecutor;
+
+    onBeforeReportSendListener = DeviceEventEmitter.addListener(
+      ISSUE_REPORT_EVENT,
+      (report: IssueReport) => {
+        if (executor) {
+          executor(() => callback(report));
+          return;
+        }
+        callback(report);
+      },
+    );
+  }
+
+  const nativeOptions: NativeInitOptions = {
+    ...options,
+    crashReporting: options?.crashReporting
+      ? {
+          enableNativeFatalIssues: options.crashReporting.enableNativeFatalIssues,
+          UNSTABLE_enableJsErrors: options.crashReporting.UNSTABLE_enableJsErrors,
+        }
+      : undefined,
+  };
+
+  return BdReactNative.init(key, sessionStrategy, nativeOptions);
 }
 
 export function trace(message: string, fields?: SerializableLogFields): void {

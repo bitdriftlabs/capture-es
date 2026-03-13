@@ -5,6 +5,34 @@
 @implementation BdReactNative
 RCT_EXPORT_MODULE()
 
+static NSString *const kIssueReportEventName = @"BdReactNative.onBeforeReportSend";
+static NSNotificationName const kIssueReportNotificationName = @"BdReactNative.onBeforeReportSend";
+
+- (NSArray<NSString *> *)supportedEvents
+{
+  return @[kIssueReportEventName];
+}
+
+- (void)startObserving
+{
+  [[NSNotificationCenter defaultCenter] addObserver:self
+                                           selector:@selector(handleIssueReportNotification:)
+                                               name:kIssueReportNotificationName
+                                             object:nil];
+}
+
+- (void)stopObserving
+{
+  [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                  name:kIssueReportNotificationName
+                                                object:nil];
+}
+
+- (void)handleIssueReportNotification:(NSNotification *)notification
+{
+  [self sendEventWithName:kIssueReportEventName body:notification.userInfo ?: @{}];
+}
+
 RCT_EXPORT_METHOD(log:(double)level
       message:(NSString*)message
       fields:(NSDictionary*)fields)

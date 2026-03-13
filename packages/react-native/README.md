@@ -23,6 +23,16 @@ init('<api key>', SessionStrategy.Activity, {
   crashReporting: {
     enableNativeFatalIssues: true, // Enable native crash reporting (crashes, ANRs, etc.)
     UNSTABLE_enableJsErrors: true, // Enable JavaScript error reporting (fatal and non-fatal)
+    onBeforeReportSendExecutor: (task) => setTimeout(task, 0),
+    onBeforeReportSend: (report) => {
+      info('Issue callback triggered', {
+        reportType: report.reportType,
+        session: report.sessionId,
+        details: report.details,
+        reason: report.reason,
+        fields: JSON.stringify(report.fields),
+      });
+    },
   },
 });
 
@@ -87,12 +97,22 @@ init('<api key>', SessionStrategy.Activity, {
   crashReporting: {
     enableNativeFatalIssues: true, // Enable native crash reporting (crashes, ANRs, etc.)
     UNSTABLE_enableJsErrors: true, // Enable JavaScript error reporting (fatal and non-fatal)
+    onBeforeReportSend: (report) => {
+      info('Issue callback triggered', {
+        reportType: report.reportType,
+        session: report.sessionId,
+        details: report.details,
+        reason: report.reason,
+      });
+    },
   }
 });
 ```
 
 - `enableNativeFatalIssues`: When `true`, enables reporting of native fatal issues including crashes, ANRs (Application Not Responding), and other critical errors. Defaults to `true`.
 - `UNSTABLE_enableJsErrors`: When `true`, enables reporting of JavaScript errors (both fatal and non-fatal) via React Native's global error handler. Captures unhandled exceptions with stack traces. This feature is experimental and may change in future releases. Defaults to `false`.
+- `onBeforeReportSend`: Called before an issue report is sent. Receives `{ reportType, reason, details, sessionId, fields }`.
+- `onBeforeReportSendExecutor`: Optional JS-side callback scheduler (`(task) => void`) used to control where `onBeforeReportSend` executes.
 
 ```js
 import { trace, debug, info, warn, error } from '@bitdrift/react-native';
