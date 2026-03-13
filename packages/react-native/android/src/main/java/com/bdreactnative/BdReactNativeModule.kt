@@ -9,9 +9,12 @@
 package com.bdreactnative
 
 import android.util.Log
+import com.facebook.react.bridge.Arguments
 import com.facebook.react.bridge.ReactApplicationContext
 import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.ReadableMap
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.modules.core.DeviceEventManagerModule
 import io.bitdrift.capture.Capture
 import io.bitdrift.capture.providers.session.SessionStrategy
 import com.facebook.react.bridge.Promise
@@ -20,9 +23,22 @@ import kotlin.time.Duration
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
 import io.bitdrift.capture.Configuration
+import io.bitdrift.capture.reports.IssueCallbackConfiguration
+import io.bitdrift.capture.reports.IssueReportCallback
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.ConcurrentLinkedQueue
 
 class BdReactNativeModule internal constructor(context: ReactApplicationContext) :
   BdReactNativeSpec(context) {
+
+  private val pendingIssueReports = ConcurrentLinkedQueue<io.bitdrift.capture.reports.Report>()
+
+  private val issueCallbackExecutor: ExecutorService by lazy {
+    Executors.newSingleThreadExecutor { runnable ->
+      Thread(runnable, ISSUE_CALLBACK_THREAD_NAME)
+    }
+  }
 
   private val debugId: String? by lazy {
     DebugId.fromBundle(reactApplicationContext.assets)
@@ -39,6 +55,11 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     val enableNativeFatalIssues = crashReportingOptions.getBooleanOrDefault("enableNativeFatalIssues", true)
     val enableJsErrors = crashReportingOptions.getBooleanOrDefault("UNSTABLE_enableJsErrors", false)
 
+    Log.i(
+      NAME,
+      "CRASH_HOOK_VERIFICATION ANDROID init enableNativeFatalIssues=$enableNativeFatalIssues enableJsErrors=$enableJsErrors",
+    )
+
     ReportDirectory.setupWatcherDirectory(reactApplicationContext, enableJsErrors)
 
     val strategy =
@@ -48,8 +69,99 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
       else -> throw IllegalArgumentException("Invalid session strategy: $sessionStrategy")
     }
 
-    val configuration = Configuration(enableFatalIssueReporting = enableNativeFatalIssues)
+    val issueCallbackConfiguration =
+      IssueCallbackConfiguration(
+        executor = issueCallbackExecutor,
+        issueReportCallback =
+          IssueReportCallback { report ->
+            Log.i(
+              NAME,
+              "CRASH_HOOK_VERIFICATION ANDROID native issue callback reportType=${report.reportType} sessionId=${report.sessionId}",
+            )
+            emitIssueReport(report)
+          },
+      )
+
+    Log.i(NAME, "CRASH_HOOK_VERIFICATION ANDROID IssueCallbackConfiguration created")
+
+    val configuration = Configuration(
+      enableFatalIssueReporting = enableNativeFatalIssues,
+      issueCallbackConfiguration = issueCallbackConfiguration,
+    )
     Capture.Logger.start(apiKey = key, apiUrl = apiUrl.toHttpUrl(), sessionStrategy = strategy, configuration = configuration)
+  }
+
+  private fun emitIssueReport(report: io.bitdrift.capture.reports.Report) {
+    if (!reactApplicationContext.hasActiveCatalystInstance()) {
+      Log.i(
+        NAME,
+        "CRASH_HOOK_VERIFICATION ANDROID catalyst not active, queuing reportType=${report.reportType}",
+      )
+      pendingIssueReports.add(report)
+      return
+    }
+
+    reactApplicationContext.runOnUiQueueThread {
+      emitIssueReportPayload(report)
+      flushPendingIssueReports()
+    }
+  }
+
+  private fun flushPendingIssueReports() {
+    if (!reactApplicationContext.hasActiveCatalystInstance()) {
+      return
+    }
+
+    if (pendingIssueReports.isNotEmpty()) {
+      Log.i(
+        NAME,
+        "CRASH_HOOK_VERIFICATION ANDROID flushing ${pendingIssueReports.size} pending reports",
+      )
+    }
+
+    while (true) {
+      val report = pendingIssueReports.poll() ?: break
+      emitIssueReportPayload(report)
+    }
+  }
+
+  private fun emitIssueReportPayload(report: io.bitdrift.capture.reports.Report) {
+    if (!reactApplicationContext.hasActiveCatalystInstance()) {
+      Log.i(NAME, "CRASH_HOOK_VERIFICATION ANDROID emit skipped, catalyst not active")
+      return
+    }
+
+    val payload = toWritableIssueReport(report)
+
+    Log.i(
+      NAME,
+      "CRASH_HOOK_VERIFICATION ANDROID emitting JS event $ISSUE_REPORT_EVENT reportType=${report.reportType}",
+    )
+
+    reactApplicationContext
+      .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+      .emit(ISSUE_REPORT_EVENT, payload)
+  }
+
+  private fun toWritableIssueReport(report: io.bitdrift.capture.reports.Report): WritableMap {
+    val payload = Arguments.createMap()
+    payload.putString("reportType", report.reportType)
+    payload.putString("reason", report.reason)
+    payload.putString("details", report.details)
+    payload.putString("sessionId", report.sessionId)
+
+    val fieldsMap = Arguments.createMap()
+    for ((key, value) in report.fields) {
+      fieldsMap.putString(key, value)
+    }
+    payload.putMap("fields", fieldsMap)
+
+    return payload
+  }
+
+  override fun invalidate() {
+    issueCallbackExecutor.shutdown()
+    super.invalidate()
   }
 
   @ReactMethod
@@ -148,6 +260,8 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
 
   companion object {
     const val NAME = "BdReactNative"
+    private const val ISSUE_REPORT_EVENT = "BdReactNative.onBeforeReportSend"
+    private const val ISSUE_CALLBACK_THREAD_NAME = "io.bitdrift.capture.reactnative.issue-callback"
 
     private fun ReadableMap?.getBooleanOrDefault(key: String, defaultValue: Boolean): Boolean =
       this?.takeIf { it.hasKey(key) }?.getBoolean(key) ?: defaultValue

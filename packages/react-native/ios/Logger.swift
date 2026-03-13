@@ -8,6 +8,8 @@
 import Capture
 import Foundation
 
+let CAPRNIssueReportDidEmitNotification = Notification.Name("BdReactNative.onBeforeReportSend")
+
 @objc public class CAPRNLogger: NSObject {
     
     private static let debugId: String? = {
@@ -17,6 +19,8 @@ import Foundation
     @objc public static func start(
         key: String, sessionStrategy: String, url: String?, enableNetworkInstrumentation: Bool, enableNativeFatalIssues: Bool, enableJsErrors: Bool
     ) {
+        NSLog("CRASH_HOOK_VERIFICATION IOS start enableNativeFatalIssues=\(enableNativeFatalIssues) enableJsErrors=\(enableJsErrors)")
+
         ReportDirectory.setupWatcherDirectory(enableJsErrors: enableJsErrors)
         
         let strategy =
@@ -31,8 +35,13 @@ import Foundation
 
         let configuration = Configuration(
             enableFatalIssueReporting: enableNativeFatalIssues,
-            apiURL: URL(string: url ?? "https://api.bitdrift.io")!
+            apiURL: URL(string: url ?? "https://api.bitdrift.io")!,
+            issueCallbackConfiguration: IssueCallbackConfiguration(
+                callbackQueue: DispatchQueue(label: "io.bitdrift.capture.reactnative.issue-callback", qos: .utility),
+                issueReportCallback: CAPRNIssueReportCallback()
+            )
         )
+        NSLog("CRASH_HOOK_VERIFICATION IOS issue callback configuration attached")
 
         let integrator = Capture.Logger.start(
             withAPIKey: key,
@@ -169,5 +178,22 @@ import Foundation
     @objc
     public static func setFeatureFlagExposureBool(name: String, variant: Bool) {
         Capture.Logger.setFeatureFlagExposure(withName: name, variant: variant)
+    }
+}
+
+private final class CAPRNIssueReportCallback: NSObject, IssueReportCallback {
+    func onBeforeReportSend(report: IssueReport) {
+        NSLog("CRASH_HOOK_VERIFICATION IOS native callback invoked reportType=\(report.reportType) sessionId=\(report.sessionID)")
+        NotificationCenter.default.post(
+            name: CAPRNIssueReportDidEmitNotification,
+            object: nil,
+            userInfo: [
+                "reportType": report.reportType,
+                "reason": report.reason,
+                "details": report.details,
+                "sessionId": report.sessionID,
+                "fields": report.fields,
+            ]
+        )
     }
 }

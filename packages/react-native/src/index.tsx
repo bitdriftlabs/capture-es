@@ -1,4 +1,9 @@
-import { NativeModules, Platform } from 'react-native';
+import {
+  DeviceEventEmitter,
+  NativeEventEmitter,
+  NativeModules,
+  Platform,
+} from 'react-native';
 import { installGlobalErrorHandler } from './globalErrorHandler';
 import {
   logInternal,
@@ -7,12 +12,36 @@ import {
   Serializable,
   LogLevel,
 } from './log';
-import { InitOptions, SessionStrategy } from './NativeBdReactNative';
+import {
+  InitOptions as NativeInitOptions,
+  CrashReportingOptions as NativeCrashReportingOptions,
+  SessionStrategy,
+} from './NativeBdReactNative';
 import NativeBdReactNative from './NativeBdReactNative';
-export { SessionStrategy, type CrashReportingOptions } from './NativeBdReactNative';
+export { SessionStrategy } from './NativeBdReactNative';
+
+const ISSUE_REPORT_EVENT = 'BdReactNative.onBeforeReportSend';
+
+export type IssueReport = {
+  reportType: string;
+  reason: string;
+  details: string;
+  sessionId: string;
+  fields: Record<string, string>;
+};
+
+export type CrashReportingOptions = NativeCrashReportingOptions & {
+  onBeforeReportSend?: (report: IssueReport) => void;
+  onBeforeReportSendExecutor?: (task: () => void) => void;
+};
+
+export type InitOptions = Omit<NativeInitOptions, 'crashReporting'> & {
+  crashReporting?: CrashReportingOptions;
+};
 
 let api_url: string;
 let api_key: string;
+let onBeforeReportSendListener: { remove: () => void } | undefined;
 
 const LINKING_ERROR =
   `The package '@bitdrift/react-native' doesn't seem to be linked. Make sure: \n\n` +
@@ -40,11 +69,22 @@ const BdReactNative = BdReactNativeModule
       },
     );
 
+const issueReportEmitter =
+  Platform.OS === 'ios'
+    ? new NativeEventEmitter(BdReactNativeModule)
+    : DeviceEventEmitter;
+
 export function init(
   key: string,
   sessionStrategy: SessionStrategy,
   options?: InitOptions,
 ): void {
+  console.log('CRASH_HOOK_VERIFICATION JS init', {
+    hasCrashReporting: Boolean(options?.crashReporting),
+    hasOnBeforeReportSend: Boolean(options?.crashReporting?.onBeforeReportSend),
+    hasOnBeforeReportSendExecutor: Boolean(options?.crashReporting?.onBeforeReportSendExecutor),
+  });
+
   api_url = options?.url ?? 'api.bitdrift.io';
   api_key = key;
   // Install JS global error handler if enabled via config
@@ -52,7 +92,44 @@ export function init(
     installGlobalErrorHandler();
   }
 
-  return BdReactNative.init(key, sessionStrategy, options ?? {});
+  onBeforeReportSendListener?.remove();
+  onBeforeReportSendListener = undefined;
+  console.log('CRASH_HOOK_VERIFICATION JS previous listener removed');
+
+  if (options?.crashReporting?.onBeforeReportSend) {
+    const callback = options.crashReporting.onBeforeReportSend;
+    const executor = options.crashReporting.onBeforeReportSendExecutor;
+
+    onBeforeReportSendListener = issueReportEmitter.addListener(
+      // iOS requires NativeEventEmitter to trigger startObserving in the native module.
+      ISSUE_REPORT_EVENT,
+      (report: IssueReport) => {
+        console.log('CRASH_HOOK_VERIFICATION JS event received', report);
+        if (executor) {
+          console.log('CRASH_HOOK_VERIFICATION JS executing callback via custom executor');
+          executor(() => callback(report));
+          return;
+        }
+        console.log('CRASH_HOOK_VERIFICATION JS executing callback directly');
+        callback(report);
+      },
+    );
+    console.log('CRASH_HOOK_VERIFICATION JS listener registered', ISSUE_REPORT_EVENT);
+  } else {
+    console.log('CRASH_HOOK_VERIFICATION JS listener not registered (no callback provided)');
+  }
+
+  const nativeOptions: NativeInitOptions = {
+    ...options,
+    crashReporting: options?.crashReporting
+      ? {
+          enableNativeFatalIssues: options.crashReporting.enableNativeFatalIssues,
+          UNSTABLE_enableJsErrors: options.crashReporting.UNSTABLE_enableJsErrors,
+        }
+      : undefined,
+  };
+
+  return BdReactNative.init(key, sessionStrategy, nativeOptions);
 }
 
 export function trace(message: string, fields?: SerializableLogFields): void {
