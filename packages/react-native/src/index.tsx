@@ -1,4 +1,9 @@
-import { DeviceEventEmitter, NativeModules, Platform } from 'react-native';
+import {
+  DeviceEventEmitter,
+  NativeEventEmitter,
+  NativeModules,
+  Platform,
+} from 'react-native';
 import { installGlobalErrorHandler } from './globalErrorHandler';
 import {
   logInternal,
@@ -64,6 +69,11 @@ const BdReactNative = BdReactNativeModule
       },
     );
 
+const issueReportEmitter =
+  Platform.OS === 'ios'
+    ? new NativeEventEmitter(BdReactNativeModule)
+    : DeviceEventEmitter;
+
 export function init(
   key: string,
   sessionStrategy: SessionStrategy,
@@ -83,7 +93,8 @@ export function init(
     const callback = options.crashReporting.onBeforeReportSend;
     const executor = options.crashReporting.onBeforeReportSendExecutor;
 
-    onBeforeReportSendListener = DeviceEventEmitter.addListener(
+    onBeforeReportSendListener = issueReportEmitter.addListener(
+      // iOS requires NativeEventEmitter to trigger startObserving in the native module.
       ISSUE_REPORT_EVENT,
       (report: IssueReport) => {
         if (executor) {
