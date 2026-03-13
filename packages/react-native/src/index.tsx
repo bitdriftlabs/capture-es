@@ -79,6 +79,12 @@ export function init(
   sessionStrategy: SessionStrategy,
   options?: InitOptions,
 ): void {
+  console.log('CRASH_HOOK_VERIFICATION JS init', {
+    hasCrashReporting: Boolean(options?.crashReporting),
+    hasOnBeforeReportSend: Boolean(options?.crashReporting?.onBeforeReportSend),
+    hasOnBeforeReportSendExecutor: Boolean(options?.crashReporting?.onBeforeReportSendExecutor),
+  });
+
   api_url = options?.url ?? 'api.bitdrift.io';
   api_key = key;
   // Install JS global error handler if enabled via config
@@ -88,6 +94,7 @@ export function init(
 
   onBeforeReportSendListener?.remove();
   onBeforeReportSendListener = undefined;
+  console.log('CRASH_HOOK_VERIFICATION JS previous listener removed');
 
   if (options?.crashReporting?.onBeforeReportSend) {
     const callback = options.crashReporting.onBeforeReportSend;
@@ -97,13 +104,19 @@ export function init(
       // iOS requires NativeEventEmitter to trigger startObserving in the native module.
       ISSUE_REPORT_EVENT,
       (report: IssueReport) => {
+        console.log('CRASH_HOOK_VERIFICATION JS event received', report);
         if (executor) {
+          console.log('CRASH_HOOK_VERIFICATION JS executing callback via custom executor');
           executor(() => callback(report));
           return;
         }
+        console.log('CRASH_HOOK_VERIFICATION JS executing callback directly');
         callback(report);
       },
     );
+    console.log('CRASH_HOOK_VERIFICATION JS listener registered', ISSUE_REPORT_EVENT);
+  } else {
+    console.log('CRASH_HOOK_VERIFICATION JS listener not registered (no callback provided)');
   }
 
   const nativeOptions: NativeInitOptions = {

@@ -22,6 +22,7 @@ if (BITDRIFT_API_KEY) {
       UNSTABLE_enableJsErrors: true,
       onBeforeReportSendExecutor: (task) => setTimeout(task, 0),
       onBeforeReportSend: (report) => {
+        console.log('Issue callback triggered:', report);
         info('Issue callback triggered', {
           reportType: report.reportType,
           session: report.sessionId,

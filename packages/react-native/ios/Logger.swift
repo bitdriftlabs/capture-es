@@ -19,6 +19,8 @@ let CAPRNIssueReportDidEmitNotification = Notification.Name("BdReactNative.onBef
     @objc public static func start(
         key: String, sessionStrategy: String, url: String?, enableNetworkInstrumentation: Bool, enableNativeFatalIssues: Bool, enableJsErrors: Bool
     ) {
+        NSLog("CRASH_HOOK_VERIFICATION IOS start enableNativeFatalIssues=\(enableNativeFatalIssues) enableJsErrors=\(enableJsErrors)")
+
         ReportDirectory.setupWatcherDirectory(enableJsErrors: enableJsErrors)
         
         let strategy =
@@ -39,6 +41,7 @@ let CAPRNIssueReportDidEmitNotification = Notification.Name("BdReactNative.onBef
                 issueReportCallback: CAPRNIssueReportCallback()
             )
         )
+        NSLog("CRASH_HOOK_VERIFICATION IOS issue callback configuration attached")
 
         let integrator = Capture.Logger.start(
             withAPIKey: key,
@@ -180,6 +183,7 @@ let CAPRNIssueReportDidEmitNotification = Notification.Name("BdReactNative.onBef
 
 private final class CAPRNIssueReportCallback: NSObject, IssueReportCallback {
     func onBeforeReportSend(report: IssueReport) {
+        NSLog("CRASH_HOOK_VERIFICATION IOS native callback invoked reportType=\(report.reportType) sessionId=\(report.sessionID)")
         NotificationCenter.default.post(
             name: CAPRNIssueReportDidEmitNotification,
             object: nil,

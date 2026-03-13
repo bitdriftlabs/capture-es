@@ -15,6 +15,7 @@ static NSNotificationName const kIssueReportNotificationName = @"BdReactNative.o
 
 - (void)startObserving
 {
+  NSLog(@"CRASH_HOOK_VERIFICATION IOS startObserving %@", kIssueReportEventName);
   [[NSNotificationCenter defaultCenter] addObserver:self
                                            selector:@selector(handleIssueReportNotification:)
                                                name:kIssueReportNotificationName
@@ -23,6 +24,7 @@ static NSNotificationName const kIssueReportNotificationName = @"BdReactNative.o
 
 - (void)stopObserving
 {
+  NSLog(@"CRASH_HOOK_VERIFICATION IOS stopObserving %@", kIssueReportEventName);
   [[NSNotificationCenter defaultCenter] removeObserver:self
                                                   name:kIssueReportNotificationName
                                                 object:nil];
@@ -30,6 +32,7 @@ static NSNotificationName const kIssueReportNotificationName = @"BdReactNative.o
 
 - (void)handleIssueReportNotification:(NSNotification *)notification
 {
+  NSLog(@"CRASH_HOOK_VERIFICATION IOS emitting JS event %@ payload=%@", kIssueReportEventName, notification.userInfo);
   [self sendEventWithName:kIssueReportEventName body:notification.userInfo ?: @{}];
 }
 
