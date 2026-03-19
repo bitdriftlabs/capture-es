@@ -35,7 +35,10 @@ export type IssueReport = {
   fields: Record<string, string>;
 };
 
-export type CrashReportingOptions = NativeCrashReportingOptions & {
+export type CrashReportingOptions = Omit<
+  NativeCrashReportingOptions,
+  'UNSTABLE_enableIssueCallbackBridge'
+> & {
   UNSTABLE_onBeforeReportSend?: (report: IssueReport) => void;
   onBeforeReportSend?: (report: IssueReport) => void;
 };
