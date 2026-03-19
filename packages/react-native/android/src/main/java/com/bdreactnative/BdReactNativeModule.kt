@@ -31,9 +31,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
   BdReactNativeSpec(context) {
 
   private val issueCallbackExecutor: ExecutorService by lazy {
-    Executors.newSingleThreadExecutor { runnable ->
-      Thread(runnable, ISSUE_CALLBACK_THREAD_NAME)
-    }
+    buildCallbackExecutor()
   }
 
   private val debugId: String? by lazy {
@@ -50,7 +48,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     val crashReportingOptions = options.getMapOrNull("crashReporting")
     val enableNativeFatalIssues = crashReportingOptions.getBooleanOrDefault("enableNativeFatalIssues", true)
     val enableJsErrors = crashReportingOptions.getBooleanOrDefault("UNSTABLE_enableJsErrors", false)
-    val enableIssueCallbackBridge = crashReportingOptions.getBooleanOrDefault("UNSTABLE_enableIssueCallbackBridge", false)
+    val enableIssueCallbackBridge = crashReportingOptions.getBooleanOrDefault("enableIssueCallbackBridge", false)
 
     ReportDirectory.setupWatcherDirectory(reactApplicationContext, enableJsErrors)
 
@@ -61,26 +59,34 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
       else -> throw IllegalArgumentException("Invalid session strategy: $sessionStrategy")
     }
 
-    val issueCallbackConfiguration =
-      if (enableIssueCallbackBridge) {
-        IssueCallbackConfiguration(
-          executor = issueCallbackExecutor,
-          issueReportCallback =
-            IssueReportCallback { report ->
-              emitIssueReport(report)
-            },
-        )
-      } else {
-        null
-      }
-
     val configuration = Configuration(
       enableFatalIssueReporting = enableNativeFatalIssues,
-      issueCallbackConfiguration = issueCallbackConfiguration,
+      issueCallbackConfiguration = buildIssueCallbackConfiguration(enableIssueCallbackBridge),
     )
+
     Capture.Logger.start(apiKey = key, apiUrl = apiUrl.toHttpUrl(), sessionStrategy = strategy, configuration = configuration)
   }
 
+  private fun buildCallbackExecutor(): ExecutorService {
+    return Executors.newSingleThreadExecutor { runnable ->
+      Thread(runnable, ISSUE_CALLBACK_THREAD_NAME)
+    }   
+  }
+
+  private fun buildIssueCallbackConfiguration(enableIssueCallbackBridge: Boolean): IssueCallbackConfiguration?{
+    return if (enableIssueCallbackBridge) {
+      IssueCallbackConfiguration(
+        executor = issueCallbackExecutor,
+        issueReportCallback =
+          IssueReportCallback { report ->
+            emitIssueReport(report)
+          },
+      )
+    } else {
+      null
+    }
+  }
+  
   private fun emitIssueReport(report: io.bitdrift.capture.reports.Report) {
     if (!reactApplicationContext.hasActiveCatalystInstance()) {
       return
@@ -117,11 +123,6 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     payload.putMap("fields", fieldsMap)
 
     return payload
-  }
-
-  override fun invalidate() {
-    issueCallbackExecutor.shutdown()
-    super.invalidate()
   }
 
   @ReactMethod

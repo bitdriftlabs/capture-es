@@ -19,7 +19,7 @@ export type CrashReportingOptions = {
   /** Enable JS global error handler via ErrorUtils.setGlobalHandler. This is an experimental feature at the moment and may change in future releases. */
   UNSTABLE_enableJsErrors?: boolean;
   /** Internal flag used by the JS layer to enable native issue callback wiring only when needed. */
-  UNSTABLE_enableIssueCallbackBridge?: boolean;
+  enableIssueCallbackBridge?: boolean;
 };
 
 export type InitOptions = {

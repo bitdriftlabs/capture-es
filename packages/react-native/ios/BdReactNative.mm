@@ -112,7 +112,7 @@ RCT_EXPORT_METHOD(init:(NSString*)apiKey
   NSNumber* enableNativeFatalIssuesValue = crashReportingOptions[@"enableNativeFatalIssues"];
   BOOL enableNativeFatalIssues = enableNativeFatalIssuesValue != nil ? [enableNativeFatalIssuesValue boolValue] : YES;
   BOOL enableJsErrors = [crashReportingOptions[@"UNSTABLE_enableJsErrors"] boolValue];
-  NSNumber* enableIssueCallbackBridgeValue = crashReportingOptions[@"UNSTABLE_enableIssueCallbackBridge"];
+  NSNumber* enableIssueCallbackBridgeValue = crashReportingOptions[@"enableIssueCallbackBridge"];
   BOOL enableIssueCallbackBridge = enableIssueCallbackBridgeValue != nil ? [enableIssueCallbackBridgeValue boolValue] : NO;
 
   [CAPRNLogger
@@ -141,7 +141,7 @@ RCT_EXPORT_METHOD(init:(NSString*)apiKey
     auto crashReporting = options.crashReporting().value();
     enableNativeFatalIssues = crashReporting.enableNativeFatalIssues().has_value() ? crashReporting.enableNativeFatalIssues().value() : true;
     enableJsErrors = crashReporting.UNSTABLE_enableJsErrors().has_value() ? crashReporting.UNSTABLE_enableJsErrors().value() : false;
-    enableIssueCallbackBridge = crashReporting.UNSTABLE_enableIssueCallbackBridge().has_value() ? crashReporting.UNSTABLE_enableIssueCallbackBridge().value() : false;
+    enableIssueCallbackBridge = crashReporting.enableIssueCallbackBridge().has_value() ? crashReporting.enableIssueCallbackBridge().value() : false;
   }
 
   [CAPRNLogger

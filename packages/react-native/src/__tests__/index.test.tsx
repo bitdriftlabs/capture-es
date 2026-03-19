@@ -103,28 +103,7 @@ describe('init crash reporting callback wiring', () => {
       sdk.SessionStrategy.Fixed,
       expect.objectContaining({
         crashReporting: expect.objectContaining({
-          UNSTABLE_enableIssueCallbackBridge: true,
-        }),
-      }),
-    );
-  });
-
-  test('enables native issue callback bridge for legacy onBeforeReportSend', () => {
-    const { sdk, nativeModule } = loadSdk('ios');
-
-    const callback = jest.fn();
-    sdk.init('test-key', sdk.SessionStrategy.Fixed, {
-      crashReporting: {
-        onBeforeReportSend: callback,
-      },
-    });
-
-    expect(nativeModule.init).toHaveBeenCalledWith(
-      'test-key',
-      sdk.SessionStrategy.Fixed,
-      expect.objectContaining({
-        crashReporting: expect.objectContaining({
-          UNSTABLE_enableIssueCallbackBridge: true,
+          enableIssueCallbackBridge: true,
         }),
       }),
     );
@@ -146,7 +125,7 @@ describe('init crash reporting callback wiring', () => {
       sdk.SessionStrategy.Fixed,
       expect.objectContaining({
         crashReporting: expect.objectContaining({
-          UNSTABLE_enableIssueCallbackBridge: false,
+          enableIssueCallbackBridge: false,
           UNSTABLE_enableJsErrors: true,
         }),
       }),

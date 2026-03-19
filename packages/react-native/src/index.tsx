@@ -37,10 +37,9 @@ export type IssueReport = {
 
 export type CrashReportingOptions = Omit<
   NativeCrashReportingOptions,
-  'UNSTABLE_enableIssueCallbackBridge'
+  'enableIssueCallbackBridge'
 > & {
   UNSTABLE_onBeforeReportSend?: (report: IssueReport) => void;
-  onBeforeReportSend?: (report: IssueReport) => void;
 };
 
 export type InitOptions = Omit<NativeInitOptions, 'crashReporting'> & {
@@ -94,9 +93,7 @@ function resetIssueReportSubscription() {
 function maybeRegisterIssueReportCallback(options?: InitOptions) {
   resetIssueReportSubscription();
 
-  const callback =
-    options?.crashReporting?.UNSTABLE_onBeforeReportSend ??
-    options?.crashReporting?.onBeforeReportSend;
+  const callback = options?.crashReporting?.UNSTABLE_onBeforeReportSend;
   if (!callback) {
     return;
   }
@@ -111,8 +108,7 @@ function maybeRegisterIssueReportCallback(options?: InitOptions) {
 
 function toNativeInitOptions(options?: InitOptions): NativeInitOptions {
   const enableIssueCallbackBridge = Boolean(
-    options?.crashReporting?.UNSTABLE_onBeforeReportSend ??
-      options?.crashReporting?.onBeforeReportSend,
+    options?.crashReporting?.UNSTABLE_onBeforeReportSend,
   );
 
   return {
@@ -121,7 +117,7 @@ function toNativeInitOptions(options?: InitOptions): NativeInitOptions {
       ? {
           enableNativeFatalIssues: options.crashReporting.enableNativeFatalIssues,
           UNSTABLE_enableJsErrors: options.crashReporting.UNSTABLE_enableJsErrors,
-          UNSTABLE_enableIssueCallbackBridge: enableIssueCallbackBridge,
+          enableIssueCallbackBridge: enableIssueCallbackBridge,
         }
       : undefined,
   };
