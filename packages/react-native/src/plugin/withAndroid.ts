@@ -38,15 +38,15 @@ const withBitdriftAppBuildGradle: ConfigPlugin<PluginProps | void> = (
       shouldEnableNetworkInstrumentation &&
       !config.modResults.contents.includes('automaticOkHttpInstrumentation')
     ) {
-      config.modResults.contents =
-        `bitdrift {
+      config.modResults.contents += `
+
+bitdrift {
     instrumentation {
         automaticOkHttpInstrumentation = true
         okHttpInstrumentationType = ${okHttpInstrumentationType}
     }
 }
-
-` + config.modResults.contents;
+`;
     }
 
     if (!config.modResults.contents.includes(BITDRIFT_MAVEN_HOST)) {
