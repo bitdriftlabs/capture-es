@@ -227,6 +227,16 @@ export async function getSessionURL(): Promise<string> {
   return NativeBdReactNative.getSessionURL();
 }
 
+export type { PreviousRunInfo } from './NativeBdReactNative';
+
+/**
+ * Returns information about the previous app run, or `null` when not available.
+ * Must be called after {@link init}.
+ */
+export function getPreviousRunInfo(): PreviousRunInfo | null {
+  return NativeBdReactNative.getPreviousRunInfo();
+}
+
 /**
  * Logs a screen view event. This can be called to record that a screen was viewed.
  * @param screenName The name of the screen that was viewed.
