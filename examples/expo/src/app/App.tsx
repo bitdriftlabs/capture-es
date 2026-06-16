@@ -31,7 +31,6 @@ import {
   type PreviousRunInfo,
   type SdkStatus,
   setFeatureFlagExposure,
-  setEntityId,
 } from '@bitdrift/react-native';
 import axios from 'axios';
 import { Picker } from '@react-native-picker/picker';
@@ -173,12 +172,6 @@ const HomeScreen = () => {
     showToast('Feature flag set: experimental_feature = true');
   };
 
-  const handleSetEntityId = () => {
-    const entityId = `react-native-entity-id`;
-    setEntityId(entityId);
-    showToast(`Entity ID set: ${entityId}`);
-  };
-
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>
@@ -249,13 +242,6 @@ const HomeScreen = () => {
         onPress={sendRandomRequest}
       >
         <Text style={styles.buttonText}>Send Random REST Request</Text>
-      </Pressable>
-
-      <Pressable
-        style={({ pressed }) => [styles.button, pressed && styles.buttonActive]}
-        onPress={handleSetEntityId}
-      >
-        <Text style={styles.buttonText}>Set Entity ID</Text>
       </Pressable>
 
       <View style={styles.buttonRow}>
