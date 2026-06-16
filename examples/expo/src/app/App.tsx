@@ -174,7 +174,7 @@ const HomeScreen = () => {
   };
 
   const handleSetEntityId = () => {
-    const entityId = `react-native-entity-id}`;
+    const entityId = `react-native-entity-id`;
     setEntityId(entityId);
     showToast(`Entity ID set: ${entityId}`);
   };
