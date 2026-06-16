@@ -174,7 +174,7 @@ const HomeScreen = () => {
   };
 
   const handleSetEntityId = () => {
-    const entityId = `expo-user-${Date.now()}`;
+    const entityId = `react-native-entity-id}`;
     setEntityId(entityId);
     showToast(`Entity ID set: ${entityId}`);
   };
