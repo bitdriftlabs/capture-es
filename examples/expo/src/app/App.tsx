@@ -195,7 +195,7 @@ const HomeScreen = () => {
         @bitdrift/react-native Expo Integration Example
       </Text>
 
-      <Text testID="sdk-status">
+      <Text testID="sdk-status" accessibilityLabel="sdk-status">
         {sessionURL ? 'SDK Ready' : 'SDK Not Ready'}
       </Text>
       <Text testID="sdk-initialization-state" style={styles.previousRunInfoText}>
