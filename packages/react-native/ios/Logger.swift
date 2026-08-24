@@ -17,6 +17,9 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
     private static let debugId: String? = {
         DebugId.fromBundle()
     }()
+
+    private static let spansLock = NSLock()
+    private static var spans: [String: Span] = [:]
     
     @objc public static func start(
         key: String,
@@ -120,6 +123,89 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
         default:
             return
         }
+    }
+
+    @objc
+    public static func startSpan(
+        _ name: String,
+        level: Double,
+        fields: [String: String]?,
+        startTimeMs: NSNumber?,
+        parentSpanId: String?
+    ) -> String? {
+        let parentSpanID: UUID?
+        if let parentSpanId {
+            guard let uuid = UUID(uuidString: parentSpanId) else {
+                return nil
+            }
+            parentSpanID = uuid
+        } else {
+            parentSpanID = nil
+        }
+
+        let logLevel: LogLevel
+        switch level {
+        case 0.0:
+            logLevel = .trace
+        case 1.0:
+            logLevel = .debug
+        case 2.0:
+            logLevel = .info
+        case 3.0:
+            logLevel = .warning
+        case 4.0:
+            logLevel = .error
+        default:
+            return nil
+        }
+
+        guard let span = Capture.Logger.startSpan(
+            name: name,
+            level: logLevel,
+            fields: fields,
+            startTimeInterval: startTimeMs.map { $0.doubleValue / 1_000 },
+            parentSpanID: parentSpanID
+        ) else {
+            return nil
+        }
+
+        let id = span.id.uuidString
+        spansLock.lock()
+        spans[id] = span
+        spansLock.unlock()
+        return id
+    }
+
+    @objc
+    public static func endSpan(
+        _ spanId: String,
+        result: String,
+        fields: [String: String]?,
+        endTimeMs: NSNumber?
+    ) {
+        let spanResult: SpanResult
+        switch result {
+        case "success":
+            spanResult = .success
+        case "failure":
+            spanResult = .failure
+        case "canceled":
+            spanResult = .canceled
+        case "unknown":
+            spanResult = .unknown
+        default:
+            return
+        }
+
+        spansLock.lock()
+        let span = spans.removeValue(forKey: spanId)
+        spansLock.unlock()
+
+        span?.end(
+            spanResult,
+            fields: fields,
+            endTimeInterval: endTimeMs.map { $0.doubleValue / 1_000 }
+        )
     }
 
     @objc

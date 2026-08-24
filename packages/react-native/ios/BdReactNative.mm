@@ -61,6 +61,27 @@ RCT_EXPORT_METHOD(log:(double)level
   [CAPLogger logWithLevel:LogLevel(level) message:message fields:fields];
 }
 
+RCT_EXPORT_BLOCKING_SYNCHRONOUS_METHOD(startSpan:(NSString*)name
+      level:(double)level
+      fields:(NSDictionary*)fields
+      startTimeMs:(NSNumber*)startTimeMs
+      parentSpanId:(NSString*)parentSpanId)
+{
+  return [CAPRNLogger startSpan:name
+                          level:level
+                         fields:fields
+                    startTimeMs:startTimeMs
+                   parentSpanId:parentSpanId];
+}
+
+RCT_EXPORT_METHOD(endSpan:(NSString*)spanId
+      result:(NSString*)result
+      fields:(NSDictionary*)fields
+      endTimeMs:(NSNumber*)endTimeMs)
+{
+  [CAPRNLogger endSpan:spanId result:result fields:fields endTimeMs:endTimeMs];
+}
+
 RCT_EXPORT_METHOD(addField:(NSString*)key
       value:(NSString*)value)
 {

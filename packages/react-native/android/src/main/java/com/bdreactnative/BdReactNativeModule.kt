@@ -17,6 +17,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 import io.bitdrift.capture.Capture
 import io.bitdrift.capture.CaptureResult
 import io.bitdrift.capture.InitializationState
+import io.bitdrift.capture.LogLevel
 import io.bitdrift.capture.SdkStatus
 import io.bitdrift.capture.providers.session.SessionStrategy
 import com.facebook.react.bridge.Promise
@@ -28,8 +29,12 @@ import io.bitdrift.capture.experimental.ExperimentalBitdriftApi
 import io.bitdrift.capture.reports.IssueCallbackConfiguration
 import io.bitdrift.capture.reports.IssueReportCallback
 import io.bitdrift.capture.webview.WebViewConfiguration
+import io.bitdrift.capture.events.span.Span
+import io.bitdrift.capture.events.span.SpanResult
 import java.util.concurrent.ExecutorService
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
+import java.util.UUID
 
 class BdReactNativeModule internal constructor(context: ReactApplicationContext) :
   BdReactNativeSpec(context) {
@@ -41,6 +46,8 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
   private val debugId: String? by lazy {
     DebugId.fromBundle(reactApplicationContext.assets)
   }
+
+  private val spans = ConcurrentHashMap<String, Span>()
 
   override fun getName(): String {
     return NAME
@@ -250,6 +257,53 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     }
   }
 
+  @ReactMethod(isBlockingSynchronousMethod = true)
+  override fun startSpan(
+    name: String,
+    level: Double,
+    jsFields: ReadableMap?,
+    startTimeMs: Double?,
+    parentSpanId: String?,
+  ): String? {
+    val parentSpanUuid = parentSpanId?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+    if (parentSpanId != null && parentSpanUuid == null) {
+      return null
+    }
+
+    val logLevel = captureLogLevel(level) ?: return null
+    val fields = jsFields?.toHashMap()?.mapValues { it.value.toString() }
+    val span = Capture.Logger.startSpan(
+      name,
+      logLevel,
+      fields,
+      startTimeMs?.toLong(),
+      parentSpanUuid,
+    ) ?: return null
+
+    val id = span.id.toString()
+    spans[id] = span
+    return id
+  }
+
+  @ReactMethod
+  override fun endSpan(
+    spanId: String,
+    result: String,
+    jsFields: ReadableMap?,
+    endTimeMs: Double?,
+  ) {
+    val spanResult = when (result) {
+      "success" -> SpanResult.SUCCESS
+      "failure" -> SpanResult.FAILURE
+      "canceled" -> SpanResult.CANCELED
+      "unknown" -> SpanResult.UNKNOWN
+      else -> return
+    }
+
+    val fields = jsFields?.toHashMap()?.mapValues { it.value.toString() }
+    spans.remove(spanId)?.end(spanResult, fields, endTimeMs?.toLong())
+  }
+
   @ReactMethod
   override fun addField(key: String, value: String) {
     Capture.Logger.addField(key, value)
@@ -348,6 +402,16 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
         InitializationState.LOADED -> "loaded"
         InitializationState.RUNNING -> "running"
         InitializationState.DISABLED -> "disabled"
+      }
+
+    private fun captureLogLevel(level: Double): LogLevel? =
+      when (level) {
+        0.0 -> LogLevel.TRACE
+        1.0 -> LogLevel.DEBUG
+        2.0 -> LogLevel.INFO
+        3.0 -> LogLevel.WARNING
+        4.0 -> LogLevel.ERROR
+        else -> null
       }
 
     private fun ReadableMap?.getMapOrNull(key: String): ReadableMap? =
