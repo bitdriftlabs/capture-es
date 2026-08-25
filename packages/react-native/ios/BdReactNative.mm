@@ -38,6 +38,12 @@ static NSNotificationName const kStartResultNotificationName = @"BdReactNative.o
                                                 object:nil];
 }
 
+- (void)invalidate
+{
+  [CAPRNLogger endAllSpans];
+  [super invalidate];
+}
+
 - (void)handleIssueReportNotification:(NSNotification *)notification
 {
   NSDictionary *payload = notification.userInfo ?: @{};

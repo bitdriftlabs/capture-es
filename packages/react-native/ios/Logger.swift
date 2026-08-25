@@ -20,6 +20,8 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
 
     private static let spansLock = NSLock()
     private static var spans: [String: Span] = [:]
+    private static var spanOrder: [String] = []
+    private static let maximumActiveSpans = 1_000
     
     @objc public static func start(
         key: String,
@@ -171,8 +173,18 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
 
         let id = span.id.uuidString
         spansLock.lock()
+        let evictedSpan: Span?
+        if spans.count >= maximumActiveSpans, let oldestSpanID = spanOrder.first {
+            spanOrder.removeFirst()
+            evictedSpan = spans.removeValue(forKey: oldestSpanID)
+        } else {
+            evictedSpan = nil
+        }
         spans[id] = span
+        spanOrder.append(id)
         spansLock.unlock()
+
+        evictedSpan?.end(.unknown)
         return id
     }
 
@@ -199,6 +211,9 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
 
         spansLock.lock()
         let span = spans.removeValue(forKey: spanId)
+        if span != nil {
+            spanOrder.removeAll { $0 == spanId }
+        }
         spansLock.unlock()
 
         span?.end(
@@ -206,6 +221,17 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
             fields: fields,
             endTimeInterval: endTimeMs.map { $0.doubleValue / 1_000 }
         )
+    }
+
+    @objc
+    public static func endAllSpans() {
+        spansLock.lock()
+        let activeSpans = Array(spans.values)
+        spans.removeAll()
+        spanOrder.removeAll()
+        spansLock.unlock()
+
+        activeSpans.forEach { $0.end(.unknown) }
     }
 
     @objc

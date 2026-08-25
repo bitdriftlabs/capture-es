@@ -32,7 +32,6 @@ import io.bitdrift.capture.webview.WebViewConfiguration
 import io.bitdrift.capture.events.span.Span
 import io.bitdrift.capture.events.span.SpanResult
 import java.util.concurrent.ExecutorService
-import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.UUID
 
@@ -47,7 +46,10 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     DebugId.fromBundle(reactApplicationContext.assets)
   }
 
-  private val spans = ConcurrentHashMap<String, Span>()
+  // LinkedHashMap preserves insertion order, allowing us to evict the oldest span when the
+  // registry reaches its capacity.
+  private val spans = LinkedHashMap<String, Span>()
+  private val spansLock = Any()
 
   override fun getName(): String {
     return NAME
@@ -281,7 +283,7 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     ) ?: return null
 
     val id = span.id.toString()
-    spans[id] = span
+    registerSpan(id, span)
     return id
   }
 
@@ -301,7 +303,12 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     }
 
     val fields = jsFields?.toHashMap()?.mapValues { it.value.toString() }
-    spans.remove(spanId)?.end(spanResult, fields, endTimeMs?.toLong())
+    removeSpan(spanId)?.end(spanResult, fields, endTimeMs?.toLong())
+  }
+
+  override fun invalidate() {
+    drainSpans()
+    super.invalidate()
   }
 
   @ReactMethod
@@ -381,8 +388,38 @@ class BdReactNativeModule internal constructor(context: ReactApplicationContext)
     // No-op on Android; this module emits via DeviceEventEmitter.
   }
 
+  private fun registerSpan(id: String, span: Span) {
+    val evictedSpan = synchronized(spansLock) {
+      val oldestSpan = if (spans.size >= MAX_ACTIVE_SPANS) {
+        spans.entries.iterator().next().let { oldestEntry ->
+          spans.remove(oldestEntry.key)
+        }
+      } else {
+        null
+      }
+
+      spans[id] = span
+      oldestSpan
+    }
+
+    evictedSpan?.end(SpanResult.UNKNOWN)
+  }
+
+  private fun removeSpan(id: String): Span? = synchronized(spansLock) {
+    spans.remove(id)
+  }
+
+  private fun drainSpans() {
+    val activeSpans = synchronized(spansLock) {
+      spans.values.toList().also { spans.clear() }
+    }
+
+    activeSpans.forEach { it.end(SpanResult.UNKNOWN) }
+  }
+
   companion object {
     const val NAME = "BdReactNative"
+    private const val MAX_ACTIVE_SPANS = 1_000
     // Must match src/index.tsx ISSUE_REPORT_EVENT and iOS equivalents.
     private const val ISSUE_REPORT_EVENT = "BdReactNative.onBeforeReportSend"
     private const val START_RESULT_EVENT = "BdReactNative.onStartResult"
