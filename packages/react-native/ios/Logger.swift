@@ -19,7 +19,7 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
     }()
 
     private static let spansLock = NSLock()
-    private static var spans: [String: Span] = [:]
+    private static var spans: [String: Capture.Span] = [:]
     private static var spanOrder: [String] = []
     private static let maximumActiveSpans = 1_000
     
@@ -164,6 +164,9 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
         guard let span = Capture.Logger.startSpan(
             name: name,
             level: logLevel,
+            file: nil,
+            line: nil,
+            function: nil,
             fields: fields,
             startTimeInterval: startTimeMs.map { $0.doubleValue / 1_000 },
             parentSpanID: parentSpanID
@@ -184,7 +187,7 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
         spanOrder.append(id)
         spansLock.unlock()
 
-        evictedSpan?.end(.unknown)
+        evictedSpan?.end(.unknown, file: nil, line: nil, function: nil)
         return id
     }
 
@@ -218,6 +221,9 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
 
         span?.end(
             spanResult,
+            file: nil,
+            line: nil,
+            function: nil,
             fields: fields,
             endTimeInterval: endTimeMs.map { $0.doubleValue / 1_000 }
         )
@@ -231,7 +237,7 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
         spanOrder.removeAll()
         spansLock.unlock()
 
-        activeSpans.forEach { $0.end(.unknown) }
+        activeSpans.forEach { $0.end(.unknown, file: nil, line: nil, function: nil) }
     }
 
     @objc
