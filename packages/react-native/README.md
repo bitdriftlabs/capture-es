@@ -398,25 +398,6 @@ When using the Expo plugin with `networkInstrumentation: true`, the Android Grad
 
 `UNSTABLE_webViewInstrumentation` is currently Android-only and is intended for Android app builds.
 
-Runtime capture is enabled separately with `UNSTABLE_webView` in `init(...)`:
-
-```ts
-import { init, SessionStrategy } from '@bitdrift/react-native';
-
-init('<api key>', SessionStrategy.Activity, {
-  UNSTABLE_webView: {
-    capturePageViews: true,
-    captureNetworkRequests: true,
-    captureNavigationEvents: true,
-    captureWebVitals: true,
-    captureLongTasks: true,
-    captureConsoleLogs: true,
-    captureUserInteractions: true,
-    captureErrors: true,
-  },
-});
-```
-
 For Expo-generated Android apps, enable build-time WebView bytecode instrumentation with:
 
 ```json

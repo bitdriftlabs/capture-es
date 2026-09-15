@@ -261,6 +261,26 @@ describe('init crash reporting callback wiring', () => {
   });
 });
 
+describe('init native options', () => {
+  beforeEach(() => {
+    (global as any).__turboModuleProxy = null;
+  });
+
+  test.each(['ios', 'android'] as const)(
+    'does not send WebView configuration to the %s native module',
+    (platform) => {
+      const { sdk, nativeModule } = loadSdk(platform);
+
+      sdk.init('test-key', sdk.SessionStrategy.Fixed, {
+        enableNetworkInstrumentation: true,
+      });
+
+      const nativeOptions = nativeModule.init.mock.calls[0][2];
+      expect(nativeOptions).not.toHaveProperty('webView');
+    },
+  );
+});
+
 describe('generateDeviceCode URL handling', () => {
   const fetchMock = jest.fn();
 
