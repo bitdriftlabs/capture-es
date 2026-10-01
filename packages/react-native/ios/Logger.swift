@@ -7,6 +7,7 @@
 
 import Capture
 import Foundation
+import WebKit
 
 // Must match src/index.tsx ISSUE_REPORT_EVENT and Android/iOS bridge constants.
 let CAPRNIssueReportDidEmitNotification = Notification.Name("BdReactNative.onBeforeReportSend")
@@ -95,12 +96,18 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
         if enableNetworkInstrumentation {
             integrations.append(.urlSession())
         }
-        if enableWebViewInstrumentation {
-            integrations.append(.webView())
-        }
+        // The optional @bitdrift/react-native-webview package uses the manual
+        // API below; automatic mode additionally enables swizzling.
+        integrations.append(.webView(disableSwizzling: !enableWebViewInstrumentation))
         if !integrations.isEmpty {
             integrator?.enableIntegrations(integrations)
         }
+    }
+
+    /// Instruments one WKWebView created by react-native-webview before it loads its source.
+    @objc(instrumentWebView:)
+    public static func instrument(webView: WKWebView) {
+        Capture.Logger.shared?.instrument(webView: webView)
     }
 
     @objc

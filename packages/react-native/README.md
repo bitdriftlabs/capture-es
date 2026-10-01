@@ -398,6 +398,10 @@ When using the Expo plugin with `networkInstrumentation: true`, the Android Grad
 
 WebView instrumentation captures telemetry from `react-native-webview` webviews like page views, network requests, navigation events, Web Vitals, long tasks, console logs, user interactions and errors. Call `init(...)` before any WebView is mounted.
 
+For selected, manually instrumented WebViews, install the separate
+`@bitdrift/react-native-webview` package and import its `WebView` component.
+This keeps `react-native-webview` out of the base SDK's native dependencies.
+
 #### iOS
 
 Enable automatic instrumentation of every WebView by passing `UNSTABLE_enableWebViewInstrumentation: true` to `init`:
