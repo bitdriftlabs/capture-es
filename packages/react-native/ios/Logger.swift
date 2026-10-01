@@ -96,9 +96,11 @@ let CAPRNStartResultDidEmitNotification = Notification.Name("BdReactNative.onSta
         if enableNetworkInstrumentation {
             integrations.append(.urlSession())
         }
-        // The optional @bitdrift/react-native-webview package uses the manual
-        // API below; automatic mode additionally enables swizzling.
-        integrations.append(.webView(disableSwizzling: !enableWebViewInstrumentation))
+
+        if enableWebViewInstrumentation {
+            integrations.append(.webView())
+        }
+
         if !integrations.isEmpty {
             integrator?.enableIntegrations(integrations)
         }

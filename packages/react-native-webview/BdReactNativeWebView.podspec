@@ -13,8 +13,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/bitdriftlabs/capture-es.git", :tag => "#{s.version}" }
   s.source_files = "ios/**/*.{h,m,mm}"
 
-  # This add-on calls CAPRNLogger.instrumentWebView, introduced alongside this
-  # package. Both JS packages are released with the same version.
+  # This package depends heavily on BdReactNative public APIs so both JS packages are released with the same version.
   s.dependency "BdReactNative", ">= #{package["version"]}"
   s.dependency "react-native-webview", ">= 13.0.0"
 
