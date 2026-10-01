@@ -20,16 +20,6 @@ import { WebView } from '@bitdrift/react-native-webview';
 
 init('<api key>', SessionStrategy.Activity, {
   UNSTABLE_enableWebViewInstrumentation: false,
-  UNSTABLE_webView: {
-    capturePageViews: true,
-    captureNetworkRequests: true,
-    captureNavigationEvents: true,
-    captureWebVitals: true,
-    captureLongTasks: true,
-    captureConsoleLogs: true,
-    captureUserInteractions: true,
-    captureErrors: true,
-  },
 });
 
 export function Checkout() {

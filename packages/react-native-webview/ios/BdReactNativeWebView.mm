@@ -1,6 +1,6 @@
 #import "BdReactNativeWebView.h"
 #import <WebKit/WebKit.h>
-#import <BdReactNative/BdReactNative-Swift.h>
+#import <BdReactNative/BdReactNative.h>
 
 @implementation BdReactNativeWebView {
   BOOL _bitdriftInstrumented;
@@ -19,7 +19,7 @@
     return;
   }
 
-  [CAPRNLogger instrumentWebView:webView];
+  BdReactNativeInstrumentWebView(webView);
   _bitdriftInstrumented = YES;
 }
 

@@ -439,7 +439,7 @@ Notes:
 
 - `UNSTABLE_webViewInstrumentation` only affects Android app builds. On iOS, use `UNSTABLE_enableWebViewInstrumentation` in `init`.
 - It is not automatically applied to vanilla React Native Android builds outside the Expo config plugin flow.
-- For non-Expo Android apps, apply the Gradle plugin and `bitdrift { instrumentation { automaticWebViewInstrumentation = true } }` manually.
+- For non-Expo Android apps, apply the Gradle plugin and `bitdrift { instrumentation { webViewAutomaticInstrumentationScope = JS_ENABLED } }` manually.
 
 The Android plugin mode can be configured with `okHttpInstrumentationType`:
 

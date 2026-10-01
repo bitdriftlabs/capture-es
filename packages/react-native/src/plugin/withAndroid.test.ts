@@ -73,7 +73,7 @@ describe('withAndroid', () => {
 
 bitdrift {
     instrumentation {
-        automaticWebViewInstrumentation = true
+        webViewAutomaticInstrumentationScope = JS_ENABLED
     }
 }
 `;
