@@ -2,25 +2,31 @@
 #import <WebKit/WebKit.h>
 #import <BdReactNative/BdReactNative.h>
 
+@interface RNCWebViewImpl (BdReactNativeWebViewInternals)
+- (void)visitSource;
+@end
+
 @implementation BdReactNativeWebView {
   BOOL _bitdriftInstrumented;
 }
 
-- (void)didMoveToWindow
+- (void)visitSource
 {
-  [super didMoveToWindow];
+  [self instrumentWebViewIfNeeded];
+  [super visitSource];
+}
 
-  if (_bitdriftInstrumented || self.window == nil) {
+- (void)instrumentWebViewIfNeeded
+{
+  if (_bitdriftInstrumented) {
     return;
   }
 
   WKWebView *webView = [self findWebViewInView:self];
-  if (webView == nil) {
-    return;
+  if (webView != nil) {
+    BdReactNativeInstrumentWebView(webView);
+    _bitdriftInstrumented = YES;
   }
-
-  BdReactNativeInstrumentWebView(webView);
-  _bitdriftInstrumented = YES;
 }
 
 - (WKWebView *)findWebViewInView:(UIView *)view

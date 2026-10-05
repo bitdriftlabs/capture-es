@@ -10,9 +10,11 @@ package com.bdreactnativewebview
 import com.facebook.react.uimanager.ThemedReactContext
 import com.reactnativecommunity.webview.RNCWebViewManager
 import com.reactnativecommunity.webview.RNCWebViewWrapper
+import io.bitdrift.capture.experimental.ExperimentalBitdriftApi
 import io.bitdrift.capture.webview.WebViewCapture
 
 /** A react-native-webview manager that instruments each WebView before its source is loaded. */
+@OptIn(ExperimentalBitdriftApi::class)
 class BdReactNativeWebViewManager : RNCWebViewManager() {
   override fun getName(): String = "BdReactNativeWebView"
 

@@ -47,6 +47,17 @@ if (reactNativeWebViewProject == null) {
   throw new GradleException("@bitdrift/react-native-webview requires react-native-webview")
 }
 
+def bitdriftProject = rootProject.findProject(':bitdrift_react-native')
+if (bitdriftProject == null) {
+  throw new GradleException("@bitdrift/react-native-webview requires @bitdrift/react-native")
+}
+
+def bitdriftPackage = new File(bitdriftProject.projectDir.parentFile, "package.json")
+def captureSdkVersion = new groovy.json.JsonSlurper().parse(bitdriftPackage).captureSdkVersion
+if (captureSdkVersion == null) {
+  throw new GradleException("Could not read captureSdkVersion from @bitdrift/react-native")
+}
+
 def reactNativeWebViewPackage = new File(reactNativeWebViewProject.projectDir.parentFile, "package.json")
 def reactNativeWebViewVersion = new groovy.json.JsonSlurper().parse(reactNativeWebViewPackage).version
 def reactNativeWebViewVersionParts = reactNativeWebViewVersion.tokenize('.-').collect { it.isInteger() ? it.toInteger() : 0 }
@@ -95,6 +106,6 @@ repositories {
 dependencies {
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:${getExtOrDefault('kotlinVersion')}"
-  implementation "io.bitdrift:capture:0.25.1"
+  implementation "io.bitdrift:capture:${captureSdkVersion}"
   compileOnly reactNativeWebViewProject
 }
