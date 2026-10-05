@@ -17,7 +17,11 @@ def isNewArchitectureEnabled() {
 }
 
 apply plugin: "com.android.library"
-apply plugin: "kotlin-android"
+// AGP 9 registers the `kotlin` extension itself. Applying the Kotlin plugin
+// again causes configuration to fail, so match the base RN package's guard.
+if (project.extensions.findByName('kotlin') == null) {
+  apply plugin: "kotlin-android"
+}
 
 if (isNewArchitectureEnabled()) {
   apply plugin: "com.facebook.react"
@@ -91,6 +95,6 @@ repositories {
 dependencies {
   implementation "com.facebook.react:react-native:+"
   implementation "org.jetbrains.kotlin:kotlin-stdlib:${getExtOrDefault('kotlinVersion')}"
-  implementation "io.bitdrift:capture:0.24.2"
+  implementation "io.bitdrift:capture:0.25.1"
   compileOnly reactNativeWebViewProject
 }

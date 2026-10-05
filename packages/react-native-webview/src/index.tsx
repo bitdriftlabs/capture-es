@@ -2,6 +2,8 @@ import React from 'react';
 import { requireNativeComponent } from 'react-native';
 import NativeWebView, { type WebViewProps } from 'react-native-webview';
 
+export type BitdriftWebViewProps = Omit<WebViewProps, 'nativeConfig'>;
+
 let nativeComponent: NonNullable<WebViewProps['nativeConfig']>['component'];
 
 function getNativeComponent(): NonNullable<WebViewProps['nativeConfig']>['component'] {
@@ -20,9 +22,9 @@ function getNativeComponent(): NonNullable<WebViewProps['nativeConfig']>['compon
  */
 export const WebView = React.forwardRef<
   React.ElementRef<typeof NativeWebView>,
-  WebViewProps
+  BitdriftWebViewProps
 >(function BitdriftWebView(
-  { nativeConfig: _nativeConfig, ...props },
+  props,
   ref,
 ) {
   return (
