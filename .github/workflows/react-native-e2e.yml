@@ -31,7 +31,7 @@ jobs:
 
       - name: Install Hermes sample dependencies
         working-directory: examples/HermesSample
-        run: npm ci
+        run: npm install --no-package-lock
 
       - name: Install CocoaPods
         working-directory: examples/HermesSample/ios
