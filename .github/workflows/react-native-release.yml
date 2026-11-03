@@ -28,6 +28,20 @@ jobs:
         run: |
           CAPTURE_SDK_VERSION=$(node -p "require('./packages/react-native/package.json').captureSdkVersion")
           echo "version=$CAPTURE_SDK_VERSION" >> $GITHUB_OUTPUT
+      - name: Validate React Native major and minor against Capture SDK
+        run: |
+          node <<'NODE'
+          const sdkVersion = require('./packages/react-native/package.json').captureSdkVersion;
+          const version = process.env.VERSION;
+          if (!/^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$/.test(version)) {
+            throw new Error(`Expected a stable major.minor.patch version: ${version}`);
+          }
+          const [major, minor, patch] = version.split('.').map(Number);
+          const [sdkMajor, sdkMinor, sdkPatch] = sdkVersion.split('.').map(Number);
+          if (major !== sdkMajor || minor !== sdkMinor || patch < sdkPatch) {
+            throw new Error(`React Native ${version} must use Capture SDK ${sdkVersion}'s major/minor. Only the patch may increase.`);
+          }
+          NODE
       - name: Prepare release
         run: |
           npm version --workspace @bitdrift/react-native $VERSION
